@@ -6,7 +6,7 @@ export default function BookingLinkGenerator() {
   const [window, setWindow] = useState("8 AM–12 PM");
 
   const baseUrl =
-    "https://docs.google.com/forms/d/e/1FAIpQLSfE6j7aBabcl123456XYZ/viewform";
+    "https://docs.google.com/forms/d/e/1FAIpQLSfuhDxrxDBjRSFMg_hjETLSbfkzjN5gBm-CadLN7kLwGUEx3g/viewform";
   const entryService = "entry.123456";
   const entryPrice = "entry.234567";
   const entryWindow = "entry.345678";
@@ -20,6 +20,7 @@ export default function BookingLinkGenerator() {
   return (
     <div style={{ padding: "20px", fontFamily: "Arial" }}>
       <h2>Booking Link Generator</h2>
+
       <select value={service} onChange={(e) => setService(e.target.value)}>
         <option value="Carpet Cleaning">Carpet Cleaning</option>
         <option value="Upholstery Cleaning">Upholstery Cleaning</option>
@@ -39,11 +40,10 @@ export default function BookingLinkGenerator() {
         onChange={(e) => setWindow(e.target.value)}
         style={{ marginLeft: "10px" }}
       >
-        <option value="8 AM–12 PM">8–12</option>
-         <option value="1PM–5 PM">1–5</option>
-        <option value="10 AM–2 PM">10–2</option>
-        <option value="12 PM–4 PM">12–4</option>
-        <option value="3 PM–7 PM">3–7</option>
+        <option value="8 AM–12 PM">8 AM–12 PM</option>
+        <option value="10 AM–2 PM">10 AM–2 PM</option>
+        <option value="12 PM–4 PM">12 PM–4 PM</option>
+        <option value="3 PM–7 PM">3 PM–7 PM</option>
       </select>
 
       <div style={{ marginTop: "10px" }}>
