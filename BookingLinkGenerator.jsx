@@ -40,6 +40,7 @@ export default function BookingLinkGenerator() {
         style={{ marginLeft: "10px" }}
       >
         <option value="8 AM–12 PM">8–12</option>
+         <option value="1PM–5 PM">1–5</option>
         <option value="10 AM–2 PM">10–2</option>
         <option value="12 PM–4 PM">12–4</option>
         <option value="3 PM–7 PM">3–7</option>
