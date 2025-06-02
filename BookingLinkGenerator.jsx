@@ -1,92 +1,74 @@
 import React, { useState } from "react";
-import "./BookingLinkGenerator.css";
 
 export default function BookingLinkGenerator() {
-  const [serviceType, setServiceType] = useState("Carpet Cleaning");
-  const [quotedPrice, setQuotedPrice] = useState("300");
-  const [arrivalWindow, setArrivalWindow] = useState("8 AM–12 PM");
+  const [service, setService] = useState("Carpet Cleaning");
+  const [price, setPrice] = useState("");
+  const [window, setWindow] = useState("8 AM–12 PM");
 
-  // Your Google Form URL
+  // ✅ Your live Google Form link
   const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSfuhDxrxDBjRSFMg_hjETLSbfkzjN5gBm-CadLN7kLwGUEx3g/viewform";
-  const summaryEntryId = "entry.123456"; // ✅ Replace this with actual ID of your summary field
+  
+  // 🧠 Replace with your actual field ID from your form
+  const summaryEntry = "entry.123456";
 
-  const summaryText = `Service: ${serviceType}
-Price: $${quotedPrice} Special
-Arrival Window: ${arrivalWindow}
-Payment Method: Cash
-Card Payment: +7% Processing Fee`;
+  const summaryText = `${service}
+$${price} Special
+Arrival between ${window}
+Payment method: Cash
+Card payment: +7% processing fee`;
 
   const encodedSummary = encodeURIComponent(summaryText);
-  const fullUrl = `${baseUrl}?${summaryEntryId}=${encodedSummary}`;
+  const fullUrl = `${baseUrl}?${summaryEntry}=${encodedSummary}`;
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial" }}>
       <h2>Booking Link Generator</h2>
 
-      <div style={{ marginBottom: "10px" }}>
-        <label>
-          Service Type:
-          <select
-            value={serviceType}
-            onChange={(e) => setServiceType(e.target.value)}
-            id="service-type-field"
-            style={{ marginLeft: "10px" }}
-          >
-            <option value="Carpet Cleaning">Carpet Cleaning</option>
-            <option value="Upholstery Cleaning">Upholstery Cleaning</option>
-            <option value="Duct Cleaning">Duct Cleaning</option>
-          </select>
-        </label>
-      </div>
+      <label>
+        Service Type:
+        <select value={service} onChange={(e) => setService(e.target.value)}>
+          <option value="Carpet Cleaning">Carpet Cleaning</option>
+          <option value="Upholstery Cleaning">Upholstery Cleaning</option>
+          <option value="Duct Cleaning">Duct Cleaning</option>
+        </select>
+      </label>
 
-      <div style={{ marginBottom: "10px" }}>
-        <label>
-          Quoted Price:
-          <input
-            type="text"
-            placeholder="$"
-            value={quotedPrice}
-            onChange={(e) => setQuotedPrice(e.target.value)}
-            id="quoted-price-field"
-            style={{ marginLeft: "10px" }}
-          />
-        </label>
-      </div>
+      <label style={{ marginLeft: "10px" }}>
+        Quoted Price:
+        <input
+          type="text"
+          placeholder="300"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+        />
+      </label>
 
-      <div style={{ marginBottom: "20px" }}>
-        <label>
-          Arrival Window:
-          <select
-            value={arrivalWindow}
-            onChange={(e) => setArrivalWindow(e.target.value)}
-            id="arrival-window-field"
-            style={{ marginLeft: "10px" }}
-          >
-            <option value="8 AM–12 PM">8 AM–12 PM</option>
-            <option value="10 AM–2 PM">10 AM–2 PM</option>
-            <option value="12 PM–4 PM">12 PM–4 PM</option>
-            <option value="3 PM–7 PM">3 PM–7 PM</option>
-          </select>
-        </label>
-      </div>
+      <label style={{ marginLeft: "10px" }}>
+        Arrival Window:
+        <select value={window} onChange={(e) => setWindow(e.target.value)}>
+          <option value="8 AM–12 PM">8 AM–12 PM</option>
+          <option value="10 AM–2 PM">10 AM–2 PM</option>
+          <option value="12 PM–4 PM">12 PM–4 PM</option>
+          <option value="3 PM–7 PM">3 PM–7 PM</option>
+        </select>
+      </label>
 
-      <div style={{ marginBottom: "20px" }}>
+      <div style={{ marginTop: "20px" }}>
         <a href={fullUrl} target="_blank" rel="noopener noreferrer">
           <button>Generate Booking Link</button>
         </a>
       </div>
 
       <div
-        id="top-summary"
         style={{
+          marginTop: "20px",
           whiteSpace: "pre-line",
-          padding: "10px",
-          backgroundColor: "#f3f3f3",
           border: "1px solid #ccc",
+          padding: "10px",
           borderRadius: "5px",
         }}
       >
-        <strong>Booking Summary Preview:</strong>
+        <strong>Preview:</strong>
         <br />
         {summaryText}
       </div>
