@@ -1,1 +1,0 @@
-import BookingLinkGenerator from './BookingLinkGenerator'
