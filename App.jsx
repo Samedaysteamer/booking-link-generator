@@ -8,8 +8,8 @@ export default function App() {
   const [generatedLink, setGeneratedLink] = useState('');
 
   const generateLink = () => {
-    const summary = 
-`${serviceType}
+    const summary = `
+${serviceType}
 $${quotedPrice} Special
 Arrival between ${arrivalWindow}
 Payment method: Cash Cashapp Zelle
@@ -17,9 +17,9 @@ Card payment: 7% processing fee
 
 Please fill out all information so we can create your work order and secure your time frame.`;
 
-    const baseUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfuhDxrxDBjRSFMg_hjETLSbfkzjN5gBm-CadLN7kLwGUEx3g/viewform';
-    const finalLink = `${baseUrl}?usp=pp_url&entry.1541291510=${encodeURIComponent(summary)}`;
-    setGeneratedLink(finalLink);
+    const jotformUrl = 'https://form.jotform.com/251536451249054';
+    const fullLink = `${jotformUrl}?bookingSummary=${encodeURIComponent(summary)}`;
+    setGeneratedLink(fullLink);
   };
 
   return (
@@ -31,7 +31,7 @@ Please fill out all information so we can create your work order and secure your
         <select value={serviceType} onChange={(e) => setServiceType(e.target.value)}>
           <option>Carpet Cleaning</option>
           <option>Upholstery Cleaning</option>
-          <option>Duct Cleaning</option>
+          <option>Rug Cleaning</option>
           <option>Mattress Cleaning</option>
         </select>
       </div>
