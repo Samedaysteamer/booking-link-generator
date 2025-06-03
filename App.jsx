@@ -31,7 +31,7 @@ Please fill out all information so we can create your work order and secure your
         <select value={serviceType} onChange={(e) => setServiceType(e.target.value)}>
           <option>Carpet Cleaning</option>
           <option>Upholstery Cleaning</option>
-          <option>Rug Cleaning</option>
+          <option>Duct Cleaning</option>
           <option>Mattress Cleaning</option>
         </select>
       </div>
