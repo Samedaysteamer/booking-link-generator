@@ -5,7 +5,6 @@ export default function App() {
   const [serviceType, setServiceType] = useState('Carpet Cleaning');
   const [quotedPrice, setQuotedPrice] = useState('');
   const [arrivalWindow, setArrivalWindow] = useState('8 AM - 12 PM');
-  const [paymentMethod, setPaymentMethod] = useState('Cash');
   const [generatedLink, setGeneratedLink] = useState('');
 
   const generateLink = () => {
@@ -13,7 +12,7 @@ export default function App() {
 `${serviceType}
 $${quotedPrice} Special
 Arrival between ${arrivalWindow}
-Payment method: ${paymentMethod}
+Payment method: Cash Cashapp Zelle
 Card payment: 7% processing fee
 
 Please fill out all information so we can create your work order and secure your time frame.`;
@@ -32,7 +31,7 @@ Please fill out all information so we can create your work order and secure your
         <select value={serviceType} onChange={(e) => setServiceType(e.target.value)}>
           <option>Carpet Cleaning</option>
           <option>Upholstery Cleaning</option>
-          <option>Rug Cleaning</option>
+          <option>Duct Cleaning</option>
           <option>Mattress Cleaning</option>
         </select>
       </div>
@@ -49,14 +48,6 @@ Please fill out all information so we can create your work order and secure your
           <option>10 AM - 2 PM</option>
           <option>12 PM - 4 PM</option>
           <option>1 PM - 5 PM</option>
-        </select>
-      </div>
-
-      <div className="form-group">
-        <label>Payment Method:</label>
-        <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
-          <option>Cash</option>
-          <option>Card</option>
         </select>
       </div>
 
