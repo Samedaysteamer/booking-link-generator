@@ -1,10 +1,10 @@
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import BookingLinkGenerator from './BookingLinkGenerator';
+import App from './App';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
   <React.StrictMode>
-    <BookingLinkGenerator />
+    <App />
   </React.StrictMode>
 );
