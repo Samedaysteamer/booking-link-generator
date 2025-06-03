@@ -8,8 +8,7 @@ export default function App() {
   const [generatedLink, setGeneratedLink] = useState('');
 
   const generateLink = () => {
-    const summary = `
-${serviceType}
+    const summary = `${serviceType}
 $${quotedPrice} Special
 Arrival between ${arrivalWindow}
 Payment method: Cash Cashapp Zelle
@@ -22,7 +21,7 @@ Please fill out all information so we can create your work order and secure your
       serviceType,
       quotedPrice,
       arrivalWindow,
-      bookingSummary: summary
+      bookingSummary: encodeURIComponent(summary)
     });
 
     const fullLink = `${baseUrl}?${params.toString()}`;
