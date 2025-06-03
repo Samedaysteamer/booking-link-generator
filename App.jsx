@@ -17,8 +17,15 @@ Card payment: 7% processing fee
 
 Please fill out all information so we can create your work order and secure your time frame.`;
 
-    const jotformUrl = 'https://form.jotform.com/251536451249054';
-    const fullLink = `${jotformUrl}?bookingSummary=${encodeURIComponent(summary)}`;
+    const baseUrl = 'https://form.jotform.com/251536451249054';
+    const params = new URLSearchParams({
+      serviceType,
+      quotedPrice,
+      arrivalWindow,
+      bookingSummary: summary
+    });
+
+    const fullLink = `${baseUrl}?${params.toString()}`;
     setGeneratedLink(fullLink);
   };
 
