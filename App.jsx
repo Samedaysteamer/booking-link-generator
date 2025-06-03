@@ -23,7 +23,7 @@ export default function LinkGenerator() {
         <select value={serviceType} onChange={(e) => setServiceType(e.target.value)}>
           <option>Carpet Cleaning</option>
           <option>Upholstery Cleaning</option>
-          <option>Rug Cleaning</option>
+          <option>Duct Cleaning</option>
           <option>Mattress Cleaning</option>
         </select>
       </div>
