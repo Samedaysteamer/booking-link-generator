@@ -1,14 +1,23 @@
 import React, { useState } from 'react';
 import './BookingLinkGenerator.css';
 
-export default function LinkGenerator() {
+export default function App() {
   const [serviceType, setServiceType] = useState('Carpet Cleaning');
   const [quotedPrice, setQuotedPrice] = useState('');
   const [arrivalWindow, setArrivalWindow] = useState('8 AM - 12 PM');
+  const [paymentMethod, setPaymentMethod] = useState('Cash');
   const [generatedLink, setGeneratedLink] = useState('');
 
   const generateLink = () => {
-    const summary = `${serviceType}, $${quotedPrice}, ${arrivalWindow}`;
+    const summary = 
+`${serviceType}
+$${quotedPrice} Special
+Arrival between ${arrivalWindow}
+Payment method: ${paymentMethod}
+Card payment: 7% processing fee
+
+Please fill out all information so we can create your work order and secure your time frame.`;
+
     const baseUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfuhDxrxDBjRSFMg_hjETLSbfkzjN5gBm-CadLN7kLwGUEx3g/viewform';
     const finalLink = `${baseUrl}?usp=pp_url&entry.1541291510=${encodeURIComponent(summary)}`;
     setGeneratedLink(finalLink);
@@ -23,7 +32,7 @@ export default function LinkGenerator() {
         <select value={serviceType} onChange={(e) => setServiceType(e.target.value)}>
           <option>Carpet Cleaning</option>
           <option>Upholstery Cleaning</option>
-          <option>Duct Cleaning</option>
+          <option>Rug Cleaning</option>
           <option>Mattress Cleaning</option>
         </select>
       </div>
@@ -40,6 +49,14 @@ export default function LinkGenerator() {
           <option>10 AM - 2 PM</option>
           <option>12 PM - 4 PM</option>
           <option>1 PM - 5 PM</option>
+        </select>
+      </div>
+
+      <div className="form-group">
+        <label>Payment Method:</label>
+        <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+          <option>Cash</option>
+          <option>Card</option>
         </select>
       </div>
 
