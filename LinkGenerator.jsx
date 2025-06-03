@@ -8,14 +8,16 @@ export default function LinkGenerator() {
   const [generatedLink, setGeneratedLink] = useState('');
 
   const generateLink = () => {
-    const baseUrl = 'https://booking-link-generator-j3wj-mqtd2vi5w.vercel.app/';
-    const link = `${baseUrl}?service=${encodeURIComponent(serviceType)}&price=${encodeURIComponent(quotedPrice)}&window=${encodeURIComponent(arrivalWindow)}`;
-    setGeneratedLink(link);
+    const summary = `${serviceType}, $${quotedPrice}, ${arrivalWindow}`;
+    const baseUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfuhDxrxDBjRSFMg_hjETLSbfkzjN5gBm-CadLN7kLwGUEx3g/viewform';
+    const finalLink = `${baseUrl}?usp=pp_url&entry.1541291510=${encodeURIComponent(summary)}`;
+    setGeneratedLink(finalLink);
   };
 
   return (
     <div className="container">
       <h2>Booking Link Generator</h2>
+
       <div className="form-group">
         <label>Service Type:</label>
         <select value={serviceType} onChange={(e) => setServiceType(e.target.value)}>
