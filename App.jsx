@@ -6,7 +6,6 @@ export default function App() {
   const [quotedPrice, setQuotedPrice] = useState('');
   const [arrivalWindow, setArrivalWindow] = useState('8 AM - 12 PM');
   const [salesRep, setSalesRep] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
   const [generatedLink, setGeneratedLink] = useState('');
 
   const generateLink = () => {
@@ -14,7 +13,6 @@ export default function App() {
 ${salesRep}
 ${serviceType}
 $${quotedPrice} Special
-${phoneNumber}
 Arrival between ${arrivalWindow}
 Payment method cash
 Card payment 7% processing fee`;
@@ -24,7 +22,6 @@ Card payment 7% processing fee`;
       serviceType,
       quotedPrice,
       arrivalWindow,
-      phoneNumber,
       salesRep,
       bookingSummary: summary
     });
@@ -60,11 +57,6 @@ Card payment 7% processing fee`;
       <div className="form-group">
         <label>Quoted Price ($):</label>
         <input type="number" value={quotedPrice} onChange={(e) => setQuotedPrice(e.target.value)} />
-      </div>
-
-      <div className="form-group">
-        <label>Phone Number:</label>
-        <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
       </div>
 
       <div className="form-group">
