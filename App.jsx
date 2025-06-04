@@ -4,15 +4,15 @@ import './BookingLinkGenerator.css';
 export default function App() {
   const [mode, setMode] = useState('carpet');
 
-  // Common fields
+  // Common
   const [salesRep, setSalesRep] = useState('');
 
-  // Carpet fields
+  // Carpet
   const [serviceType, setServiceType] = useState('Carpet Cleaning');
   const [quotedPrice, setQuotedPrice] = useState('');
   const [arrivalWindow, setArrivalWindow] = useState('8 AM - 12 PM');
 
-  // Moving fields
+  // Moving
   const [blockPrice, setBlockPrice] = useState('');
   const [blockHours, setBlockHours] = useState('2');
   const [additionalRate, setAdditionalRate] = useState('');
@@ -23,22 +23,10 @@ export default function App() {
 
   const [generatedLink, setGeneratedLink] = useState('');
 
-  const parseArrival = (window) => {
-    const match = window.match(/(\d{1,2} (?:AM|PM)) .* (\d{1,2} (?:AM|PM))/);
-    if (match) return { start: match[1], end: match[2] };
-    return { start: '', end: '' };
-  };
-
   const generateLink = () => {
     let summary = '';
-    let arrivalStart = '';
-    let arrivalEnd = '';
 
     if (mode === 'carpet') {
-      const parsed = parseArrival(arrivalWindow);
-      arrivalStart = parsed.start;
-      arrivalEnd = parsed.end;
-
       summary = `${salesRep}
 ${serviceType}
 $${quotedPrice} Special
@@ -46,10 +34,6 @@ Arrival between ${arrivalWindow}
 Payment method: Cash Cashapp Zelle
 Card payment: 7% processing fee`;
     } else {
-      const parsed = parseArrival(movingArrival);
-      arrivalStart = parsed.start;
-      arrivalEnd = parsed.end;
-
       const truckLabel = truckInfo ? `(${truckInfo}) ` : '';
       summary = `${salesRep}
 $${blockPrice} First ${blockHours} Hours $${additionalRate} Per Hour
@@ -68,20 +52,15 @@ CashApp payment $5 fee
         ? 'https://form.jotform.com/251536451249054'
         : 'https://form.jotform.com/251537865180159';
 
-    const params = new URLSearchParams({
-      bookingSummary: summary,
-      arrivalWindow: mode === 'carpet' ? arrivalWindow : movingArrival,
-      arrivalStart,
-      arrivalEnd,
-    });
-
-    const fullLink = `${baseUrl}?${params.toString()}`;
+    const encodedSummary = summary.replace(/\n/g, '%0A');
+    const fullLink = `${baseUrl}?bookingSummary=${encodedSummary}`;
     setGeneratedLink(fullLink);
   };
 
   return (
     <div className="container">
       <h2>Booking Link Generator</h2>
+
       <div className="form-group">
         <label>Choose Generator:</label>
         <select value={mode} onChange={(e) => setMode(e.target.value)}>
@@ -171,7 +150,7 @@ CashApp payment $5 fee
           </div>
 
           <div className="form-group">
-            <label>Number of Trucks:</label>
+            <label>Number of Trucks (leave blank if one):</label>
             <select value={truckInfo} onChange={(e) => setTruckInfo(e.target.value)}>
               <option value=""></option>
               <option value="2">2</option>
