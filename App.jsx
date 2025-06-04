@@ -66,6 +66,7 @@ Card payment 7% processing fee`;
           <option>10 AM - 2 PM</option>
           <option>12 PM - 4 PM</option>
           <option>1 PM - 5 PM</option>
+          <option>3 PM - 7 PM</option>
         </select>
       </div>
 
