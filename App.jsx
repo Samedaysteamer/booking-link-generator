@@ -5,23 +5,47 @@ export default function App() {
   const [serviceType, setServiceType] = useState('Carpet Cleaning');
   const [quotedPrice, setQuotedPrice] = useState('');
   const [arrivalWindow, setArrivalWindow] = useState('8 AM - 12 PM');
+  const [salesRep, setSalesRep] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [generatedLink, setGeneratedLink] = useState('');
 
   const generateLink = () => {
-    const summary = `${serviceType}
+    const summary = `
+${salesRep}
+${serviceType}
 $${quotedPrice} Special
+${phoneNumber}
 Arrival between ${arrivalWindow}
-Payment method: Cash Cashapp Zelle
-Card payment: 7% processing fee`;
+Payment method cash
+Card payment 7% processing fee`;
 
     const baseUrl = 'https://form.jotform.com/251536451249054';
-    const fullLink = `${baseUrl}?bookingSummary=${encodeURIComponent(summary)}`;
+    const params = new URLSearchParams({
+      serviceType,
+      quotedPrice,
+      arrivalWindow,
+      phoneNumber,
+      salesRep,
+      bookingSummary: summary
+    });
+
+    const fullLink = `${baseUrl}?${params.toString()}`;
     setGeneratedLink(fullLink);
   };
 
   return (
     <div className="container">
       <h2>Booking Link Generator</h2>
+
+      <div className="form-group">
+        <label>Sales Rep:</label>
+        <select value={salesRep} onChange={(e) => setSalesRep(e.target.value)}>
+          <option value=""></option>
+          <option value="*01*">*01*</option>
+          <option value="*02*">*02*</option>
+          <option value="*03*">*03*</option>
+        </select>
+      </div>
 
       <div className="form-group">
         <label>Service Type:</label>
@@ -36,6 +60,11 @@ Card payment: 7% processing fee`;
       <div className="form-group">
         <label>Quoted Price ($):</label>
         <input type="number" value={quotedPrice} onChange={(e) => setQuotedPrice(e.target.value)} />
+      </div>
+
+      <div className="form-group">
+        <label>Phone Number:</label>
+        <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
       </div>
 
       <div className="form-group">
