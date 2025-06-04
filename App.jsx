@@ -14,8 +14,8 @@ ${salesRep}
 ${serviceType}
 $${quotedPrice} Special
 Arrival between ${arrivalWindow}
-Payment method cash
-Card payment 7% processing fee`;
+Payment method: Cash Cashapp Zelle
+Card payment: 7% processing fee`;
 
     const baseUrl = 'https://form.jotform.com/251536451249054';
     const params = new URLSearchParams({
