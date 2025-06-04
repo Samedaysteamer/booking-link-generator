@@ -1,3 +1,23 @@
+const generateLink = () => {
+  const summary = 
+`${salesRep}
+${serviceType}
+$${quotedPrice} Special
+Arrival between ${arrivalWindow}
+Payment method: Cash Cashapp Zelle
+Card payment: 7% processing fee`;
+
+  const baseUrl = 'https://form.jotform.com/251536451249054';
+  const params = new URLSearchParams();
+  params.append('serviceType', serviceType);
+  params.append('quotedPrice', quotedPrice);
+  params.append('arrivalWindow', arrivalWindow);
+  params.append('salesRep', salesRep);
+  params.append('bookingSummary', encodeURIComponent(summary)); // critical fix
+
+  const fullLink = `${baseUrl}?${params.toString()}`;
+  setGeneratedLink(fullLink);
+};
 import React, { useState } from 'react';
 import './BookingLinkGenerator.css';
 
