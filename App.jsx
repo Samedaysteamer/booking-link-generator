@@ -9,15 +9,16 @@ export default function App() {
   const [generatedLink, setGeneratedLink] = useState('');
 
   const generateLink = () => {
-    const summary = `${salesRep}\n${serviceType}\n$${quotedPrice} Special\nArrival between ${arrivalWindow}\nPayment method: Cash Cashapp Zelle\nCard payment: 7% processing fee`;
+    const summary = `${salesRep}
+${serviceType}
+$${quotedPrice} Special
+Arrival between ${arrivalWindow}
+Payment method: Cash Cashapp Zelle
+Card payment: 7% processing fee`;
 
     const baseUrl = 'https://form.jotform.com/251536451249054';
     const params = new URLSearchParams();
-    params.append('serviceType', serviceType);
-    params.append('quotedPrice', quotedPrice);
-    params.append('arrivalWindow', arrivalWindow);
-    params.append('salesRep', salesRep);
-    params.append('bookingSummary', encodeURIComponent(summary));
+    params.append('bookingSummary', summary);
 
     const fullLink = `${baseUrl}?${params.toString()}`;
     setGeneratedLink(fullLink);
