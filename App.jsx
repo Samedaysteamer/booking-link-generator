@@ -2,50 +2,71 @@ import React, { useState } from 'react';
 import './BookingLinkGenerator.css';
 
 export default function App() {
+  const [mode, setMode] = useState('carpet');
+
+  // Common fields
+  const [salesRep, setSalesRep] = useState('');
+
+  // Carpet fields
   const [serviceType, setServiceType] = useState('Carpet Cleaning');
   const [quotedPrice, setQuotedPrice] = useState('');
-  const [arrivalWindow, setArrivalWindow] = useState('Arrival between 7 and 9');
-  const [salesRep, setSalesRep] = useState('');
-  const [numberOfMovers, setNumberOfMovers] = useState('');
-  const [durationFirstBlock, setDurationFirstBlock] = useState('');
-  const [additionalHourlyRate, setAdditionalHourlyRate] = useState('');
+  const [arrivalWindow, setArrivalWindow] = useState('8 AM - 12 PM');
+
+  // Moving fields
+  const [blockPrice, setBlockPrice] = useState('');
+  const [blockHours, setBlockHours] = useState('2');
+  const [additionalRate, setAdditionalRate] = useState('');
+  const [movingArrival, setMovingArrival] = useState('Arrival between 7 and 9');
+  const [numMovers, setNumMovers] = useState('2');
   const [truckInfo, setTruckInfo] = useState('');
-  const [truckSize, setTruckSize] = useState('');
+  const [truckSize, setTruckSize] = useState('17');
+
   const [generatedLink, setGeneratedLink] = useState('');
 
   const generateLink = () => {
-    const summary = `${salesRep}
-$${quotedPrice} First ${durationFirstBlock} Hours
-$${additionalHourlyRate} Per Hour
+    let summary = '';
+
+    if (mode === 'carpet') {
+      summary = `${salesRep}
+${serviceType}
+$${quotedPrice} Special
+Arrival between ${arrivalWindow}
+Payment method: Cash Cashapp Zelle
+Card payment: 7% processing fee`;
+    } else {
+      const truckLabel = truckInfo ? `(${truckInfo}) ` : '';
+      summary = `${salesRep}
+$${blockPrice} First ${blockHours} Hours $${additionalRate} Per Hour
 Any Additional Hour After that
-${arrivalWindow}
-${numberOfMovers} Men ${truckInfo} ${truckSize} Ft Trucks
+${movingArrival}
+${numMovers} Men ${truckLabel}${truckSize} Ft Trucks
 Payment methods:
 Cash, CashApp, Zelle
 CashApp payment $5 fee
 
-***First ${durationFirstBlock}hrs due at arrival***`;
+***First ${blockHours}hrs due at arrival***`;
+    }
 
-    const baseUrl = 'https://form.jotform.com/251537865180159';
-    const params = new URLSearchParams();
-    params.append('serviceType', serviceType);
-    params.append('quotedPrice', quotedPrice);
-    params.append('arrivalWindow', arrivalWindow);
-    params.append('salesRep', salesRep);
-    params.append('numberOfMovers', numberOfMovers);
-    params.append('durationFirstBlock', durationFirstBlock);
-    params.append('additionalHourlyRate', additionalHourlyRate);
-    params.append('truckInfo', truckInfo);
-    params.append('truckSize', truckSize);
-    params.append('bookingSummary', encodeURIComponent(summary));
+    const baseUrl =
+      mode === 'carpet'
+        ? 'https://form.jotform.com/251536451249054'
+        : 'https://form.jotform.com/251537865180159';
 
-    const fullLink = `${baseUrl}?${params.toString()}`;
+    const encodedSummary = encodeURIComponent(summary.replace(/\n/g, '\n'));
+    const fullLink = `${baseUrl}?bookingSummary=${encodedSummary}`;
     setGeneratedLink(fullLink);
   };
 
   return (
     <div className="container">
       <h2>Booking Link Generator</h2>
+      <div className="form-group">
+        <label>Choose Generator:</label>
+        <select value={mode} onChange={(e) => setMode(e.target.value)}>
+          <option value="carpet">Carpet Cleaning</option>
+          <option value="moving">Moving</option>
+        </select>
+      </div>
 
       <div className="form-group">
         <label>Sales Rep:</label>
@@ -57,56 +78,94 @@ CashApp payment $5 fee
         </select>
       </div>
 
-      <div className="form-group">
-        <label>Service Type:</label>
-        <select value={serviceType} onChange={(e) => setServiceType(e.target.value)}>
-          <option>Moving</option>
-        </select>
-      </div>
+      {mode === 'carpet' && (
+        <>
+          <div className="form-group">
+            <label>Service Type:</label>
+            <select value={serviceType} onChange={(e) => setServiceType(e.target.value)}>
+              <option>Carpet Cleaning</option>
+              <option>Upholstery Cleaning</option>
+              <option>Duct Cleaning</option>
+              <option>Mattress Cleaning</option>
+            </select>
+          </div>
 
-      <div className="form-group">
-        <label>Quoted Price (First Block):</label>
-        <input type="number" value={quotedPrice} onChange={(e) => setQuotedPrice(e.target.value)} />
-      </div>
+          <div className="form-group">
+            <label>Quoted Price ($):</label>
+            <input type="number" value={quotedPrice} onChange={(e) => setQuotedPrice(e.target.value)} />
+          </div>
 
-      <div className="form-group">
-        <label>Duration of First Block (hours):</label>
-        <input type="number" value={durationFirstBlock} onChange={(e) => setDurationFirstBlock(e.target.value)} />
-      </div>
+          <div className="form-group">
+            <label>Arrival Window:</label>
+            <select value={arrivalWindow} onChange={(e) => setArrivalWindow(e.target.value)}>
+              <option>8 AM - 12 PM</option>
+              <option>10 AM - 2 PM</option>
+              <option>12 PM - 4 PM</option>
+              <option>1 PM - 5 PM</option>
+              <option>3 PM - 7 PM</option>
+            </select>
+          </div>
+        </>
+      )}
 
-      <div className="form-group">
-        <label>Additional Hourly Rate:</label>
-        <input type="number" value={additionalHourlyRate} onChange={(e) => setAdditionalHourlyRate(e.target.value)} />
-      </div>
+      {mode === 'moving' && (
+        <>
+          <div className="form-group">
+            <label>Quoted Price for First Block ($):</label>
+            <input type="number" value={blockPrice} onChange={(e) => setBlockPrice(e.target.value)} />
+          </div>
 
-      <div className="form-group">
-        <label>Arrival Window:</label>
-        <select value={arrivalWindow} onChange={(e) => setArrivalWindow(e.target.value)}>
-          <option>Arrival between 7 and 9</option>
-          <option>Arrival between 9 to 11</option>
-          <option>Arrival between 11 and 1</option>
-          <option>Arrival between 1 and 3</option>
-          <option>Arrival between 3 to 5</option>
-        </select>
-      </div>
+          <div className="form-group">
+            <label>Duration of First Block (hrs):</label>
+            <select value={blockHours} onChange={(e) => setBlockHours(e.target.value)}>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+          </div>
 
-      <div className="form-group">
-        <label>Number of Movers:</label>
-        <input type="number" value={numberOfMovers} onChange={(e) => setNumberOfMovers(e.target.value)} />
-      </div>
+          <div className="form-group">
+            <label>Additional Hour Rate ($):</label>
+            <input type="number" value={additionalRate} onChange={(e) => setAdditionalRate(e.target.value)} />
+          </div>
 
-      <div className="form-group">
-        <label>Truck Info:</label>
-        <select value={truckInfo} onChange={(e) => setTruckInfo(e.target.value)}>
-          <option value=""></option>
-          <option value="(2)">(2)</option>
-        </select>
-      </div>
+          <div className="form-group">
+            <label>Arrival Window:</label>
+            <select value={movingArrival} onChange={(e) => setMovingArrival(e.target.value)}>
+              <option>Arrival between 7 and 9</option>
+              <option>Arrival between 9 to 11</option>
+              <option>Arrival between 11 and 1</option>
+              <option>Arrival between 1 and 3</option>
+              <option>Arrival between 3 to 5</option>
+            </select>
+          </div>
 
-      <div className="form-group">
-        <label>Truck Size (Ft):</label>
-        <input type="number" value={truckSize} onChange={(e) => setTruckSize(e.target.value)} />
-      </div>
+          <div className="form-group">
+            <label>Number of Movers:</label>
+            <select value={numMovers} onChange={(e) => setNumMovers(e.target.value)}>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Number of Trucks:</label>
+            <select value={truckInfo} onChange={(e) => setTruckInfo(e.target.value)}>
+              <option value=""></option>
+              <option value="2">2</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Truck Size (Ft):</label>
+            <select value={truckSize} onChange={(e) => setTruckSize(e.target.value)}>
+              <option value="17">17</option>
+              <option value="20">20</option>
+              <option value="26">26</option>
+            </select>
+          </div>
+        </>
+      )}
 
       <button onClick={generateLink}>Generate Booking Link</button>
 
