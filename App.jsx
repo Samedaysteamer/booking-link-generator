@@ -4,15 +4,15 @@ import './BookingLinkGenerator.css';
 export default function App() {
   const [mode, setMode] = useState('carpet');
 
-  // Shared fields
+  // Common
   const [salesRep, setSalesRep] = useState('');
 
-  // Carpet Fields
+  // Carpet
   const [serviceType, setServiceType] = useState('Carpet Cleaning');
   const [quotedPrice, setQuotedPrice] = useState('');
   const [arrivalWindow, setArrivalWindow] = useState('8 AM - 12 PM');
 
-  // Moving Fields
+  // Moving
   const [blockPrice, setBlockPrice] = useState('');
   const [blockHours, setBlockHours] = useState('2');
   const [additionalRate, setAdditionalRate] = useState('');
@@ -25,9 +25,11 @@ export default function App() {
 
   const generateLink = () => {
     let summary = '';
+    let baseUrl = '';
+    let fullLink = '';
     let arrivalStart = '';
     let arrivalEnd = '';
-    let arrivalWindowFinal = '';
+    let arrivalWindowText = '';
 
     if (mode === 'carpet') {
       summary = `${salesRep}
@@ -37,48 +39,62 @@ Arrival between ${arrivalWindow}
 Payment method: Cash Cashapp Zelle
 Card payment: 7% processing fee`;
 
-      arrivalWindowFinal = arrivalWindow;
+      baseUrl = 'https://form.jotform.com/251536451249054';
+      arrivalWindowText = arrivalWindow;
 
-      const match = arrivalWindow.match(/(\d+)\s*(AM|PM).+?(\d+)\s*(AM|PM)/);
-      if (match) {
-        arrivalStart = `${match[1]} ${match[2]}`;
-        arrivalEnd = `${match[3]} ${match[4]}`;
+      if (arrivalWindow === '8 AM - 12 PM') {
+        arrivalStart = '8 AM';
+        arrivalEnd = '12 PM';
+      } else if (arrivalWindow === '10 AM - 2 PM') {
+        arrivalStart = '10 AM';
+        arrivalEnd = '2 PM';
+      } else if (arrivalWindow === '12 PM - 4 PM') {
+        arrivalStart = '12 PM';
+        arrivalEnd = '4 PM';
+      } else if (arrivalWindow === '1 PM - 5 PM') {
+        arrivalStart = '1 PM';
+        arrivalEnd = '5 PM';
+      } else if (arrivalWindow === '3 PM - 7 PM') {
+        arrivalStart = '3 PM';
+        arrivalEnd = '7 PM';
       }
 
     } else {
-      const truckText = truckInfo ? `(${truckInfo}) ` : '';
+      const truckLabel = truckInfo ? `(${truckInfo}) ` : '';
       summary = `${salesRep}
 $${blockPrice} First ${blockHours} Hours $${additionalRate} Per Hour
 Any Additional Hour After that
 ${movingArrival}
-${numMovers} Men ${truckText}${truckSize} Ft Trucks
+${numMovers} Men ${truckLabel}${truckSize} Ft Trucks
 Payment methods:
 Cash, CashApp, Zelle
 CashApp payment $5 fee
 
 ***First ${blockHours}hrs due at arrival***`;
 
-      arrivalWindowFinal = movingArrival;
+      baseUrl = 'https://form.jotform.com/251537865180159';
+      arrivalWindowText = movingArrival;
 
-      const match = movingArrival.match(/(\d+).+?(\d+)/);
-      if (match) {
-        arrivalStart = `${match[1]} AM`;
-        arrivalEnd = `${match[2]} ${parseInt(match[2]) > 11 ? 'PM' : 'AM'}`;
+      if (movingArrival === 'Arrival between 7 and 9') {
+        arrivalStart = '7 AM';
+        arrivalEnd = '9 AM';
+      } else if (movingArrival === 'Arrival between 9 to 11') {
+        arrivalStart = '9 AM';
+        arrivalEnd = '11 AM';
+      } else if (movingArrival === 'Arrival between 11 and 1') {
+        arrivalStart = '11 AM';
+        arrivalEnd = '1 PM';
+      } else if (movingArrival === 'Arrival between 1 and 3') {
+        arrivalStart = '1 PM';
+        arrivalEnd = '3 PM';
+      } else if (movingArrival === 'Arrival between 3 to 5') {
+        arrivalStart = '3 PM';
+        arrivalEnd = '5 PM';
       }
     }
 
-    const baseUrl =
-      mode === 'carpet'
-        ? 'https://form.jotform.com/251536451249054'
-        : 'https://form.jotform.com/251537865180159';
-
-    const params = new URLSearchParams();
-    params.append('bookingSummary', summary.replace(/\n/g, '%0A'));
-    params.append('arrivalStart', arrivalStart);
-    params.append('arrivalEnd', arrivalEnd);
-    params.append('arrivalWindow', arrivalWindowFinal);
-
-    const fullLink = `${baseUrl}?${params.toString()}`;
+    const encodedSummary = encodeURIComponent(summary.replace(/\n/g, '\n'));
+    fullLink = `${baseUrl}?bookingSummary=${encodedSummary}&arrivalStart=${encodeURIComponent(arrivalStart)}&arrivalEnd=${encodeURIComponent(arrivalEnd)}&arrivalWindow=${encodeURIComponent(arrivalWindowText)}`;
     setGeneratedLink(fullLink);
   };
 
@@ -175,7 +191,7 @@ CashApp payment $5 fee
           </div>
 
           <div className="form-group">
-            <label>Number of Trucks:</label>
+            <label>Number of Trucks (leave blank if one):</label>
             <select value={truckInfo} onChange={(e) => setTruckInfo(e.target.value)}>
               <option value=""></option>
               <option value="2">2</option>
