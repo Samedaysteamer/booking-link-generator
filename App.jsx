@@ -4,15 +4,15 @@ import './BookingLinkGenerator.css';
 export default function App() {
   const [mode, setMode] = useState('carpet');
 
-  // Common
+  // Shared fields
   const [salesRep, setSalesRep] = useState('');
 
-  // Carpet
+  // Carpet Fields
   const [serviceType, setServiceType] = useState('Carpet Cleaning');
   const [quotedPrice, setQuotedPrice] = useState('');
   const [arrivalWindow, setArrivalWindow] = useState('8 AM - 12 PM');
 
-  // Moving
+  // Moving Fields
   const [blockPrice, setBlockPrice] = useState('');
   const [blockHours, setBlockHours] = useState('2');
   const [additionalRate, setAdditionalRate] = useState('');
@@ -25,6 +25,9 @@ export default function App() {
 
   const generateLink = () => {
     let summary = '';
+    let arrivalStart = '';
+    let arrivalEnd = '';
+    let arrivalWindowFinal = '';
 
     if (mode === 'carpet') {
       summary = `${salesRep}
@@ -33,18 +36,35 @@ $${quotedPrice} Special
 Arrival between ${arrivalWindow}
 Payment method: Cash Cashapp Zelle
 Card payment: 7% processing fee`;
+
+      arrivalWindowFinal = arrivalWindow;
+
+      const match = arrivalWindow.match(/(\d+)\s*(AM|PM).+?(\d+)\s*(AM|PM)/);
+      if (match) {
+        arrivalStart = `${match[1]} ${match[2]}`;
+        arrivalEnd = `${match[3]} ${match[4]}`;
+      }
+
     } else {
-      const truckLabel = truckInfo ? `(${truckInfo}) ` : '';
+      const truckText = truckInfo ? `(${truckInfo}) ` : '';
       summary = `${salesRep}
 $${blockPrice} First ${blockHours} Hours $${additionalRate} Per Hour
 Any Additional Hour After that
 ${movingArrival}
-${numMovers} Men ${truckLabel}${truckSize} Ft Trucks
+${numMovers} Men ${truckText}${truckSize} Ft Trucks
 Payment methods:
 Cash, CashApp, Zelle
 CashApp payment $5 fee
 
 ***First ${blockHours}hrs due at arrival***`;
+
+      arrivalWindowFinal = movingArrival;
+
+      const match = movingArrival.match(/(\d+).+?(\d+)/);
+      if (match) {
+        arrivalStart = `${match[1]} AM`;
+        arrivalEnd = `${match[2]} ${parseInt(match[2]) > 11 ? 'PM' : 'AM'}`;
+      }
     }
 
     const baseUrl =
@@ -52,8 +72,13 @@ CashApp payment $5 fee
         ? 'https://form.jotform.com/251536451249054'
         : 'https://form.jotform.com/251537865180159';
 
-    const encodedSummary = summary.replace(/\n/g, '%0A');
-    const fullLink = `${baseUrl}?bookingSummary=${encodedSummary}`;
+    const params = new URLSearchParams();
+    params.append('bookingSummary', summary.replace(/\n/g, '%0A'));
+    params.append('arrivalStart', arrivalStart);
+    params.append('arrivalEnd', arrivalEnd);
+    params.append('arrivalWindow', arrivalWindowFinal);
+
+    const fullLink = `${baseUrl}?${params.toString()}`;
     setGeneratedLink(fullLink);
   };
 
@@ -150,7 +175,7 @@ CashApp payment $5 fee
           </div>
 
           <div className="form-group">
-            <label>Number of Trucks (leave blank if one):</label>
+            <label>Number of Trucks:</label>
             <select value={truckInfo} onChange={(e) => setTruckInfo(e.target.value)}>
               <option value=""></option>
               <option value="2">2</option>
