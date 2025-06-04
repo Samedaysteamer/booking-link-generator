@@ -23,10 +23,22 @@ export default function App() {
 
   const [generatedLink, setGeneratedLink] = useState('');
 
+  const parseArrival = (window) => {
+    const match = window.match(/(\d{1,2} (?:AM|PM)) .* (\d{1,2} (?:AM|PM))/);
+    if (match) return { start: match[1], end: match[2] };
+    return { start: '', end: '' };
+  };
+
   const generateLink = () => {
     let summary = '';
+    let arrivalStart = '';
+    let arrivalEnd = '';
 
     if (mode === 'carpet') {
+      const parsed = parseArrival(arrivalWindow);
+      arrivalStart = parsed.start;
+      arrivalEnd = parsed.end;
+
       summary = `${salesRep}
 ${serviceType}
 $${quotedPrice} Special
@@ -34,6 +46,10 @@ Arrival between ${arrivalWindow}
 Payment method: Cash Cashapp Zelle
 Card payment: 7% processing fee`;
     } else {
+      const parsed = parseArrival(movingArrival);
+      arrivalStart = parsed.start;
+      arrivalEnd = parsed.end;
+
       const truckLabel = truckInfo ? `(${truckInfo}) ` : '';
       summary = `${salesRep}
 $${blockPrice} First ${blockHours} Hours $${additionalRate} Per Hour
@@ -52,8 +68,14 @@ CashApp payment $5 fee
         ? 'https://form.jotform.com/251536451249054'
         : 'https://form.jotform.com/251537865180159';
 
-    const encodedSummary = encodeURIComponent(summary.replace(/\n/g, '\n'));
-    const fullLink = `${baseUrl}?bookingSummary=${encodedSummary}`;
+    const params = new URLSearchParams({
+      bookingSummary: summary,
+      arrivalWindow: mode === 'carpet' ? arrivalWindow : movingArrival,
+      arrivalStart,
+      arrivalEnd,
+    });
+
+    const fullLink = `${baseUrl}?${params.toString()}`;
     setGeneratedLink(fullLink);
   };
 
