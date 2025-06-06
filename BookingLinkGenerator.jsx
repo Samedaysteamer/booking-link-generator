@@ -28,20 +28,20 @@ function BookingLinkGenerator() {
         ? 'https://form.jotform.com/251536451249054'
         : 'https://form.jotform.com/251537865180159';
 
-    let params = new URLSearchParams();
-    params.append('bookingSummary', summary);
-    params.append('arrivalWindow', arrivalWindow);
-    params.append('arrivalStart', arrivalStart);
-    params.append('arrivalEnd', arrivalEnd);
-    params.append('service', serviceType);
-    params.append('price', quotedPrice);
-    params.append('salesRep', salesRep);
+    const params = new URLSearchParams();
+    params.set('bookingSummary', summary);
+    params.set('arrivalWindow', arrivalWindow);
+    params.set('arrivalStart', arrivalStart);
+    params.set('arrivalEnd', arrivalEnd);
+    params.set('service', serviceType);
+    params.set('price', quotedPrice);
+    params.set('salesRep', salesRep);
 
     if (serviceType === 'Moving') {
-      params.append('numberOfMovers', numberOfMovers);
-      params.append('numberOfTrucks', numberOfTrucks);
-      params.append('truckSize', truckSize);
-      params.append('additionalRate', additionalRate);
+      params.set('numberOfMovers', numberOfMovers);
+      params.set('numberOfTrucks', numberOfTrucks);
+      params.set('truckSize', truckSize);
+      params.set('additionalRate', additionalRate);
     }
 
     const finalLink = `${baseUrl}?${params.toString()}`;
