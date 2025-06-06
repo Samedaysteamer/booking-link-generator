@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 function BookingLinkGenerator() {
-  const [serviceType, setServiceType] = useState('Carpet Cleaning'); // or "Moving"
+  const [serviceType, setServiceType] = useState('Carpet Cleaning');
   const [quotedPrice, setQuotedPrice] = useState('');
   const [arrivalWindow, setArrivalWindow] = useState('');
   const [arrivalStart, setArrivalStart] = useState('');
@@ -49,7 +49,7 @@ function BookingLinkGenerator() {
     }
 
     if (serviceType === 'Moving') {
-      baseUrl = 'https://form.jotform.com/251578361801150';
+      baseUrl = 'https://form.jotform.com/251537865180159';
 
       bookingSummary =
         `${salesRep} ${serviceType}\n` +
