@@ -109,7 +109,7 @@ function BookingLinkGenerator() {
         </>
       )}
 
-      <button onClick={generateLink}>Generate Link</button>
+      <button onClick={generateLink}>Generate Booking Link</button>
 
       <div id="generated-link" className="output-link" />
     </div>
