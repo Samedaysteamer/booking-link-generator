@@ -42,10 +42,10 @@ function BookingLinkGenerator() {
       link = `${baseUrl}?bookingSummary=${encodeURIComponent(bookingSummary)}` +
         `&service=${encodeURIComponent(serviceType)}` +
         `&price=${quotedPrice}` +
+        `&salesRep=${encodeURIComponent(salesRep)}` +
         `&arrivalWindow=${encodeURIComponent(arrivalWindow)}` +
         `&arrivalStart=${encodeURIComponent(arrivalStart)}` +
-        `&arrivalEnd=${encodeURIComponent(arrivalEnd)}` +
-        `&salesRep=${encodeURIComponent(salesRep)}`;
+        `&arrivalEnd=${encodeURIComponent(arrivalEnd)}`;
     }
 
     if (serviceType === 'Moving') {
