@@ -31,7 +31,7 @@ function BookingLinkGenerator() {
     let link = '';
 
     if (serviceType === 'Carpet Cleaning') {
-      baseUrl = 'https://form.jotform.com/251536451249054'; // Carpet Cleaning form ID
+      baseUrl = 'https://form.jotform.com/251536451249054';
 
       bookingSummary =
         `${salesRep} ${serviceType}\n` +
@@ -43,11 +43,13 @@ function BookingLinkGenerator() {
         `&service=${encodeURIComponent(serviceType)}` +
         `&price=${quotedPrice}` +
         `&arrivalWindow=${encodeURIComponent(arrivalWindow)}` +
+        `&arrivalStart=${encodeURIComponent(arrivalStart)}` +
+        `&arrivalEnd=${encodeURIComponent(arrivalEnd)}` +
         `&salesRep=${encodeURIComponent(salesRep)}`;
     }
 
     if (serviceType === 'Moving') {
-      baseUrl = 'https://form.jotform.com/251578361801150'; // Moving form ID
+      baseUrl = 'https://form.jotform.com/251578361801150';
 
       bookingSummary =
         `${salesRep} ${serviceType}\n` +
@@ -75,7 +77,6 @@ function BookingLinkGenerator() {
 
   return (
     <div>
-      {/* Your inputs go here */}
       <button onClick={generateLink}>Generate Booking Link</button>
       <p id="generated-link" style={{ wordWrap: 'break-word' }}></p>
     </div>
