@@ -72,7 +72,9 @@ function BookingLinkGenerator() {
         `&truckSize=${encodeURIComponent(truckSize)}`;
     }
 
-    document.getElementById('generated-link').innerText = link;
+    const linkTag = document.getElementById('generated-link');
+    linkTag.innerHTML = `<a href="${link}" target="_blank">${link}</a>`;
+    window.open(link, '_blank');
   };
 
   return (
