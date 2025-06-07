@@ -7,21 +7,21 @@ export default function BookingLinkGenerator() {
   const renderFields = () => {
     if (selectedGenerator === 'Carpet Cleaning') {
       return (
-        <div>
+        <div id="carpet-cleaning-fields">
           {/* Carpet Cleaning Fields */}
           {/* Include your carpet cleaning input fields here */}
         </div>
       );
     } else if (selectedGenerator === 'Moving') {
       return (
-        <div>
+        <div id="moving-fields">
           {/* Moving Fields */}
           {/* Include your moving input fields here */}
         </div>
       );
     } else if (selectedGenerator === 'Duct Cleaning') {
       return (
-        <div>
+        <div id="duct-cleaning-fields">
           {/* Duct Cleaning Fields */}
           {/* Include your duct cleaning input fields here */}
         </div>
