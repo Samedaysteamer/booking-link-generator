@@ -1,20 +1,31 @@
 import React, { useState } from 'react';
 import './BookingLinkGenerator.css';
 
-import CarpetCleaningFields from './CarpetCleaningFields';
-import MovingFields from './MovingFields';
-import DuctCleaningFields from './DuctCleaningFields';
-
 export default function BookingLinkGenerator() {
   const [selectedGenerator, setSelectedGenerator] = useState('Carpet Cleaning');
 
   const renderFields = () => {
     if (selectedGenerator === 'Carpet Cleaning') {
-      return <CarpetCleaningFields />;
+      return (
+        <div>
+          {/* Carpet Cleaning Fields */}
+          {/* Include your carpet cleaning input fields here */}
+        </div>
+      );
     } else if (selectedGenerator === 'Moving') {
-      return <MovingFields />;
+      return (
+        <div>
+          {/* Moving Fields */}
+          {/* Include your moving input fields here */}
+        </div>
+      );
     } else if (selectedGenerator === 'Duct Cleaning') {
-      return <DuctCleaningFields />;
+      return (
+        <div>
+          {/* Duct Cleaning Fields */}
+          {/* Include your duct cleaning input fields here */}
+        </div>
+      );
     }
     return null;
   };
