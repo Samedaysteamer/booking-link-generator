@@ -95,15 +95,11 @@ export default function BookingLinkGenerator() {
     <div className="booking-link-generator">
       <h2>Booking Link Generator</h2>
       <label htmlFor="generator-select">Choose Generator:</label>
-      <select
-        id="generator-select"
-        value={selectedGenerator}
-        onChange={(e) => setSelectedGenerator(e.target.value)}
-      >
-        <option value="Carpet Cleaning">Carpet Cleaning</option>
-        <option value="Moving">Moving</option>
-        <option value="Duct Cleaning">Duct Cleaning</option>
-      </select>
+      <select id="generator-select" value={selectedGenerator} onChange={(e) => setSelectedGenerator(e.target.value)}>
+  <option value="Carpet Cleaning">Carpet Cleaning</option>
+  <option value="Moving">Moving</option>
+  <option value="Duct Cleaning">Duct Cleaning</option>
+</select>
 
       {renderFields()}
     </div>
