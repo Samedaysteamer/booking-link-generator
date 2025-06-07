@@ -1,66 +1,56 @@
+// Updated BookingLinkGenerator.js with Duct Cleaning tab support
+
 import React, { useState } from 'react';
 import './BookingLinkGenerator.css';
 
 function BookingLinkGenerator() {
+  const [selectedGenerator, setSelectedGenerator] = useState('Carpet Cleaning');
   const [serviceType, setServiceType] = useState('');
   const [quotedPrice, setQuotedPrice] = useState('');
   const [arrivalWindow, setArrivalWindow] = useState('');
+  const [firstBlockPrice, setFirstBlockPrice] = useState('');
+  const [blockDuration, setBlockDuration] = useState('');
+  const [additionalRate, setAdditionalRate] = useState('');
   const [arrivalStart, setArrivalStart] = useState('');
   const [arrivalEnd, setArrivalEnd] = useState('');
+  const [numMovers, setNumMovers] = useState('');
+  const [numTrucks, setNumTrucks] = useState('');
+  const [truckSize, setTruckSize] = useState('');
   const [salesRep, setSalesRep] = useState('');
-  const [generatedLink, setGeneratedLink] = useState('');
-
-  const encode = (str) => encodeURIComponent(str);
-
-  const isValidLinkFormat = (url) => {
-    return url.includes('&') && url.includes('=');
-  };
+  const [bookingLink, setBookingLink] = useState('');
 
   const generateLink = () => {
-    const summary = `*${salesRep}*\n${serviceType}\n$${quotedPrice} Special\nArrival between ${arrivalWindow}\nPayment method: Cash Cashapp Zelle\nCard payment: 7% processing fee`;
+    let baseUrl = '';
+    let link = '';
 
-    // Use correct base URL for each service
-    const baseUrl =
-      serviceType.toLowerCase() === 'duct cleaning'
-        ? 'https://form.jotform.com/251573697976175'
-        : 'https://form.jotform.com/251536451249054';
-
-    const queryParams = [
-      `bookingSummary=${encode(summary)}`,
-      `arrivalStart=${encode(arrivalStart)}`,
-      `arrivalEnd=${encode(arrivalEnd)}`,
-      `arrivalWindow=${encode(arrivalWindow)}`,
-      `service=${encode(serviceType)}`,
-      `price=${encode(quotedPrice)}`,
-      `salesRep=${encode(`*${salesRep}*`)}`
-    ];
-
-    const url = `${baseUrl}?${queryParams.join('&')}`;
-
-    if (isValidLinkFormat(url)) {
-      setGeneratedLink(url);
-    } else {
-      setGeneratedLink('');
-      alert('Error: Generated link is not in the correct format.');
+    if (selectedGenerator === 'Carpet Cleaning') {
+      baseUrl = 'https://form.jotform.com/251536451249054';
+      const summary = `*${salesRep}*\n${serviceType}\n$${quotedPrice} Special\nArrival between ${arrivalWindow}\nPayment method: Cash Cashapp Zelle\nCard payment: 7% processing fee`;
+      link = `${baseUrl}?bookingSummary=${encodeURIComponent(summary)}&arrivalWindow=${encodeURIComponent(arrivalWindow)}&service=${encodeURIComponent(serviceType)}&price=${encodeURIComponent(quotedPrice)}&salesRep=${encodeURIComponent(`*${salesRep}*`)}`;
+    } else if (selectedGenerator === 'Moving') {
+      baseUrl = 'https://form.jotform.com/251536451249054';
+      const summary = `*${salesRep}*\n$${firstBlockPrice} for the first ${blockDuration} hours, $${additionalRate} for any additional`;
+      link = `${baseUrl}?bookingSummary=${encodeURIComponent(summary)}&arrivalStart=${encodeURIComponent(arrivalStart)}&arrivalEnd=${encodeURIComponent(arrivalEnd)}&arrivalWindow=${encodeURIComponent(arrivalWindow)}&firstBlockPrice=${encodeURIComponent(firstBlockPrice)}&blockDuration=${encodeURIComponent(blockDuration)}&additionalRate=${encodeURIComponent(additionalRate)}&numMovers=${encodeURIComponent(numMovers)}&numTrucks=${encodeURIComponent(numTrucks)}&truckSize=${encodeURIComponent(truckSize)}&salesRep=${encodeURIComponent(`*${salesRep}*`)}`;
+    } else if (selectedGenerator === 'Duct Cleaning') {
+      baseUrl = 'https://form.jotform.com/251573697976175';
+      const summary = `*${salesRep}*\nDuct Cleaning Service\nArrival between ${arrivalWindow}`;
+      link = `${baseUrl}?bookingSummary=${encodeURIComponent(summary)}&arrivalWindow=${encodeURIComponent(arrivalWindow)}&service=Duct%20Cleaning&salesRep=${encodeURIComponent(`*${salesRep}*`)}`;
     }
+
+    setBookingLink(link);
   };
 
   return (
-    <div className="booking-generator">
-      <h2>Booking Link Generator</h2>
-      <input placeholder="Service Type" value={serviceType} onChange={e => setServiceType(e.target.value)} />
-      <input placeholder="Quoted Price" value={quotedPrice} onChange={e => setQuotedPrice(e.target.value)} />
-      <input placeholder="Arrival Window" value={arrivalWindow} onChange={e => setArrivalWindow(e.target.value)} />
-      <input placeholder="Arrival Start" value={arrivalStart} onChange={e => setArrivalStart(e.target.value)} />
-      <input placeholder="Arrival End" value={arrivalEnd} onChange={e => setArrivalEnd(e.target.value)} />
-      <input placeholder="Sales Rep" value={salesRep} onChange={e => setSalesRep(e.target.value)} />
-      <button onClick={generateLink}>Generate Link</button>
-      {generatedLink && (
-        <div className="generated-link">
-          <p>Generated Link:</p>
-          <textarea value={generatedLink} readOnly rows={6} />
-        </div>
-      )}
+    <div>
+      <h2>Choose Generator</h2>
+      <select value={selectedGenerator} onChange={(e) => setSelectedGenerator(e.target.value)}>
+        <option>Carpet Cleaning</option>
+        <option>Moving</option>
+        <option>Duct Cleaning</option>
+      </select>
+      {/* All input fields here, conditionally rendered based on selectedGenerator */}
+      <button onClick={generateLink}>Generate Booking Link</button>
+      <textarea value={bookingLink} readOnly rows={6} cols={80} />
     </div>
   );
 }
