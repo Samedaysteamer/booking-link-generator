@@ -19,10 +19,10 @@ function BookingLinkGenerator() {
   const generateLink = () => {
     const summary = `*${salesRep}*\n${serviceType}\n$${quotedPrice} Special\nArrival between ${arrivalWindow}\nPayment method: Cash Cashapp Zelle\nCard payment: 7% processing fee`;
 
-    // Switch form URL based on service type
+    // Use correct base URL for each service
     const baseUrl =
       serviceType.toLowerCase() === 'duct cleaning'
-        ? 'https://form.jotform.com/241507113627147'
+        ? 'https://form.jotform.com/251573697976175'
         : 'https://form.jotform.com/251536451249054';
 
     const queryParams = [
