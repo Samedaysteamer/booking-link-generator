@@ -1,39 +1,30 @@
 import React, { useState } from 'react';
 import './BookingLinkGenerator.css';
 
+import CarpetCleaningFields from './CarpetCleaningFields';
+import MovingFields from './MovingFields';
+import DuctCleaningFields from './DuctCleaningFields';
+
 export default function BookingLinkGenerator() {
   const [selectedGenerator, setSelectedGenerator] = useState('Carpet Cleaning');
 
   const renderFields = () => {
     if (selectedGenerator === 'Carpet Cleaning') {
-      return (
-        <div>
-          {/* Carpet Cleaning Fields */}
-          {/* Include your carpet cleaning input fields here */}
-        </div>
-      );
+      return <CarpetCleaningFields />;
     } else if (selectedGenerator === 'Moving') {
-      return (
-        <div>
-          {/* Moving Fields */}
-          {/* Include your moving input fields here */}
-        </div>
-      );
+      return <MovingFields />;
     } else if (selectedGenerator === 'Duct Cleaning') {
-      return (
-        <div>
-          {/* Duct Cleaning Fields */}
-          {/* Include your duct cleaning input fields here */}
-        </div>
-      );
+      return <DuctCleaningFields />;
     }
     return null;
   };
 
   return (
     <div className="booking-link-generator">
-      <h2>Choose Generator</h2>
+      <h2>Booking Link Generator</h2>
+      <label htmlFor="generator-select">Choose Generator:</label>
       <select
+        id="generator-select"
         value={selectedGenerator}
         onChange={(e) => setSelectedGenerator(e.target.value)}
       >
