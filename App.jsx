@@ -133,6 +133,7 @@ CashApp payment $5 fee
               )}
               {mode === 'duct' && (
                 <>
+              <option value="Basic Duct Cleaning"></option>
               <option value="Basic Duct Cleaning">Basic Duct Cleaning</option>
               <option value="Deep Duct Cleaning">Deep Duct Cleaning</option>
               <option value="Basic Duct Cleaning with Furnace">Basic Duct Cleaning with Furnace</option>
