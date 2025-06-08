@@ -3,7 +3,7 @@ import './BookingLinkGenerator.css';
 
 export default function App() {
   const [mode, setMode] = useState('carpet');
-  const [salesRep, setSalesRep] = useState('*01*');
+  const [salesRep, setSalesRep] = useState('');
 
   const [serviceType, setServiceType] = useState('Carpet Cleaning');
   const [quotedPrice, setQuotedPrice] = useState('');
@@ -11,13 +11,16 @@ export default function App() {
 
   const [blockPrice, setBlockPrice] = useState('');
   const [blockHours, setBlockHours] = useState('2');
-  const [additionalRate, setAdditionalRate] = useState('');
-  const [movingArrival, setMovingArrival] = useState('Arrival between 7 and 9');
-  const [numMovers, setNumMovers] = useState('2');
-  const [truckInfo, setTruckInfo] = useState('');
-  const [truckSize, setTruckSize] = useState('17');
+  useEffect(() => {
+  if (selectedGenerator === 'Carpet Cleaning') {
+    setService('Carpet Cleaning');
+  } else if (selectedGenerator === 'Duct Cleaning') {
+    setService('Basic Duct Cleaning');
+  } else if (selectedGenerator === 'Moving') {
+    setService('Moving');
+  }
+}, [selectedGenerator]);
 
-  const [generatedLink, setGeneratedLink] = useState('');
 
   const generateLink = () => {
     let summary = '';
@@ -112,6 +115,7 @@ CashApp payment $5 fee
       <div className="form-group">
         <label>Sales Rep:</label>
         <select value={salesRep} onChange={(e) => setSalesRep(e.target.value)}>
+          <option value=""></option>
           <option value="*01*">*01*</option>
           <option value="*02*">*02*</option>
           <option value="*03*">*03*</option>
