@@ -3,16 +3,12 @@ import './BookingLinkGenerator.css';
 
 export default function App() {
   const [mode, setMode] = useState('carpet');
+  const [salesRep, setSalesRep] = useState('*01*');
 
-  // Common
-  const [salesRep, setSalesRep] = useState('');
-
-  // Carpet
   const [serviceType, setServiceType] = useState('Carpet Cleaning');
   const [quotedPrice, setQuotedPrice] = useState('');
   const [arrivalWindow, setArrivalWindow] = useState('8 AM - 12 PM');
 
-  // Moving
   const [blockPrice, setBlockPrice] = useState('');
   const [blockHours, setBlockHours] = useState('2');
   const [additionalRate, setAdditionalRate] = useState('');
@@ -31,14 +27,17 @@ export default function App() {
     let arrivalEnd = '';
     let arrivalWindowText = '';
 
-    if (mode === 'carpet') {
-      summary = `${salesRep}\n${serviceType}\n$${quotedPrice} Special\nArrival between ${arrivalWindow}\nPayment method: Cash Cashapp Zelle\nCard payment: 7% processing fee`;
+    if (mode === 'carpet' || mode === 'duct') {
+      summary = `${salesRep}
+${serviceType}
+$${quotedPrice} Special
+Arrival between ${arrivalWindow}
+Payment method: Cash Cashapp Zelle
+Card payment: 7% processing fee`;
 
-      if (serviceType === 'Duct Cleaning') {
-        baseUrl = 'https://form.jotform.com/251573697976175';
-      } else {
-        baseUrl = 'https://form.jotform.com/251536451249054';
-      }
+      baseUrl = (mode === 'duct') 
+        ? 'https://form.jotform.com/251573697976175'
+        : 'https://form.jotform.com/251536451249054';
 
       arrivalWindowText = arrivalWindow;
 
@@ -58,10 +57,18 @@ export default function App() {
         arrivalStart = '3 PM';
         arrivalEnd = '7 PM';
       }
-
     } else {
       const truckLabel = truckInfo ? `(${truckInfo}) ` : '';
-      summary = `${salesRep}\n$${blockPrice} First ${blockHours} Hours $${additionalRate} Per Hour\nAny Additional Hour After that\n${movingArrival}\n${numMovers} Men ${truckLabel}${truckSize} Ft Trucks\nPayment methods:\nCash, CashApp, Zelle\nCashApp payment $5 fee\n\n***First ${blockHours}hrs due at arrival***`;
+      summary = `${salesRep}
+$${blockPrice} First ${blockHours} Hours $${additionalRate} Per Hour
+Any Additional Hour After that
+${movingArrival}
+${numMovers} Men ${truckLabel}${truckSize} Ft Trucks
+Payment methods:
+Cash, CashApp, Zelle
+CashApp payment $5 fee
+
+***First ${blockHours}hrs due at arrival***`;
 
       baseUrl = 'https://form.jotform.com/251537865180159';
       arrivalWindowText = movingArrival;
@@ -85,7 +92,7 @@ export default function App() {
     }
 
     const encodedSummary = encodeURIComponent(summary.replace(/\n/g, '\n'));
-    fullLink = `${baseUrl}?bookingSummary=${encodedSummary}&arrivalStart=${encodeURIComponent(arrivalStart)}&arrivalEnd=${encodeURIComponent(arrivalEnd)}&arrivalWindow=${encodeURIComponent(arrivalWindowText)}&service=${encodeURIComponent(serviceType)}&price=${encodeURIComponent(quotedPrice)}&salesRep=${encodeURIComponent(salesRep)}`;
+    fullLink = `${baseUrl}?bookingSummary=${encodedSummary}&arrivalStart=${encodeURIComponent(arrivalStart)}&arrivalEnd=${encodeURIComponent(arrivalEnd)}&arrivalWindow=${encodeURIComponent(arrivalWindowText)}`;
     setGeneratedLink(fullLink);
   };
 
@@ -98,28 +105,37 @@ export default function App() {
         <select value={mode} onChange={(e) => setMode(e.target.value)}>
           <option value="carpet">Carpet Cleaning</option>
           <option value="moving">Moving</option>
+          <option value="duct">Duct Cleaning</option>
         </select>
       </div>
 
       <div className="form-group">
         <label>Sales Rep:</label>
         <select value={salesRep} onChange={(e) => setSalesRep(e.target.value)}>
-          <option value=""></option>
           <option value="*01*">*01*</option>
           <option value="*02*">*02*</option>
           <option value="*03*">*03*</option>
         </select>
       </div>
 
-      {mode === 'carpet' && (
+      {(mode === 'carpet' || mode === 'duct') && (
         <>
           <div className="form-group">
             <label>Service Type:</label>
             <select value={serviceType} onChange={(e) => setServiceType(e.target.value)}>
-              <option>Carpet Cleaning</option>
-              <option>Upholstery Cleaning</option>
-              <option>Duct Cleaning</option>
-              <option>Mattress Cleaning</option>
+              {mode === 'carpet' && (
+                <>
+                  <option>Carpet Cleaning</option>
+                  <option>Upholstery Cleaning</option>
+                  <option>Mattress Cleaning</option>
+                </>
+              )}
+              {mode === 'duct' && (
+                <>
+                  <option>Basic Duct Cleaning</option>
+                  <option>Deep Duct Cleaning</option>
+                </>
+              )}
             </select>
           </div>
 
@@ -131,11 +147,21 @@ export default function App() {
           <div className="form-group">
             <label>Arrival Window:</label>
             <select value={arrivalWindow} onChange={(e) => setArrivalWindow(e.target.value)}>
-              <option>8 AM - 12 PM</option>
-              <option>10 AM - 2 PM</option>
-              <option>12 PM - 4 PM</option>
-              <option>1 PM - 5 PM</option>
-              <option>3 PM - 7 PM</option>
+              {mode === 'carpet' && (
+                <>
+                  <option>8 AM - 12 PM</option>
+                  <option>10 AM - 2 PM</option>
+                  <option>12 PM - 4 PM</option>
+                  <option>1 PM - 5 PM</option>
+                  <option>3 PM - 7 PM</option>
+                </>
+              )}
+              {mode === 'duct' && (
+                <>
+                  <option>8 AM - 12 PM</option>
+                  <option>1 PM - 5 PM</option>
+                </>
+              )}
             </select>
           </div>
         </>
