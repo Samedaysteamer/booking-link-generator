@@ -23,16 +23,18 @@ export default function BookingLinkGenerator() {
     setGeneratedLink(url);
   };
 
-  const renderFields = () => {
-    return (
-      <div>
+  const renderFields = () => (
+    <>
+      <div className="form-group">
         <label>Sales Rep:</label>
         <select value={salesRep} onChange={(e) => setSalesRep(e.target.value)}>
           <option value="*01*">*01*</option>
           <option value="*02*">*02*</option>
           <option value="*03*">*03*</option>
         </select>
+      </div>
 
+      <div className="form-group">
         <label>Service Type:</label>
         <select value={service} onChange={(e) => setService(e.target.value)}>
           {selectedGenerator === 'Carpet Cleaning' && (
@@ -60,10 +62,14 @@ export default function BookingLinkGenerator() {
             </>
           )}
         </select>
+      </div>
 
+      <div className="form-group">
         <label>Quoted Price ($):</label>
         <input type="text" value={price} onChange={(e) => setPrice(e.target.value)} />
+      </div>
 
+      <div className="form-group">
         <label>Arrival Window:</label>
         <select value={arrivalWindow} onChange={(e) => setArrivalWindow(e.target.value)}>
           {selectedGenerator === 'Carpet Cleaning' && (
@@ -91,32 +97,31 @@ export default function BookingLinkGenerator() {
           )}
         </select>
       </div>
-    );
-  };
+    </>
+  );
 
   return (
     <div className="booking-link-generator">
       <h2>Booking Link Generator</h2>
-      <label>Choose Generator:</label>
-      <select
-        value={selectedGenerator}
-        onChange={(e) => setSelectedGenerator(e.target.value)}
-      >
-        <option value="Carpet Cleaning">Carpet Cleaning</option>
-        <option value="Moving">Moving</option>
-        <option value="Duct Cleaning">Duct Cleaning</option>
-      </select>
+      <div className="form-group">
+        <label>Choose Generator:</label>
+        <select value={selectedGenerator} onChange={(e) => setSelectedGenerator(e.target.value)}>
+          <option value="Carpet Cleaning">Carpet Cleaning</option>
+          <option value="Moving">Moving</option>
+          <option value="Duct Cleaning">Duct Cleaning</option>
+        </select>
+      </div>
 
       {renderFields()}
 
-      <button onClick={generateLink}>Generate Booking Link</button>
+      <div className="form-group">
+        <button onClick={generateLink}>Generate Booking Link</button>
+      </div>
 
       {generatedLink && (
-        <div>
+        <div className="form-group">
           <p>Generated Link:</p>
-          <a href={generatedLink} target="_blank" rel="noopener noreferrer">
-            {generatedLink}
-          </a>
+          <a href={generatedLink} target="_blank" rel="noopener noreferrer">{generatedLink}</a>
         </div>
       )}
     </div>
