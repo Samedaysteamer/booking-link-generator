@@ -32,12 +32,7 @@ export default function App() {
     let arrivalWindowText = '';
 
     if (mode === 'carpet') {
-      summary = `${salesRep}
-${serviceType}
-$${quotedPrice} Special
-Arrival between ${arrivalWindow}
-Payment method: Cash Cashapp Zelle
-Card payment: 7% processing fee`;
+      summary = `${salesRep}\n${serviceType}\n$${quotedPrice} Special\nArrival between ${arrivalWindow}\nPayment method: Cash Cashapp Zelle\nCard payment: 7% processing fee`;
 
       if (serviceType === 'Duct Cleaning') {
         baseUrl = 'https://form.jotform.com/251573697976175';
@@ -66,16 +61,7 @@ Card payment: 7% processing fee`;
 
     } else {
       const truckLabel = truckInfo ? `(${truckInfo}) ` : '';
-      summary = `${salesRep}
-$${blockPrice} First ${blockHours} Hours $${additionalRate} Per Hour
-Any Additional Hour After that
-${movingArrival}
-${numMovers} Men ${truckLabel}${truckSize} Ft Trucks
-Payment methods:
-Cash, CashApp, Zelle
-CashApp payment $5 fee
-
-***First ${blockHours}hrs due at arrival***`;
+      summary = `${salesRep}\n$${blockPrice} First ${blockHours} Hours $${additionalRate} Per Hour\nAny Additional Hour After that\n${movingArrival}\n${numMovers} Men ${truckLabel}${truckSize} Ft Trucks\nPayment methods:\nCash, CashApp, Zelle\nCashApp payment $5 fee\n\n***First ${blockHours}hrs due at arrival***`;
 
       baseUrl = 'https://form.jotform.com/251537865180159';
       arrivalWindowText = movingArrival;
@@ -99,7 +85,7 @@ CashApp payment $5 fee
     }
 
     const encodedSummary = encodeURIComponent(summary.replace(/\n/g, '\n'));
-    fullLink = `${baseUrl}?bookingSummary=${encodedSummary}&arrivalStart=${encodeURIComponent(arrivalStart)}&arrivalEnd=${encodeURIComponent(arrivalEnd)}&arrivalWindow=${encodeURIComponent(arrivalWindowText)}`;
+    fullLink = `${baseUrl}?bookingSummary=${encodedSummary}&arrivalStart=${encodeURIComponent(arrivalStart)}&arrivalEnd=${encodeURIComponent(arrivalEnd)}&arrivalWindow=${encodeURIComponent(arrivalWindowText)}&service=${encodeURIComponent(serviceType)}&price=${encodeURIComponent(quotedPrice)}&salesRep=${encodeURIComponent(salesRep)}`;
     setGeneratedLink(fullLink);
   };
 
