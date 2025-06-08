@@ -2,7 +2,7 @@
 import './BookingLinkGenerator.css';
 
 export default function App() {
-  const [mode, setMode] = useState('');
+  const [mode, setMode] = useState('carpet');
   const [salesRep, setSalesRep] = useState('');
 
   const [serviceType, setServiceType] = useState('Carpet Cleaning');
