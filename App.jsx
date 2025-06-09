@@ -41,19 +41,19 @@ Card payment: 7% processing fee`;
 
       arrivalWindowText = arrivalWindow;
 
-      if (arrivalWindow === '8 AM - 12 PM') {
+      if (arrivalWindow === 'Arrival between 8 and 12') {
         arrivalStart = '8 AM';
         arrivalEnd = '12 PM';
-      } else if (arrivalWindow === '10 AM - 2 PM') {
+      } else if (arrivalWindow === 'Arrival between 10 and 2') {
         arrivalStart = '10 AM';
         arrivalEnd = '2 PM';
-      } else if (arrivalWindow === '12 PM - 4 PM') {
+      } else if (arrivalWindow === 'Arrival between 12 and 4') {
         arrivalStart = '12 PM';
         arrivalEnd = '4 PM';
-      } else if (arrivalWindow === '1 PM - 5 PM') {
+      } else if (arrivalWindow === 'Arrival between 1 and 5') {
         arrivalStart = '1 PM';
         arrivalEnd = '5 PM';
-      } else if (arrivalWindow === '3 PM - 7 PM') {
+      } else if (arrivalWindow === 'Arrival between 3 and 7') {
         arrivalStart = '3 PM';
         arrivalEnd = '7 PM';
       }
