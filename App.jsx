@@ -60,8 +60,8 @@ Card payment: 7% processing fee`;
     } else {
       const truckLabel = truckInfo ? `(${truckInfo}) ` : '';
       summary = `${salesRep}
-$${blockPrice} First ${blockHours} Hours $${additionalRate} Per Hour
-Any Additional Hour After that
+$${blockPrice} First ${blockHours} Hours Then $${additionalRate} per 
+hour for each additional hour after that.
 ${movingArrival}
 ${numMovers} Men ${truckLabel}${truckSize} Ft Trucks
 Payment methods:
