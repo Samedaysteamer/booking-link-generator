@@ -7,7 +7,7 @@ export default function App() {
 
   const [serviceType, setServiceType] = useState('Carpet Cleaning');
   const [quotedPrice, setQuotedPrice] = useState('');
-  const [arrivalWindow, setArrivalWindow] = useState('8 AM - 12 PM');
+  const [arrivalWindow, setArrivalWindow] = useState('Arrival between 8 and 12');
 
   const [blockPrice, setBlockPrice] = useState('');
   const [blockHours, setBlockHours] = useState('2');
@@ -157,17 +157,17 @@ CashApp payment $5 fee
             <select value={arrivalWindow} onChange={(e) => setArrivalWindow(e.target.value)}>
               {mode === 'carpet' && (
                 <>
-                  <option>8 AM - 12 PM</option>
-                  <option>10 AM - 2 PM</option>
-                  <option>12 PM - 4 PM</option>
-                  <option>1 PM - 5 PM</option>
-                  <option>3 PM - 7 PM</option>
+                  <option>Arrival between 8 and 12</option>
+                  <option>Arrival between 10 and 2</option>
+                  <option>Arrival between 12 and 4</option>
+                  <option>Arrival between 1 and 5</option>
+                  <option>Arrival between 3 and 7</option>
                 </>
               )}
               {mode === 'duct' && (
                 <>
-                  <option>8 AM - 12 PM</option>
-                  <option>1 PM - 5 PM</option>
+                  <option>Arrival between 8 and 12</option>
+                  <option>Arrival between 1 and 5</option>
                 </>
               )}
             </select>
