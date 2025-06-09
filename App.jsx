@@ -41,7 +41,7 @@ Card payment: 7% processing fee`;
 
       arrivalWindowText = arrivalWindow;
 
-      if (arrivalWindow === 'Arrival between 8 and 12') {
+      if (arrivalWindow === '8 and 12') {
         arrivalStart = '8 AM';
         arrivalEnd = '12 PM';
       } else if (arrivalWindow === 'Arrival between 10 and 2') {
