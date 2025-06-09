@@ -31,7 +31,7 @@ export default function App() {
       summary = `${salesRep}
 ${serviceType}
 $${quotedPrice} Special
-Arrival between ${arrivalWindow}
+${arrivalWindow}
 Payment method: Cash Cashapp Zelle
 Card payment: 7% processing fee`;
 
@@ -41,7 +41,7 @@ Card payment: 7% processing fee`;
 
       arrivalWindowText = arrivalWindow;
 
-      if (arrivalWindow === '8 and 12') {
+      if (arrivalWindow === 'Arrival between 8 and 12') {
         arrivalStart = '8 AM';
         arrivalEnd = '12 PM';
       } else if (arrivalWindow === 'Arrival between 10 and 2') {
