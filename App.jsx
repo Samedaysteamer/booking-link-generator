@@ -1,4 +1,4 @@
- import React, { useState } from 'react';
+import React, { useState } from 'react';
 import './BookingLinkGenerator.css';
 
 export default function App() {
@@ -89,10 +89,14 @@ CashApp payment $5 fee
         arrivalStart = '3 PM';
         arrivalEnd = '5 PM';
       }
+
+      setServiceType("Moving");
     }
 
-    const encodedSummary = encodeURIComponent(summary.replace(/\n/g, '\n'));
-    fullLink = `${baseUrl}?bookingSummary=${encodedSummary}&arrivalStart=${encodeURIComponent(arrivalStart)}&arrivalEnd=${encodeURIComponent(arrivalEnd)}&arrivalWindow=${encodeURIComponent(arrivalWindowText)}&service=${encodeURIComponent(serviceType)}&price=${quotedPrice}&salesRep=${encodeURIComponent(salesRep)}`;
+    const encodedSummary = encodeURIComponent(summary);
+    const finalService = encodeURIComponent(mode === 'moving' ? 'Moving' : serviceType);
+
+    fullLink = `${baseUrl}?bookingSummary=${encodedSummary}&arrivalStart=${encodeURIComponent(arrivalStart)}&arrivalEnd=${encodeURIComponent(arrivalEnd)}&arrivalWindow=${encodeURIComponent(arrivalWindowText)}&service=${finalService}&price=${quotedPrice}&salesRep=${encodeURIComponent(salesRep)}`;
     setGeneratedLink(fullLink);
   };
 
@@ -133,15 +137,14 @@ CashApp payment $5 fee
               )}
               {mode === 'duct' && (
                 <>
-              <option value="Basic Duct Cleaning"></option>
-              <option value="Basic Duct Cleaning">Basic Duct Cleaning</option>
-              <option value="Deep Duct Cleaning">Deep Duct Cleaning</option>
-              <option value="Basic Duct Cleaning with Furnace">Basic Duct Cleaning with Furnace</option>
-              <option value="Deep Duct Cleaning with Furnace">Deep Duct Cleaning with Furnace</option>
-              <option value="Basic Duct Cleaning with Furnace and Dryer Vent Cleaning">Basic Duct Cleaning with Furnace and Dryer Vent Cleaning</option>
-              <option value="Deep Duct Cleaning with Furnace and Dryer Vent Cleaning">Deep Duct Cleaning with Furnace and Dryer Vent Cleaning</option>
-              <option value="Basic Duct Cleaning with Dryer Vent Cleaning">Basic Duct Cleaning with Dryer Vent Cleaning</option>
-              <option value="Deep Duct Cleaning with Dryer Vent Cleaning">Deep Duct Cleaning with Dryer Vent Cleaning</option>
+                  <option value="Basic Duct Cleaning">Basic Duct Cleaning</option>
+                  <option value="Deep Duct Cleaning">Deep Duct Cleaning</option>
+                  <option value="Basic Duct Cleaning with Furnace">Basic Duct Cleaning with Furnace</option>
+                  <option value="Deep Duct Cleaning with Furnace">Deep Duct Cleaning with Furnace</option>
+                  <option value="Basic Duct Cleaning with Furnace and Dryer Vent Cleaning">Basic Duct Cleaning with Furnace and Dryer Vent Cleaning</option>
+                  <option value="Deep Duct Cleaning with Furnace and Dryer Vent Cleaning">Deep Duct Cleaning with Furnace and Dryer Vent Cleaning</option>
+                  <option value="Basic Duct Cleaning with Dryer Vent Cleaning">Basic Duct Cleaning with Dryer Vent Cleaning</option>
+                  <option value="Deep Duct Cleaning with Dryer Vent Cleaning">Deep Duct Cleaning with Dryer Vent Cleaning</option>
                 </>
               )}
             </select>
