@@ -18,6 +18,7 @@ export default function App() {
   const [truckSize, setTruckSize] = useState('17');
 
   const [generatedLink, setGeneratedLink] = useState('');
+  const [rawLink, setRawLink] = useState('');
 
   const generateLink = () => {
     let summary = '';
@@ -35,7 +36,7 @@ ${arrivalWindow}
 Payment method: Cash Cashapp Zelle
 Card payment: 7% processing fee`;
 
-      baseUrl = (mode === 'duct') 
+      baseUrl = (mode === 'duct')
         ? 'https://form.jotform.com/251573697976175'
         : 'https://form.jotform.com/251536451249054';
 
@@ -97,7 +98,18 @@ CashApp payment $5 fee
     const finalService = encodeURIComponent(mode === 'moving' ? 'Moving' : serviceType);
 
     fullLink = `${baseUrl}?bookingSummary=${encodedSummary}&arrivalStart=${encodeURIComponent(arrivalStart)}&arrivalEnd=${encodeURIComponent(arrivalEnd)}&arrivalWindow=${encodeURIComponent(arrivalWindowText)}&service=${finalService}&price=${quotedPrice}&salesRep=${encodeURIComponent(salesRep)}`;
-    setGeneratedLink(fullLink);
+    setRawLink(fullLink);
+
+    // Shorten using TinyURL
+    fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(fullLink)}`)
+      .then(res => res.text())
+      .then(shortLink => {
+        setGeneratedLink(shortLink);
+      })
+      .catch(err => {
+        console.error('Shortening failed:', err);
+        setGeneratedLink(fullLink); // fallback
+      });
   };
 
   return (
@@ -242,8 +254,15 @@ CashApp payment $5 fee
 
       {generatedLink && (
         <div className="result">
-          <p><strong>Generated Link:</strong></p>
+          <p><strong>Short Link:</strong></p>
           <a href={generatedLink} target="_blank" rel="noopener noreferrer">{generatedLink}</a>
+        </div>
+      )}
+
+      {rawLink && (
+        <div className="result">
+          <p><strong>Long Link (Debug):</strong></p>
+          <a href={rawLink} target="_blank" rel="noopener noreferrer">{rawLink}</a>
         </div>
       )}
     </div>
