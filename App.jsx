@@ -255,7 +255,8 @@ CashApp payment $5 fee
             <label>Carpet / Upholstery Specials</label>
             <select value={carpetSpecial} onChange={(e) => applyCarpetSpecial(e.target.value)}>
               <option value="custom">— Custom —</option>
-              {/* Carpet Cleaning */}
+              {/* Carpet Cleaning (added $130 before $150) */}
+              <option value="cc130">Carpet Cleaning — $130</option>
               <option value="cc150">Carpet Cleaning — $150</option>
               <option value="cc200">Carpet Cleaning — $200</option>
               <option value="cc250">Carpet Cleaning — $250</option>
