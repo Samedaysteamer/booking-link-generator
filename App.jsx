@@ -58,7 +58,8 @@ export default function App() {
   const [carpetSpecial, setCarpetSpecial] = useState('custom');
   const applyCarpetSpecial = (value) => {
     setCarpetSpecial(value);
-    if (value === 'cc150') { setServiceType('Carpet Cleaning'); setQuotedPrice('150'); }
+    if (value === 'cc130') { setServiceType('Carpet Cleaning'); setQuotedPrice('130'); }
+    else if (value === 'cc150') { setServiceType('Carpet Cleaning'); setQuotedPrice('150'); }
     else if (value === 'cc200') { setServiceType('Carpet Cleaning'); setQuotedPrice('200'); }
     else if (value === 'cc250') { setServiceType('Carpet Cleaning'); setQuotedPrice('250'); }
     else if (value === 'cc300') { setServiceType('Carpet Cleaning'); setQuotedPrice('300'); }
