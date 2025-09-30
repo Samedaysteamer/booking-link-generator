@@ -10,14 +10,17 @@ export default function App() {
     cls.add(`theme-${theme}`);
   }, [theme]);
 
-  // ---------- Core state (your existing defaults) ----------
+  // ---------- Core state ----------
   const [mode, setMode] = useState('carpet');
   const [salesRep, setSalesRep] = useState('');
 
   const [serviceType, setServiceType] = useState('Carpet Cleaning');
   const [quotedPrice, setQuotedPrice] = useState('');
+
+  // Carpet/Duct arrival window
   const [arrivalWindow, setArrivalWindow] = useState('Arrival between 8 and 12');
 
+  // Moving fields
   const [blockPrice, setBlockPrice] = useState('');
   const [blockHours, setBlockHours] = useState('2');
   const [additionalRate, setAdditionalRate] = useState('');
@@ -26,40 +29,60 @@ export default function App() {
   const [truckInfo, setTruckInfo] = useState(''); // "" = one truck, "2" = 2 trucks
   const [truckSize, setTruckSize] = useState('17');
 
-  const [generatedLink, setGeneratedLink] = useState(''); // short link to send
-  const [rawLink, setRawLink] = useState('');             // long link debug
+  const [generatedLink, setGeneratedLink] = useState(''); // short link
+  const [rawLink, setRawLink] = useState('');             // long link
   const [copied, setCopied] = useState(false);
 
-  // ---------- NEW: Moving Specials ----------
-  // custom = original behavior
+  // ---------- Specials ----------
+  // Moving specials
   const [movingSpecial, setMovingSpecial] = useState('custom');
-
-  const applySpecial = (value) => {
+  const applyMovingSpecial = (value) => {
     setMovingSpecial(value);
-
     if (value === 'special_2men') {
-      // $300 / $150 — 2 Men, 2×17'
       setBlockPrice('300'); setBlockHours('2'); setAdditionalRate('150');
       setNumMovers('2'); setTruckInfo('2'); setTruckSize('17');
     } else if (value === 'special_4men') {
-      // $600 / $300 — 4 Men, 2×17'
       setBlockPrice('600'); setBlockHours('2'); setAdditionalRate('300');
       setNumMovers('4'); setTruckInfo('2'); setTruckSize('17');
     } else if (value === 'special_260') {
-      // ✅ NEW: $260 / $130 — 2 Men, 1×17'
       setBlockPrice('260'); setBlockHours('2'); setAdditionalRate('130');
       setNumMovers('2'); setTruckInfo(''); setTruckSize('17');
     } else if (value === 'special_delivery') {
-      // ✅ NEW: Delivery $150 first 1 hr / $150 addl — 2 Men, 1×17'
       setBlockPrice('150'); setBlockHours('1'); setAdditionalRate('150');
       setNumMovers('2'); setTruckInfo(''); setTruckSize('17');
     }
-    // if "custom", leave current inputs as-is
   };
+  const movingLocked = movingSpecial !== 'custom';
 
-  const disableWhenSpecial = movingSpecial !== 'custom';
+  // Carpet/Upholstery specials
+  const [carpetSpecial, setCarpetSpecial] = useState('custom');
+  const applyCarpetSpecial = (value) => {
+    setCarpetSpecial(value);
+    if (value === 'cc150') { setServiceType('Carpet Cleaning'); setQuotedPrice('150'); }
+    else if (value === 'cc200') { setServiceType('Carpet Cleaning'); setQuotedPrice('200'); }
+    else if (value === 'cc250') { setServiceType('Carpet Cleaning'); setQuotedPrice('250'); }
+    else if (value === 'cc300') { setServiceType('Carpet Cleaning'); setQuotedPrice('300'); }
+    else if (value === 'up200') { setServiceType('Upholstery Cleaning'); setQuotedPrice('200'); }
+    else if (value === 'up250') { setServiceType('Upholstery Cleaning'); setQuotedPrice('250'); }
+    else if (value === 'up300') { setServiceType('Upholstery Cleaning'); setQuotedPrice('300'); }
+  };
+  const carpetLocked = carpetSpecial !== 'custom';
 
-  // ---------- Link Generator (your logic, intact) ----------
+  // Duct specials
+  const [ductSpecial, setDuctSpecial] = useState('custom');
+  const applyDuctSpecial = (value) => {
+    setDuctSpecial(value);
+    if (value === 'deep500') {
+      setServiceType('Deep Duct Cleaning (No Furnace)'); setQuotedPrice('500');
+    } else if (value === 'deep600') {
+      setServiceType('Deep Duct Cleaning with Furnace'); setQuotedPrice('600');
+    } else if (value === 'deep1200') {
+      setServiceType('Deep Duct Cleaning (Two Units with Furnace)'); setQuotedPrice('1200');
+    }
+  };
+  const ductLocked = ductSpecial !== 'custom';
+
+  // ---------- Link Generator (unchanged logic) ----------
   const generateLink = () => {
     let summary = '';
     let baseUrl = '';
@@ -109,7 +132,7 @@ CashApp payment $5 fee
       else if (movingArrival === 'Arrival between 1 and 3')   { arrivalStart = '1 PM';  arrivalEnd = '3 PM';  }
       else if (movingArrival === 'Arrival between 3 to 5')    { arrivalStart = '3 PM';  arrivalEnd = '5 PM';  }
 
-      setServiceType('Moving'); // keep your existing behavior
+      setServiceType('Moving');
     }
 
     const encodedSummary = encodeURIComponent(summary);
@@ -127,7 +150,6 @@ CashApp payment $5 fee
     setRawLink(fullLink);
     setCopied(false);
 
-    // Shorten via your Vercel serverless function
     fetch(`/api/shorten?url=${encodeURIComponent(fullLink)}`)
       .then(r => r.json())
       .then(({ shortUrl }) => setGeneratedLink(shortUrl || fullLink))
@@ -159,6 +181,7 @@ CashApp payment $5 fee
       </div>
 
       <div className="card">
+        {/* Generator type */}
         <div className="form-group">
           <label>Choose Generator</label>
           <select value={mode} onChange={(e) => setMode(e.target.value)}>
@@ -168,98 +191,150 @@ CashApp payment $5 fee
           </select>
         </div>
 
-        <div className="form-row">
-          <div className="form-group half">
-            <label>Sales Rep</label>
-            <select value={salesRep} onChange={(e) => setSalesRep(e.target.value)}>
-              <option value=""> </option>
-              <option value="*01*">*01*</option>
-              <option value="*02*">*02*</option>
-              <option value="*03*">*03*</option>
-            </select>
-          </div>
+        {/* Sales Rep */}
+        <div className="form-group">
+          <label>Sales Rep</label>
+          <select value={salesRep} onChange={(e) => setSalesRep(e.target.value)}>
+            <option value=""> </option>
+            <option value="*01*">*01*</option>
+            <option value="*02*">*02*</option>
+            <option value="*03*">*03*</option>
+          </select>
+        </div>
 
-          {(mode === 'carpet' || mode === 'duct') && (
-            <div className="form-group half">
-              <label>Quoted Price ($)</label>
-              <input type="number" value={quotedPrice} onChange={(e) => setQuotedPrice(e.target.value)} />
-            </div>
+        {/* ARRIVAL WINDOW — moved directly under Sales Rep */}
+        <div className="form-group">
+          <label>Arrival Window</label>
+          {mode === 'moving' ? (
+            <select value={movingArrival} onChange={(e) => setMovingArrival(e.target.value)}>
+              <option>Arrival between 7 and 9</option>
+              <option>Arrival between 9 to 11</option>
+              <option>Arrival between 11 and 1</option>
+              <option>Arrival between 1 and 3</option>
+              <option>Arrival between 3 to 5</option>
+            </select>
+          ) : (
+            <select value={arrivalWindow} onChange={(e) => setArrivalWindow(e.target.value)}>
+              {(mode === 'carpet') && (
+                <>
+                  <option>Arrival between 8 and 12</option>
+                  <option>Arrival between 10 and 2</option>
+                  <option>Arrival between 12 and 4</option>
+                  <option>Arrival between 1 and 5</option>
+                  <option>Arrival between 3 and 7</option>
+                </>
+              )}
+              {(mode === 'duct') && (
+                <>
+                  <option>Arrival between 8 and 12</option>
+                  <option>Arrival between 1 and 5</option>
+                </>
+              )}
+            </select>
           )}
         </div>
 
+        {/* CARPET / DUCT FIELDS */}
         {(mode === 'carpet' || mode === 'duct') && (
           <>
-            <div className="form-group">
-              <label>Service Type</label>
-              <select value={serviceType} onChange={(e) => setServiceType(e.target.value)}>
-                {mode === 'carpet' && (
-                  <>
-                    <option>Carpet Cleaning</option>
-                    <option>Upholstery Cleaning</option>
-                    <option>Mattress Cleaning</option>
-                  </>
-                )}
-                {mode === 'duct' && (
-                  <>
-                    <option value="Basic Duct Cleaning">Basic Duct Cleaning</option>
-                    <option value="Deep Duct Cleaning">Deep Duct Cleaning</option>
-                    <option value="Basic Duct Cleaning with Furnace">Basic Duct Cleaning with Furnace</option>
-                    <option value="Deep Duct Cleaning with Furnace">Deep Duct Cleaning with Furnace</option>
-                    <option value="Basic Duct Cleaning with Furnace and Dryer Vent Cleaning">Basic Duct Cleaning with Furnace and Dryer Vent Cleaning</option>
-                    <option value="Deep Duct Cleaning with Furnace and Dryer Vent Cleaning">Deep Duct Cleaning with Furnace and Dryer Vent Cleaning</option>
-                    <option value="Basic Duct Cleaning with Dryer Vent Cleaning">Basic Duct Cleaning with Dryer Vent Cleaning</option>
-                    <option value="Deep Duct Cleaning with Dryer Vent Cleaning">Deep Duct Cleaning with Dryer Vent Cleaning</option>
-                  </>
-                )}
-              </select>
+            <div className="form-row">
+              <div className="form-group half">
+                <label>Service Type</label>
+                <select
+                  value={serviceType}
+                  onChange={(e) => setServiceType(e.target.value)}
+                  disabled={mode==='carpet' ? carpetLocked : ductLocked}
+                >
+                  {mode === 'carpet' && (
+                    <>
+                      <option>Carpet Cleaning</option>
+                      <option>Upholstery Cleaning</option>
+                      <option>Mattress Cleaning</option>
+                    </>
+                  )}
+                  {mode === 'duct' && (
+                    <>
+                      <option value="Dryer Vent Cleaning">Dryer Vent Cleaning</option>
+                      <option value="Basic Duct Cleaning">Basic Duct Cleaning</option>
+                      <option value="Deep Duct Cleaning">Deep Duct Cleaning</option>
+                      <option value="Basic Duct Cleaning with Furnace">Basic Duct Cleaning with Furnace</option>
+                      <option value="Deep Duct Cleaning with Furnace">Deep Duct Cleaning with Furnace</option>
+                      <option value="Basic Duct Cleaning with Furnace and Dryer Vent Cleaning">Basic Duct Cleaning with Furnace and Dryer Vent Cleaning</option>
+                      <option value="Deep Duct Cleaning with Furnace and Dryer Vent Cleaning">Deep Duct Cleaning with Furnace and Dryer Vent Cleaning</option>
+                      <option value="Basic Duct Cleaning with Dryer Vent Cleaning">Basic Duct Cleaning with Dryer Vent Cleaning</option>
+                      <option value="Deep Duct Cleaning with Dryer Vent Cleaning">Deep Duct Cleaning with Dryer Vent Cleaning</option>
+                    </>
+                  )}
+                </select>
+              </div>
+
+              <div className="form-group half">
+                <label>Quoted Price ($)</label>
+                <input
+                  type="number"
+                  value={quotedPrice}
+                  onChange={(e) => setQuotedPrice(e.target.value)}
+                  disabled={mode==='carpet' ? carpetLocked : ductLocked}
+                />
+              </div>
             </div>
 
-            <div className="form-group">
-              <label>Arrival Window</label>
-              <select value={arrivalWindow} onChange={(e) => setArrivalWindow(e.target.value)}>
-                {mode === 'carpet' && (
-                  <>
-                    <option>Arrival between 8 and 12</option>
-                    <option>Arrival between 10 and 2</option>
-                    <option>Arrival between 12 and 4</option>
-                    <option>Arrival between 1 and 5</option>
-                    <option>Arrival between 3 and 7</option>
-                  </>
-                )}
-                {mode === 'duct' && (
-                  <>
-                    <option>Arrival between 8 and 12</option>
-                    <option>Arrival between 1 and 5</option>
-                  </>
-                )}
-              </select>
-            </div>
+            {/* Specials */}
+            {mode === 'carpet' && (
+              <div className="form-group">
+                <label>Carpet / Upholstery Specials</label>
+                <select value={carpetSpecial} onChange={(e) => applyCarpetSpecial(e.target.value)}>
+                  <option value="custom">— Custom —</option>
+                  <option value="cc150">Carpet Cleaning — $150</option>
+                  <option value="cc200">Carpet Cleaning — $200</option>
+                  <option value="cc250">Carpet Cleaning — $250</option>
+                  <option value="cc300">Carpet Cleaning — $300</option>
+                  <option value="up200">Upholstery Cleaning — $200</option>
+                  <option value="up250">Upholstery Cleaning — $250</option>
+                  <option value="up300">Upholstery Cleaning — $300</option>
+                </select>
+                <small className="hint">Pick a special to auto-fill Service &amp; Price. Switch back to “Custom” to edit.</small>
+              </div>
+            )}
+
+            {mode === 'duct' && (
+              <div className="form-group">
+                <label>Duct Cleaning Specials</label>
+                <select value={ductSpecial} onChange={(e) => applyDuctSpecial(e.target.value)}>
+                  <option value="custom">— Custom —</option>
+                  <option value="deep500">Deep Cleaning (No Furnace) — $500</option>
+                  <option value="deep600">Deep Cleaning with Furnace — $600</option>
+                  <option value="deep1200">Deep Cleaning (Two Units with Furnace) — $1200</option>
+                </select>
+                <small className="hint">Specials set Service &amp; Price. Switch back to “Custom” to edit.</small>
+              </div>
+            )}
           </>
         )}
 
+        {/* MOVING FIELDS */}
         {mode === 'moving' && (
           <>
-            {/* Specials */}
             <div className="form-group">
               <label>Moving Specials</label>
-              <select value={movingSpecial} onChange={(e) => applySpecial(e.target.value)}>
+              <select value={movingSpecial} onChange={(e) => applyMovingSpecial(e.target.value)}>
                 <option value="custom">— Custom —</option>
                 <option value="special_2men">$300 first 2 hrs / $150 addl — 2 Men, 2×17′ trucks</option>
                 <option value="special_4men">$600 first 2 hrs / $300 addl — 4 Men, 2×17′ trucks</option>
-                <option value="special_260">NEW: $260 first 2 hrs / $130 addl — 2 Men, 1×17′ truck</option>
-                <option value="special_delivery">NEW: Delivery $150 first 1 hr / $150 addl — 2 Men, 1×17′ truck</option>
+                <option value="special_260">$260 first 2 hrs / $130 addl — 2 Men, 1×17′ truck</option>
+                <option value="special_delivery">Delivery $150 first 1 hr / $150 addl — 2 Men, 1×17′ truck</option>
               </select>
-              <small className="hint">Pick a special, then choose the arrival window. Switch back to “Custom” to edit fields.</small>
+              <small className="hint">Pick a special, then choose the arrival window above. Switch back to “Custom” to edit fields.</small>
             </div>
 
             <div className="form-row">
               <div className="form-group half">
                 <label>Quoted Price for First Block ($)</label>
-                <input type="number" value={blockPrice} onChange={(e) => setBlockPrice(e.target.value)} disabled={disableWhenSpecial} />
+                <input type="number" value={blockPrice} onChange={(e) => setBlockPrice(e.target.value)} disabled={movingLocked} />
               </div>
               <div className="form-group half">
                 <label>Duration of First Block (hrs)</label>
-                <select value={blockHours} onChange={(e) => setBlockHours(e.target.value)} disabled={disableWhenSpecial}>
+                <select value={blockHours} onChange={(e) => setBlockHours(e.target.value)} disabled={movingLocked}>
                   <option value="2">2</option>
                   <option value="3">3</option>
                   <option value="1">1</option>
@@ -270,45 +345,34 @@ CashApp payment $5 fee
             <div className="form-row">
               <div className="form-group half">
                 <label>Additional Hour Rate ($)</label>
-                <input type="number" value={additionalRate} onChange={(e) => setAdditionalRate(e.target.value)} disabled={disableWhenSpecial} />
+                <input type="number" value={additionalRate} onChange={(e) => setAdditionalRate(e.target.value)} disabled={movingLocked} />
               </div>
               <div className="form-group half">
-                <label>Arrival Window</label>
-                <select value={movingArrival} onChange={(e) => setMovingArrival(e.target.value)}>
-                  <option>Arrival between 7 and 9</option>
-                  <option>Arrival between 9 to 11</option>
-                  <option>Arrival between 11 and 1</option>
-                  <option>Arrival between 1 and 3</option>
-                  <option>Arrival between 3 to 5</option>
+                <label>Number of Movers</label>
+                <select value={numMovers} onChange={(e) => setNumMovers(e.target.value)} disabled={movingLocked}>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
                 </select>
               </div>
             </div>
 
             <div className="form-row">
               <div className="form-group half">
-                <label>Number of Movers</label>
-                <select value={numMovers} onChange={(e) => setNumMovers(e.target.value)} disabled={disableWhenSpecial}>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                </select>
-              </div>
-              <div className="form-group half">
                 <label>Number of Trucks (blank if one)</label>
-                <select value={truckInfo} onChange={(e) => setTruckInfo(e.target.value)} disabled={disableWhenSpecial}>
+                <select value={truckInfo} onChange={(e) => setTruckInfo(e.target.value)} disabled={movingLocked}>
                   <option value=""></option>
                   <option value="2">2</option>
                 </select>
               </div>
-            </div>
-
-            <div className="form-group">
-              <label>Truck Size (Ft)</label>
-              <select value={truckSize} onChange={(e) => setTruckSize(e.target.value)} disabled={disableWhenSpecial}>
-                <option value="17">17</option>
-                <option value="20">20</option>
-                <option value="26">26</option>
-              </select>
+              <div className="form-group half">
+                <label>Truck Size (Ft)</label>
+                <select value={truckSize} onChange={(e) => setTruckSize(e.target.value)} disabled={movingLocked}>
+                  <option value="17">17</option>
+                  <option value="20">20</option>
+                  <option value="26">26</option>
+                </select>
+              </div>
             </div>
           </>
         )}
