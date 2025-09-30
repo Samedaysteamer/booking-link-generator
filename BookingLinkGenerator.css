@@ -1,13 +1,49 @@
-/* Mobile-first, clean, thumb-friendly UI */
+/* Default to LIGHT theme; overrides come from body.theme-* */
 
 :root {
-  --bg: #0b0c10;
-  --card: #121418;
-  --text: #e6e8ec;
-  --muted: #9aa3ad;
-  --primary: #22c55e;  /* green */
+  --bg: #f7f7f9;
+  --card: #ffffff;
+  --text: #0b0c10;
+  --muted: #4b5563;
+  --primary: #16a34a;   /* green */
+  --primary-ink: #062a14;
+  --border: #e5e7eb;
+  --link: #2563eb;
+}
+
+body.theme-light {
+  --bg: #f7f7f9;
+  --card: #ffffff;
+  --text: #0b0c10;
+  --muted: #4b5563;
+  --primary: #16a34a;
+  --primary-ink: #062a14;
+  --border: #e5e7eb;
+  --link: #2563eb;
+}
+
+/* Cool Gray */
+body.theme-gray {
+  --bg: #f3f4f6;
+  --card: #ffffff;
+  --text: #111827;
+  --muted: #6b7280;
+  --primary: #22c55e;
   --primary-ink: #0b3d1f;
-  --border: #1f2430;
+  --border: #e5e7eb;
+  --link: #1d4ed8;
+}
+
+/* Sky (light blue) */
+body.theme-sky {
+  --bg: #f0f9ff;
+  --card: #ffffff;
+  --text: #0b0c10;
+  --muted: #475569;
+  --primary: #0284c7;
+  --primary-ink: #06243a;
+  --border: #dbeafe;
+  --link: #0369a1;
 }
 
 * { box-sizing: border-box; }
@@ -27,9 +63,17 @@ html, body {
 }
 
 .title {
-  margin: 8px 0 16px;
-  font-size: 24px;
+  margin: 8px 0 12px;
+  font-size: 26px;
   line-height: 1.2;
+}
+
+/* Top toolbar (theme selector) */
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
 .card {
@@ -38,7 +82,7 @@ html, body {
   border-radius: 14px;
   padding: 16px;
   margin-bottom: 16px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
 }
 
 .form-group {
@@ -52,7 +96,6 @@ html, body {
 }
 .form-row .half { width: 100%; }
 
-/* Tablets and up: two columns */
 @media (min-width: 640px) {
   .form-row { grid-template-columns: 1fr 1fr; }
 }
@@ -72,16 +115,20 @@ textarea {
   padding: 12px 14px;
   border-radius: 10px;
   border: 1px solid var(--border);
-  background: #0f1116;
+  background: #ffffff;
   color: var(--text);
   font-size: 16px;
   outline: none;
 }
 
-input:disabled,
-select:disabled {
-  opacity: 0.6;
+body.theme-sky input,
+body.theme-sky select,
+body.theme-gray input,
+body.theme-gray select {
+  background: #ffffff;
 }
+
+input:disabled, select:disabled { opacity: 0.6; }
 
 .hint {
   display: block;
@@ -90,8 +137,7 @@ select:disabled {
   color: var(--muted);
 }
 
-.btn-primary,
-.btn-secondary {
+.btn-primary, .btn-secondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -120,7 +166,7 @@ select:disabled {
 
 .link {
   word-break: break-all;
-  color: #60a5fa;
+  color: var(--link);
   text-decoration: underline;
 }
 
