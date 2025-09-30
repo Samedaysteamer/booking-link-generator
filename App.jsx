@@ -202,7 +202,7 @@ CashApp payment $5 fee
           </select>
         </div>
 
-        {/* ARRIVAL WINDOW — moved directly under Sales Rep */}
+        {/* ARRIVAL WINDOW — directly under Sales Rep */}
         <div className="form-group">
           <label>Arrival Window</label>
           {mode === 'moving' ? (
@@ -234,99 +234,101 @@ CashApp payment $5 fee
           )}
         </div>
 
-        {/* CARPET / DUCT FIELDS */}
-        {(mode === 'carpet' || mode === 'duct') && (
-          <>
-            <div className="form-row">
-              <div className="form-group half">
-                <label>Service Type</label>
-                <select
-                  value={serviceType}
-                  onChange={(e) => setServiceType(e.target.value)}
-                  disabled={mode==='carpet' ? carpetLocked : ductLocked}
-                >
-                  {mode === 'carpet' && (
-                    <>
-                      <option>Carpet Cleaning</option>
-                      <option>Upholstery Cleaning</option>
-                      <option>Mattress Cleaning</option>
-                    </>
-                  )}
-                  {mode === 'duct' && (
-                    <>
-                      <option value="Dryer Vent Cleaning">Dryer Vent Cleaning</option>
-                      <option value="Basic Duct Cleaning">Basic Duct Cleaning</option>
-                      <option value="Deep Duct Cleaning">Deep Duct Cleaning</option>
-                      <option value="Basic Duct Cleaning with Furnace">Basic Duct Cleaning with Furnace</option>
-                      <option value="Deep Duct Cleaning with Furnace">Deep Duct Cleaning with Furnace</option>
-                      <option value="Basic Duct Cleaning with Furnace and Dryer Vent Cleaning">Basic Duct Cleaning with Furnace and Dryer Vent Cleaning</option>
-                      <option value="Deep Duct Cleaning with Furnace and Dryer Vent Cleaning">Deep Duct Cleaning with Furnace and Dryer Vent Cleaning</option>
-                      <option value="Basic Duct Cleaning with Dryer Vent Cleaning">Basic Duct Cleaning with Dryer Vent Cleaning</option>
-                      <option value="Deep Duct Cleaning with Dryer Vent Cleaning">Deep Duct Cleaning with Dryer Vent Cleaning</option>
-                    </>
-                  )}
-                </select>
-              </div>
-
-              <div className="form-group half">
-                <label>Quoted Price ($)</label>
-                <input
-                  type="number"
-                  value={quotedPrice}
-                  onChange={(e) => setQuotedPrice(e.target.value)}
-                  disabled={mode==='carpet' ? carpetLocked : ductLocked}
-                />
-              </div>
-            </div>
-
-            {/* Specials */}
-            {mode === 'carpet' && (
-              <div className="form-group">
-                <label>Carpet / Upholstery Specials</label>
-                <select value={carpetSpecial} onChange={(e) => applyCarpetSpecial(e.target.value)}>
-                  <option value="custom">— Custom —</option>
-                  <option value="cc150">Carpet Cleaning — $150</option>
-                  <option value="cc200">Carpet Cleaning — $200</option>
-                  <option value="cc250">Carpet Cleaning — $250</option>
-                  <option value="cc300">Carpet Cleaning — $300</option>
-                  <option value="up200">Upholstery Cleaning — $200</option>
-                  <option value="up250">Upholstery Cleaning — $250</option>
-                  <option value="up300">Upholstery Cleaning — $300</option>
-                </select>
-                <small className="hint">Pick a special to auto-fill Service &amp; Price. Switch back to “Custom” to edit.</small>
-              </div>
-            )}
-
-            {mode === 'duct' && (
-              <div className="form-group">
-                <label>Duct Cleaning Specials</label>
-                <select value={ductSpecial} onChange={(e) => applyDuctSpecial(e.target.value)}>
-                  <option value="custom">— Custom —</option>
-                  <option value="deep500">Deep Cleaning (No Furnace) — $500</option>
-                  <option value="deep600">Deep Cleaning with Furnace — $600</option>
-                  <option value="deep1200">Deep Cleaning (Two Units with Furnace) — $1200</option>
-                </select>
-                <small className="hint">Specials set Service &amp; Price. Switch back to “Custom” to edit.</small>
-              </div>
-            )}
-          </>
+        {/* SPECIALS go RIGHT UNDER Arrival Window for ALL modes */}
+        {mode === 'moving' && (
+          <div className="form-group">
+            <label>Moving Specials</label>
+            <select value={movingSpecial} onChange={(e) => applyMovingSpecial(e.target.value)}>
+              <option value="custom">— Custom —</option>
+              <option value="special_2men">300 for the first two hours, 150 for each additional hour.</option>
+              <option value="special_4men">600 for the first two hours, 300 for each additional hour.</option>
+              <option value="special_260">260 for the first two hours, 130 for each additional hour.</option>
+              <option value="special_delivery">Delivery — 150 for the first hour, 150 for each additional hour.</option>
+            </select>
+            <small className="hint">Pick a special, then adjust other fields if needed (switch to “Custom” to edit locked fields).</small>
+          </div>
         )}
 
-        {/* MOVING FIELDS */}
-        {mode === 'moving' && (
-          <>
-            <div className="form-group">
-              <label>Moving Specials</label>
-              <select value={movingSpecial} onChange={(e) => applyMovingSpecial(e.target.value)}>
-                <option value="custom">— Custom —</option>
-                <option value="special_2men">$300 first 2 hrs / $150 addl — 2 Men, 2×17′ trucks</option>
-                <option value="special_4men">$600 first 2 hrs / $300 addl — 4 Men, 2×17′ trucks</option>
-                <option value="special_260">$260 first 2 hrs / $130 addl — 2 Men, 1×17′ truck</option>
-                <option value="special_delivery">Delivery $150 first 1 hr / $150 addl — 2 Men, 1×17′ truck</option>
+        {mode === 'carpet' && (
+          <div className="form-group">
+            <label>Carpet / Upholstery Specials</label>
+            <select value={carpetSpecial} onChange={(e) => applyCarpetSpecial(e.target.value)}>
+              <option value="custom">— Custom —</option>
+              {/* Carpet Cleaning */}
+              <option value="cc150">Carpet Cleaning — $150</option>
+              <option value="cc200">Carpet Cleaning — $200</option>
+              <option value="cc250">Carpet Cleaning — $250</option>
+              <option value="cc300">Carpet Cleaning — $300</option>
+              {/* Upholstery Cleaning */}
+              <option value="up200">Upholstery Cleaning — $200</option>
+              <option value="up250">Upholstery Cleaning — $250</option>
+              <option value="up300">Upholstery Cleaning — $300</option>
+            </select>
+            <small className="hint">Specials set Service & Price. Switch back to “Custom” to edit.</small>
+          </div>
+        )}
+
+        {mode === 'duct' && (
+          <div className="form-group">
+            <label>Duct Cleaning Specials</label>
+            <select value={ductSpecial} onChange={(e) => applyDuctSpecial(e.target.value)}>
+              <option value="custom">— Custom —</option>
+              <option value="deep500">Deep Cleaning (No Furnace) — $500</option>
+              <option value="deep600">Deep Cleaning with Furnace — $600</option>
+              <option value="deep1200">Deep Cleaning (Two Units with Furnace) — $1200</option>
+            </select>
+            <small className="hint">Specials set Service & Price. Switch back to “Custom” to edit.</small>
+          </div>
+        )}
+
+        {/* CARPET / DUCT additional fields AFTER specials */}
+        {(mode === 'carpet' || mode === 'duct') && (
+          <div className="form-row">
+            <div className="form-group half">
+              <label>Service Type</label>
+              <select
+                value={serviceType}
+                onChange={(e) => setServiceType(e.target.value)}
+                disabled={mode==='carpet' ? carpetLocked : ductLocked}
+              >
+                {mode === 'carpet' && (
+                  <>
+                    <option>Carpet Cleaning</option>
+                    <option>Upholstery Cleaning</option>
+                    <option>Mattress Cleaning</option>
+                  </>
+                )}
+                {mode === 'duct' && (
+                  <>
+                    <option value="Dryer Vent Cleaning">Dryer Vent Cleaning</option>
+                    <option value="Basic Duct Cleaning">Basic Duct Cleaning</option>
+                    <option value="Deep Duct Cleaning">Deep Duct Cleaning</option>
+                    <option value="Basic Duct Cleaning with Furnace">Basic Duct Cleaning with Furnace</option>
+                    <option value="Deep Duct Cleaning with Furnace">Deep Duct Cleaning with Furnace</option>
+                    <option value="Basic Duct Cleaning with Furnace and Dryer Vent Cleaning">Basic Duct Cleaning with Furnace and Dryer Vent Cleaning</option>
+                    <option value="Deep Duct Cleaning with Furnace and Dryer Vent Cleaning">Deep Duct Cleaning with Furnace and Dryer Vent Cleaning</option>
+                    <option value="Basic Duct Cleaning with Dryer Vent Cleaning">Basic Duct Cleaning with Dryer Vent Cleaning</option>
+                    <option value="Deep Duct Cleaning with Dryer Vent Cleaning">Deep Duct Cleaning with Dryer Vent Cleaning</option>
+                  </>
+                )}
               </select>
-              <small className="hint">Pick a special, then choose the arrival window above. Switch back to “Custom” to edit fields.</small>
             </div>
 
+            <div className="form-group half">
+              <label>Quoted Price ($)</label>
+              <input
+                type="number"
+                value={quotedPrice}
+                onChange={(e) => setQuotedPrice(e.target.value)}
+                disabled={mode==='carpet' ? carpetLocked : ductLocked}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* MOVING fields AFTER specials */}
+        {mode === 'moving' && (
+          <>
             <div className="form-row">
               <div className="form-group half">
                 <label>Quoted Price for First Block ($)</label>
