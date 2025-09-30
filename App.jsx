@@ -17,8 +17,8 @@ export default function App() {
   const [truckInfo, setTruckInfo] = useState('');
   const [truckSize, setTruckSize] = useState('17');
 
-  const [generatedLink, setGeneratedLink] = useState(''); // short link to send
-  const [rawLink, setRawLink] = useState('');             // long link for debug/backup
+  const [generatedLink, setGeneratedLink] = useState('');
+  const [rawLink, setRawLink] = useState('');
 
   const generateLink = () => {
     let summary = '';
@@ -36,28 +36,17 @@ ${arrivalWindow}
 Payment method: Cash Cashapp Zelle
 Card payment: 7% processing fee`;
 
-      baseUrl = (mode === 'duct') 
+      baseUrl = (mode === 'duct')
         ? 'https://form.jotform.com/251573697976175'
         : 'https://form.jotform.com/251536451249054';
 
       arrivalWindowText = arrivalWindow;
 
-      if (arrivalWindow === 'Arrival between 8 and 12') {
-        arrivalStart = '8 AM';
-        arrivalEnd = '12 PM';
-      } else if (arrivalWindow === 'Arrival between 10 and 2') {
-        arrivalStart = '10 AM';
-        arrivalEnd = '2 PM';
-      } else if (arrivalWindow === 'Arrival between 12 and 4') {
-        arrivalStart = '12 PM';
-        arrivalEnd = '4 PM';
-      } else if (arrivalWindow === 'Arrival between 1 and 5') {
-        arrivalStart = '1 PM';
-        arrivalEnd = '5 PM';
-      } else if (arrivalWindow === 'Arrival between 3 and 7') {
-        arrivalStart = '3 PM';
-        arrivalEnd = '7 PM';
-      }
+      if (arrivalWindow === 'Arrival between 8 and 12') { arrivalStart = '8 AM'; arrivalEnd = '12 PM'; }
+      else if (arrivalWindow === 'Arrival between 10 and 2') { arrivalStart = '10 AM'; arrivalEnd = '2 PM'; }
+      else if (arrivalWindow === 'Arrival between 12 and 4') { arrivalStart = '12 PM'; arrivalEnd = '4 PM'; }
+      else if (arrivalWindow === 'Arrival between 1 and 5') { arrivalStart = '1 PM'; arrivalEnd = '5 PM'; }
+      else if (arrivalWindow === 'Arrival between 3 and 7') { arrivalStart = '3 PM'; arrivalEnd = '7 PM'; }
     } else {
       const truckLabel = truckInfo ? `(${truckInfo}) ` : '';
       summary = `${salesRep}
@@ -74,22 +63,11 @@ CashApp payment $5 fee
       baseUrl = 'https://form.jotform.com/251537865180159';
       arrivalWindowText = movingArrival;
 
-      if (movingArrival === 'Arrival between 7 and 9') {
-        arrivalStart = '7 AM';
-        arrivalEnd = '9 AM';
-      } else if (movingArrival === 'Arrival between 9 to 11') {
-        arrivalStart = '9 AM';
-        arrivalEnd = '11 AM';
-      } else if (movingArrival === 'Arrival between 11 and 1') {
-        arrivalStart = '11 AM';
-        arrivalEnd = '1 PM';
-      } else if (movingArrival === 'Arrival between 1 and 3') {
-        arrivalStart = '1 PM';
-        arrivalEnd = '3 PM';
-      } else if (movingArrival === 'Arrival between 3 to 5') {
-        arrivalStart = '3 PM';
-        arrivalEnd = '5 PM';
-      }
+      if (movingArrival === 'Arrival between 7 and 9') { arrivalStart = '7 AM'; arrivalEnd = '9 AM'; }
+      else if (movingArrival === 'Arrival between 9 to 11') { arrivalStart = '9 AM'; arrivalEnd = '11 AM'; }
+      else if (movingArrival === 'Arrival between 11 and 1') { arrivalStart = '11 AM'; arrivalEnd = '1 PM'; }
+      else if (movingArrival === 'Arrival between 1 and 3') { arrivalStart = '1 PM'; arrivalEnd = '3 PM'; }
+      else if (movingArrival === 'Arrival between 3 to 5') { arrivalStart = '3 PM'; arrivalEnd = '5 PM'; }
 
       setServiceType('Moving');
     }
@@ -97,18 +75,18 @@ CashApp payment $5 fee
     const encodedSummary = encodeURIComponent(summary);
     const finalService = encodeURIComponent(mode === 'moving' ? 'Moving' : serviceType);
 
-    fullLink = `${baseUrl}?bookingSummary=${encodedSummary}` +
-               `&arrivalStart=${encodeURIComponent(arrivalStart)}` +
-               `&arrivalEnd=${encodeURIComponent(arrivalEnd)}` +
-               `&arrivalWindow=${encodeURIComponent(arrivalWindowText)}` +
-               `&service=${finalService}` +
-               `&price=${quotedPrice}` +
-               `&salesRep=${encodeURIComponent(salesRep)}`;
+    fullLink =
+      `${baseUrl}?bookingSummary=${encodedSummary}` +
+      `&arrivalStart=${encodeURIComponent(arrivalStart)}` +
+      `&arrivalEnd=${encodeURIComponent(arrivalEnd)}` +
+      `&arrivalWindow=${encodeURIComponent(arrivalWindowText)}` +
+      `&service=${finalService}` +
+      `&price=${quotedPrice}` +
+      `&salesRep=${encodeURIComponent(salesRep)}`;
 
-    // keep the long link visible for verification/backup
     setRawLink(fullLink);
 
-    // ✅ Shorten server-side (no CORS, no client rewrite)
+    // Shorten via Vercel serverless to guarantee correct redirect
     fetch(`/api/shorten?url=${encodeURIComponent(fullLink)}`)
       .then(r => r.json())
       .then(({ shortUrl }) => setGeneratedLink(shortUrl || fullLink))
