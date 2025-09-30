@@ -17,8 +17,8 @@ export default function App() {
   const [truckInfo, setTruckInfo] = useState('');
   const [truckSize, setTruckSize] = useState('17');
 
-  const [generatedLink, setGeneratedLink] = useState('');
-  const [rawLink, setRawLink] = useState('');
+  const [generatedLink, setGeneratedLink] = useState(''); // short link to send
+  const [rawLink, setRawLink] = useState('');             // long link for debug/backup
 
   const generateLink = () => {
     let summary = '';
@@ -36,7 +36,7 @@ ${arrivalWindow}
 Payment method: Cash Cashapp Zelle
 Card payment: 7% processing fee`;
 
-      baseUrl = (mode === 'duct')
+      baseUrl = (mode === 'duct') 
         ? 'https://form.jotform.com/251573697976175'
         : 'https://form.jotform.com/251536451249054';
 
@@ -91,25 +91,28 @@ CashApp payment $5 fee
         arrivalEnd = '5 PM';
       }
 
-      setServiceType("Moving");
+      setServiceType('Moving');
     }
 
     const encodedSummary = encodeURIComponent(summary);
     const finalService = encodeURIComponent(mode === 'moving' ? 'Moving' : serviceType);
 
-    fullLink = `${baseUrl}?bookingSummary=${encodedSummary}&arrivalStart=${encodeURIComponent(arrivalStart)}&arrivalEnd=${encodeURIComponent(arrivalEnd)}&arrivalWindow=${encodeURIComponent(arrivalWindowText)}&service=${finalService}&price=${quotedPrice}&salesRep=${encodeURIComponent(salesRep)}`;
+    fullLink = `${baseUrl}?bookingSummary=${encodedSummary}` +
+               `&arrivalStart=${encodeURIComponent(arrivalStart)}` +
+               `&arrivalEnd=${encodeURIComponent(arrivalEnd)}` +
+               `&arrivalWindow=${encodeURIComponent(arrivalWindowText)}` +
+               `&service=${finalService}` +
+               `&price=${quotedPrice}` +
+               `&salesRep=${encodeURIComponent(salesRep)}`;
+
+    // keep the long link visible for verification/backup
     setRawLink(fullLink);
 
-    // Shorten using TinyURL
-    fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(fullLink)}`)
-      .then(res => res.text())
-      .then(shortLink => {
-        setGeneratedLink(shortLink);
-      })
-      .catch(err => {
-        console.error('Shortening failed:', err);
-        setGeneratedLink(fullLink); // fallback
-      });
+    // ✅ Shorten server-side (no CORS, no client rewrite)
+    fetch(`/api/shorten?url=${encodeURIComponent(fullLink)}`)
+      .then(r => r.json())
+      .then(({ shortUrl }) => setGeneratedLink(shortUrl || fullLink))
+      .catch(() => setGeneratedLink(fullLink));
   };
 
   return (
