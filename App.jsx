@@ -1,8 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './BookingLinkGenerator.css';
 
 export default function App() {
-  // -------- Core state (unchanged defaults) --------
+  // ---------- Theme ----------
+  const [theme, setTheme] = useState('light'); // light | gray | sky
+  useEffect(() => {
+    const cls = document.body.classList;
+    cls.remove('theme-light','theme-gray','theme-sky');
+    cls.add(`theme-${theme}`);
+  }, [theme]);
+
+  // ---------- Core state (your existing defaults) ----------
   const [mode, setMode] = useState('carpet');
   const [salesRep, setSalesRep] = useState('');
 
@@ -15,42 +23,43 @@ export default function App() {
   const [additionalRate, setAdditionalRate] = useState('');
   const [movingArrival, setMovingArrival] = useState('Arrival between 7 and 9');
   const [numMovers, setNumMovers] = useState('2');
-  const [truckInfo, setTruckInfo] = useState(''); // "" or "2"
+  const [truckInfo, setTruckInfo] = useState(''); // "" = one truck, "2" = 2 trucks
   const [truckSize, setTruckSize] = useState('17');
 
   const [generatedLink, setGeneratedLink] = useState(''); // short link to send
   const [rawLink, setRawLink] = useState('');             // long link debug
   const [copied, setCopied] = useState(false);
 
-  // -------- New: Moving Specials --------
-  // "custom" = your original behavior (manual fields)
-  // "special_2men"  -> $300 first 2 hrs, $150 addl, 2 men, 2x17' trucks
-  // "special_4men"  -> $600 first 2 hrs, $300 addl, 4 men, 2x17' trucks
+  // ---------- NEW: Moving Specials ----------
+  // custom = original behavior
   const [movingSpecial, setMovingSpecial] = useState('custom');
 
   const applySpecial = (value) => {
     setMovingSpecial(value);
+
     if (value === 'special_2men') {
-      setBlockPrice('300');
-      setBlockHours('2');
-      setAdditionalRate('150');
-      setNumMovers('2');
-      setTruckInfo('2');     // two trucks
-      setTruckSize('17');    // 17 ft
+      // $300 / $150 — 2 Men, 2×17'
+      setBlockPrice('300'); setBlockHours('2'); setAdditionalRate('150');
+      setNumMovers('2'); setTruckInfo('2'); setTruckSize('17');
     } else if (value === 'special_4men') {
-      setBlockPrice('600');
-      setBlockHours('2');
-      setAdditionalRate('300');
-      setNumMovers('4');
-      setTruckInfo('2');     // two trucks
-      setTruckSize('17');    // 17 ft
+      // $600 / $300 — 4 Men, 2×17'
+      setBlockPrice('600'); setBlockHours('2'); setAdditionalRate('300');
+      setNumMovers('4'); setTruckInfo('2'); setTruckSize('17');
+    } else if (value === 'special_260') {
+      // ✅ NEW: $260 / $130 — 2 Men, 1×17'
+      setBlockPrice('260'); setBlockHours('2'); setAdditionalRate('130');
+      setNumMovers('2'); setTruckInfo(''); setTruckSize('17');
+    } else if (value === 'special_delivery') {
+      // ✅ NEW: Delivery $150 first 1 hr / $150 addl — 2 Men, 1×17'
+      setBlockPrice('150'); setBlockHours('1'); setAdditionalRate('150');
+      setNumMovers('2'); setTruckInfo(''); setTruckSize('17');
     }
-    // If custom: leave whatever the rep already entered
+    // if "custom", leave current inputs as-is
   };
 
   const disableWhenSpecial = movingSpecial !== 'custom';
 
-  // -------- Link Generator (same logic you had, intact) --------
+  // ---------- Link Generator (your logic, intact) ----------
   const generateLink = () => {
     let summary = '';
     let baseUrl = '';
@@ -67,7 +76,7 @@ ${arrivalWindow}
 Payment method: Cash Cashapp Zelle
 Card payment: 7% processing fee`;
 
-      baseUrl = (mode === 'duct')
+      baseUrl = (mode === 'duct') 
         ? 'https://form.jotform.com/251573697976175'
         : 'https://form.jotform.com/251536451249054';
 
@@ -118,7 +127,7 @@ CashApp payment $5 fee
     setRawLink(fullLink);
     setCopied(false);
 
-    // Shorten via your Vercel API (server-side: /api/shorten.js)
+    // Shorten via your Vercel serverless function
     fetch(`/api/shorten?url=${encodeURIComponent(fullLink)}`)
       .then(r => r.json())
       .then(({ shortUrl }) => setGeneratedLink(shortUrl || fullLink))
@@ -131,14 +140,23 @@ CashApp payment $5 fee
       await navigator.clipboard.writeText(generatedLink);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch (_) {
-      setCopied(false);
-    }
+    } catch (_) { setCopied(false); }
   };
 
   return (
     <div className="container">
       <h1 className="title">Booking Link Generator</h1>
+
+      <div className="toolbar">
+        <div className="form-group">
+          <label>Theme</label>
+          <select value={theme} onChange={(e) => setTheme(e.target.value)}>
+            <option value="light">Light (white/gray)</option>
+            <option value="gray">Cool Gray</option>
+            <option value="sky">Sky (light blue)</option>
+          </select>
+        </div>
+      </div>
 
       <div className="card">
         <div className="form-group">
@@ -228,8 +246,10 @@ CashApp payment $5 fee
                 <option value="custom">— Custom —</option>
                 <option value="special_2men">$300 first 2 hrs / $150 addl — 2 Men, 2×17′ trucks</option>
                 <option value="special_4men">$600 first 2 hrs / $300 addl — 4 Men, 2×17′ trucks</option>
+                <option value="special_260">NEW: $260 first 2 hrs / $130 addl — 2 Men, 1×17′ truck</option>
+                <option value="special_delivery">NEW: Delivery $150 first 1 hr / $150 addl — 2 Men, 1×17′ truck</option>
               </select>
-              <small className="hint">Pick a special, then choose the arrival window. You can switch back to “Custom” to edit fields.</small>
+              <small className="hint">Pick a special, then choose the arrival window. Switch back to “Custom” to edit fields.</small>
             </div>
 
             <div className="form-row">
