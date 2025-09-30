@@ -83,7 +83,7 @@ export default function App() {
   };
   const ductLocked = ductSpecial !== 'custom';
 
-  // ---------- Link Generator (unchanged logic) ----------
+  // ---------- Link Generator ----------
   const generateLink = () => {
     let summary = '';
     let baseUrl = '';
@@ -157,7 +157,21 @@ CashApp payment $5 fee
       .catch(() => setGeneratedLink(fullLink));
   };
 
-  const copyShort = async () => {
+  // ---------- Copy helpers (now copy message + link) ----------
+  const shareText = generatedLink
+    ? `Click on the link below so we can get your work order created:\n${generatedLink}`
+    : '';
+
+  const copyMessage = async () => {
+    if (!generatedLink) return;
+    try {
+      await navigator.clipboard.writeText(shareText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (_) { setCopied(false); }
+  };
+
+  const copyLinkOnly = async () => {
     if (!generatedLink) return;
     try {
       await navigator.clipboard.writeText(generatedLink);
@@ -235,7 +249,7 @@ CashApp payment $5 fee
           )}
         </div>
 
-        {/* SPECIALS go RIGHT UNDER Arrival Window for ALL modes */}
+        {/* SPECIALS right under Arrival Window */}
         {mode === 'moving' && (
           <div className="form-group">
             <label>Moving Specials</label>
@@ -255,13 +269,11 @@ CashApp payment $5 fee
             <label>Carpet / Upholstery Specials</label>
             <select value={carpetSpecial} onChange={(e) => applyCarpetSpecial(e.target.value)}>
               <option value="custom">— Custom —</option>
-              {/* Carpet Cleaning (added $130 before $150) */}
               <option value="cc130">Carpet Cleaning — $130</option>
               <option value="cc150">Carpet Cleaning — $150</option>
               <option value="cc200">Carpet Cleaning — $200</option>
               <option value="cc250">Carpet Cleaning — $250</option>
               <option value="cc300">Carpet Cleaning — $300</option>
-              {/* Upholstery Cleaning */}
               <option value="up200">Upholstery Cleaning — $200</option>
               <option value="up250">Upholstery Cleaning — $250</option>
               <option value="up300">Upholstery Cleaning — $300</option>
@@ -283,7 +295,7 @@ CashApp payment $5 fee
           </div>
         )}
 
-        {/* CARPET / DUCT additional fields AFTER specials */}
+        {/* CARPET / DUCT fields after specials */}
         {(mode === 'carpet' || mode === 'duct') && (
           <div className="form-row">
             <div className="form-group half">
@@ -328,7 +340,7 @@ CashApp payment $5 fee
           </div>
         )}
 
-        {/* MOVING fields AFTER specials */}
+        {/* MOVING fields after specials */}
         {mode === 'moving' && (
           <>
             <div className="form-row">
@@ -394,9 +406,20 @@ CashApp payment $5 fee
             <a className="link" href={generatedLink} target="_blank" rel="noopener noreferrer">
               {generatedLink}
             </a>
-            <button className="btn-secondary" onClick={copyShort}>
-              {copied ? 'Copied!' : 'Copy'}
-            </button>
+
+            <div style={{ marginTop: 8, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <button className="btn-secondary" onClick={copyMessage}>
+                {copied ? 'Copied!' : 'Copy'}
+              </button>
+              <button className="btn-secondary" onClick={copyLinkOnly}>
+                Copy Link Only
+              </button>
+            </div>
+
+            <div className="form-group" style={{ marginTop: 12 }}>
+              <label>Message that gets copied</label>
+              <textarea rows={3} readOnly value={shareText} />
+            </div>
           </>
         ) : (
           <p className="muted">Generate a link to see it here.</p>
