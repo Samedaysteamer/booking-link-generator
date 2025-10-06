@@ -48,7 +48,8 @@ export default function App() {
       setBlockPrice('260'); setBlockHours('2'); setAdditionalRate('130');
       setNumMovers('2'); setTruckInfo(''); setTruckSize('17');
     } else if (value === 'special_delivery') {
-      setBlockPrice('150'); setBlockHours('1'); setAdditionalRate('150');
+      // UPDATED: $200 first hour / $150 addl
+      setBlockPrice('200'); setBlockHours('1'); setAdditionalRate('150');
       setNumMovers('2'); setTruckInfo(''); setTruckSize('17');
     }
   };
@@ -58,7 +59,8 @@ export default function App() {
   const [carpetSpecial, setCarpetSpecial] = useState('custom');
   const applyCarpetSpecial = (value) => {
     setCarpetSpecial(value);
-    if (value === 'cc130') { setServiceType('Carpet Cleaning'); setQuotedPrice('130'); }
+    if (value === 'cc100') { setServiceType('Carpet Cleaning'); setQuotedPrice('100'); }   // NEW
+    else if (value === 'cc130') { setServiceType('Carpet Cleaning'); setQuotedPrice('130'); }
     else if (value === 'cc150') { setServiceType('Carpet Cleaning'); setQuotedPrice('150'); }
     else if (value === 'cc200') { setServiceType('Carpet Cleaning'); setQuotedPrice('200'); }
     else if (value === 'cc250') { setServiceType('Carpet Cleaning'); setQuotedPrice('250'); }
@@ -157,7 +159,7 @@ CashApp payment $5 fee
       .catch(() => setGeneratedLink(fullLink));
   };
 
-  // ---------- Copy helpers (now copy message + link) ----------
+  // ---------- Copy helpers ----------
   const shareText = generatedLink
     ? `Click on the link below so we can get your work order created:\n${generatedLink}`
     : '';
@@ -258,7 +260,7 @@ CashApp payment $5 fee
               <option value="special_2men">300 for the first two hours, 150 for each additional hour.</option>
               <option value="special_4men">600 for the first two hours, 300 for each additional hour.</option>
               <option value="special_260">260 for the first two hours, 130 for each additional hour.</option>
-              <option value="special_delivery">Delivery — 150 for the first hour, 150 for each additional hour.</option>
+              <option value="special_delivery">Delivery — 200 for the first hour, 150 for each additional hour.</option>
             </select>
             <small className="hint">Pick a special, then adjust other fields if needed (switch to “Custom” to edit locked fields).</small>
           </div>
@@ -269,6 +271,7 @@ CashApp payment $5 fee
             <label>Carpet / Upholstery Specials</label>
             <select value={carpetSpecial} onChange={(e) => applyCarpetSpecial(e.target.value)}>
               <option value="custom">— Custom —</option>
+              <option value="cc100">Carpet Cleaning — $100</option> {/* NEW */}
               <option value="cc130">Carpet Cleaning — $130</option>
               <option value="cc150">Carpet Cleaning — $150</option>
               <option value="cc200">Carpet Cleaning — $200</option>
