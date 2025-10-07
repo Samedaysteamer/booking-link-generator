@@ -48,7 +48,7 @@ export default function App() {
       setBlockPrice('260'); setBlockHours('2'); setAdditionalRate('130');
       setNumMovers('2'); setTruckInfo(''); setTruckSize('17');
     } else if (value === 'special_delivery') {
-      // UPDATED: $200 first hour / $150 addl
+      // $200 first hour / $150 addl (updated earlier)
       setBlockPrice('200'); setBlockHours('1'); setAdditionalRate('150');
       setNumMovers('2'); setTruckInfo(''); setTruckSize('17');
     }
@@ -59,7 +59,7 @@ export default function App() {
   const [carpetSpecial, setCarpetSpecial] = useState('custom');
   const applyCarpetSpecial = (value) => {
     setCarpetSpecial(value);
-    if (value === 'cc100') { setServiceType('Carpet Cleaning'); setQuotedPrice('100'); }   // NEW
+    if (value === 'cc100') { setServiceType('Carpet Cleaning'); setQuotedPrice('100'); }
     else if (value === 'cc130') { setServiceType('Carpet Cleaning'); setQuotedPrice('130'); }
     else if (value === 'cc150') { setServiceType('Carpet Cleaning'); setQuotedPrice('150'); }
     else if (value === 'cc200') { setServiceType('Carpet Cleaning'); setQuotedPrice('200'); }
@@ -134,6 +134,9 @@ CashApp payment $5 fee
       else if (movingArrival === 'Arrival between 11 and 1')  { arrivalStart = '11 AM'; arrivalEnd = '1 PM';  }
       else if (movingArrival === 'Arrival between 1 and 3')   { arrivalStart = '1 PM';  arrivalEnd = '3 PM';  }
       else if (movingArrival === 'Arrival between 3 to 5')    { arrivalStart = '3 PM';  arrivalEnd = '5 PM';  }
+      else if (movingArrival === 'Arrival between 6 and 8 pm' || movingArrival === 'Arrival between 6 and 8pm') {
+        arrivalStart = '6 PM'; arrivalEnd = '8 PM';
+      }
 
       setServiceType('Moving');
     }
@@ -229,6 +232,7 @@ CashApp payment $5 fee
               <option>Arrival between 11 and 1</option>
               <option>Arrival between 1 and 3</option>
               <option>Arrival between 3 to 5</option>
+              <option>Arrival between 6 and 8 pm</option> {/* NEW */}
             </select>
           ) : (
             <select value={arrivalWindow} onChange={(e) => setArrivalWindow(e.target.value)}>
@@ -271,7 +275,7 @@ CashApp payment $5 fee
             <label>Carpet / Upholstery Specials</label>
             <select value={carpetSpecial} onChange={(e) => applyCarpetSpecial(e.target.value)}>
               <option value="custom">— Custom —</option>
-              <option value="cc100">Carpet Cleaning — $100</option> {/* NEW */}
+              <option value="cc100">Carpet Cleaning — $100</option>
               <option value="cc130">Carpet Cleaning — $130</option>
               <option value="cc150">Carpet Cleaning — $150</option>
               <option value="cc200">Carpet Cleaning — $200</option>
