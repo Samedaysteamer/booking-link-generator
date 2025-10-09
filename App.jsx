@@ -40,7 +40,7 @@ export default function App() {
     setMovingSpecial(value);
     if (value === 'special_2men') {
       setBlockPrice('300'); setBlockHours('2'); setAdditionalRate('150');
-      setNumMovers('2'); setTruckInfo('2'); setTruckSize('17');
+      setNumMovers('2'); setTruckInfo('1'); setTruckSize('17');
     } else if (value === 'special_4men') {
       setBlockPrice('600'); setBlockHours('2'); setAdditionalRate('300');
       setNumMovers('4'); setTruckInfo('2'); setTruckSize('17');
@@ -264,7 +264,7 @@ CashApp payment $5 fee
               <option value="special_2men">300 for the first two hours, 150 for each additional hour.</option>
               <option value="special_4men">600 for the first two hours, 300 for each additional hour.</option>
               <option value="special_260">260 for the first two hours, 130 for each additional hour.</option>
-              <option value="special_delivery">Delivery — 200 for the first hour, 150 for each additional hour.</option>
+              <option value="special_delivery">200 for the first hour, 150 for each additional hour.</option>
             </select>
             <small className="hint">Pick a special, then adjust other fields if needed (switch to “Custom” to edit locked fields).</small>
           </div>
