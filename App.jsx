@@ -1,498 +1,1234 @@
-import React, { useMemo, useState } from 'react';
-import { Copy, ExternalLink, Link2, Bug, CheckCircle2, ChevronRight, Sparkles, User2, Clock3, DollarSign, ShieldCheck } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
 
-const carpetPresets = [
-  { id: 'cc100', label: 'Carpet Cleaning', price: 100, note: 'Fast close special' },
-  { id: 'cc130', label: 'Carpet Cleaning', price: 130, note: 'Mid-ticket close' },
-  { id: 'cc150', label: 'Carpet Cleaning', price: 150, note: 'Standard premium' },
-  { id: 'up200', label: 'Upholstery Cleaning', price: 200, note: 'Sofa / loveseat entry' },
+const SALES_REPS = ['*01*', '*02*', '*03*', '*04*', '*05*'];
+
+const CARPET_PRESETS = [
+  { id: 'cc100', label: 'Carpet Cleaning', price: '100', note: 'Fast close special' },
+  { id: 'cc130', label: 'Carpet Cleaning', price: '130', note: 'Mid-ticket close' },
+  { id: 'cc150', label: 'Carpet Cleaning', price: '150', note: 'Standard premium' },
+  { id: 'cc200', label: 'Carpet Cleaning', price: '200', note: 'Higher-ticket close' },
+  { id: 'cc250', label: 'Carpet Cleaning', price: '250', note: 'Large-home close' },
+  { id: 'cc300', label: 'Carpet Cleaning', price: '300', note: 'Premium close' },
+  { id: 'up200', label: 'Upholstery Cleaning', price: '200', note: 'Sofa / loveseat entry' },
+  { id: 'up250', label: 'Upholstery Cleaning', price: '250', note: 'Mid-ticket upholstery' },
+  { id: 'up300', label: 'Upholstery Cleaning', price: '300', note: 'Premium upholstery' },
 ];
 
-const ductPresets = [
-  { id: 'deep500', label: 'Deep Duct Cleaning (No Furnace)', price: 500, note: 'Single-system close' },
-  { id: 'deep600', label: 'Deep Duct Cleaning with Furnace', price: 600, note: 'Best-value upsell' },
-  { id: 'deep1200', label: 'Two Units with Furnace', price: 1200, note: 'Multi-system close' },
+const DUCT_PRESETS = [
+  { id: 'deep500', label: 'Deep Duct Cleaning (No Furnace)', price: '500', note: 'Single-system close' },
+  { id: 'deep600', label: 'Deep Duct Cleaning with Furnace', price: '600', note: 'Best-value upsell' },
+  { id: 'deep1200', label: 'Deep Duct Cleaning (Two Units with Furnace)', price: '1200', note: 'Multi-system close' },
 ];
 
-const movingPresets = [
-  { id: 'm300', label: '$300 first 2 hours', price: 300, meta: '$150 each additional hour' },
-  { id: 'm260', label: '$260 first 2 hours', price: 260, meta: '$130 each additional hour' },
-  { id: 'm600', label: '$600 first 2 hours', price: 600, meta: '$300 each additional hour / 4 men' },
-  { id: 'm200', label: '$200 first hour', price: 200, meta: '$150 each additional hour / delivery' },
+const MOVING_PRESETS = [
+  { id: 'special_2men', label: '$300 first 2 hours', price: '300', hours: '2', rate: '150', movers: '2', trucks: '1', truckSize: '17', note: '$150 each additional hour' },
+  { id: 'special_4men', label: '$600 first 2 hours', price: '600', hours: '2', rate: '300', movers: '4', trucks: '2', truckSize: '17', note: '$300 each additional hour / 4 men' },
+  { id: 'special_260', label: '$260 first 2 hours', price: '260', hours: '2', rate: '130', movers: '2', trucks: '', truckSize: '17', note: '$130 each additional hour' },
+  { id: 'special_delivery', label: '$200 first hour', price: '200', hours: '1', rate: '150', movers: '2', trucks: '', truckSize: '17', note: '$150 each additional hour / delivery' },
 ];
 
-const carpetWindows = [
-  'Arrival between 8 and 12',
-  'Arrival between 10 and 2',
-  'Arrival between 12 and 4',
-  'Arrival between 1 and 5',
-  'Arrival between 3 and 7',
-];
+const ARRIVAL_WINDOWS = {
+  carpet: [
+    'Arrival between 8 and 12',
+    'Arrival between 10 and 2',
+    'Arrival between 12 and 4',
+    'Arrival between 1 and 5',
+    'Arrival between 3 and 7',
+  ],
+  duct: [
+    'Arrival between 8 and 12',
+    'Arrival between 1 and 5',
+  ],
+  moving: [
+    'Arrival between 7 and 9',
+    'Arrival between 9 to 11',
+    'Arrival between 11 and 1',
+    'Arrival between 1 and 3',
+    'Arrival between 3 to 5',
+    'Arrival between 6 and 8 pm',
+  ],
+};
 
-const ductWindows = ['Arrival between 8 and 12', 'Arrival between 1 and 5'];
-const movingWindows = [
-  'Arrival between 7 and 9',
-  'Arrival between 9 to 11',
-  'Arrival between 11 and 1',
-  'Arrival between 1 and 3',
-  'Arrival between 3 to 5',
-  'Arrival between 6 and 8 pm',
-];
+const THEMES = {
+  light: {
+    page: '#f4f7fb',
+    header: 'linear-gradient(135deg, #ffffff 0%, #eef4ff 100%)',
+    card: '#ffffff',
+    soft: '#f7f9fc',
+    border: '#d8e0ea',
+    text: '#0f172a',
+    muted: '#64748b',
+    accent: '#111827',
+    accentText: '#ffffff',
+    accentSoft: '#e5e7eb',
+    accentSoftText: '#111827',
+    info: '#0ea5e9',
+    infoSoft: '#e0f2fe',
+    success: '#16a34a',
+    successSoft: '#dcfce7',
+    danger: '#dc2626',
+    dangerSoft: '#fee2e2',
+    preview: '#0f172a',
+    previewText: '#f8fafc',
+  },
+  gray: {
+    page: '#eef1f5',
+    header: 'linear-gradient(135deg, #ffffff 0%, #eceff4 100%)',
+    card: '#ffffff',
+    soft: '#f5f7fa',
+    border: '#d4d9e1',
+    text: '#111827',
+    muted: '#6b7280',
+    accent: '#1f2937',
+    accentText: '#ffffff',
+    accentSoft: '#e5e7eb',
+    accentSoftText: '#111827',
+    info: '#2563eb',
+    infoSoft: '#dbeafe',
+    success: '#15803d',
+    successSoft: '#dcfce7',
+    danger: '#b91c1c',
+    dangerSoft: '#fee2e2',
+    preview: '#111827',
+    previewText: '#f9fafb',
+  },
+  sky: {
+    page: '#eef8ff',
+    header: 'linear-gradient(135deg, #ffffff 0%, #dff3ff 100%)',
+    card: '#ffffff',
+    soft: '#f3fbff',
+    border: '#cfe7f5',
+    text: '#0f172a',
+    muted: '#5b7285',
+    accent: '#0284c7',
+    accentText: '#ffffff',
+    accentSoft: '#dff3ff',
+    accentSoftText: '#0c4a6e',
+    info: '#0284c7',
+    infoSoft: '#dff3ff',
+    success: '#15803d',
+    successSoft: '#dcfce7',
+    danger: '#b91c1c',
+    dangerSoft: '#fee2e2',
+    preview: '#082f49',
+    previewText: '#f0f9ff',
+  },
+};
 
-const repOptions = ['*01*', '*02*', '*03*', '*04*', '*05*'];
-
-function PresetCard({ active, title, price, note, onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`text-left rounded-3xl border p-4 transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 ${
-        active
-          ? 'border-black bg-black text-white'
-          : 'border-zinc-200 bg-white text-zinc-900'
-      }`}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="text-sm font-semibold tracking-tight">{title}</div>
-          <div className={`mt-1 text-xs ${active ? 'text-zinc-300' : 'text-zinc-500'}`}>{note}</div>
-        </div>
-        <div className={`rounded-2xl px-3 py-1 text-sm font-bold ${active ? 'bg-white/10' : 'bg-zinc-100'}`}>
-          ${price}
-        </div>
-      </div>
-    </button>
-  );
+function sanitizeNumber(value) {
+  return String(value || '').replace(/[^\d]/g, '');
 }
 
-function SmallStat({ icon: Icon, label, value }) {
-  return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-3 shadow-sm">
-      <div className="flex items-center gap-2 text-zinc-500">
-        <Icon className="h-4 w-4" />
-        <span className="text-xs font-medium uppercase tracking-[0.16em]">{label}</span>
-      </div>
-      <div className="mt-2 text-sm font-semibold text-zinc-900">{value}</div>
-    </div>
-  );
+function getArrivalTimes(mode, windowText) {
+  const lookup = {
+    carpet: {
+      'Arrival between 8 and 12': { start: '8 AM', end: '12 PM' },
+      'Arrival between 10 and 2': { start: '10 AM', end: '2 PM' },
+      'Arrival between 12 and 4': { start: '12 PM', end: '4 PM' },
+      'Arrival between 1 and 5': { start: '1 PM', end: '5 PM' },
+      'Arrival between 3 and 7': { start: '3 PM', end: '7 PM' },
+    },
+    duct: {
+      'Arrival between 8 and 12': { start: '8 AM', end: '12 PM' },
+      'Arrival between 1 and 5': { start: '1 PM', end: '5 PM' },
+    },
+    moving: {
+      'Arrival between 7 and 9': { start: '7 AM', end: '9 AM' },
+      'Arrival between 9 to 11': { start: '9 AM', end: '11 AM' },
+      'Arrival between 11 and 1': { start: '11 AM', end: '1 PM' },
+      'Arrival between 1 and 3': { start: '1 PM', end: '3 PM' },
+      'Arrival between 3 to 5': { start: '3 PM', end: '5 PM' },
+      'Arrival between 6 and 8 pm': { start: '6 PM', end: '8 PM' },
+    },
+  };
+
+  return lookup[mode]?.[windowText] || { start: '', end: '' };
 }
 
-export default function BookingLinkGeneratorOperatorConsolePrototype() {
+function App() {
+  const [theme, setTheme] = useState('light');
   const [mode, setMode] = useState('carpet');
   const [salesRep, setSalesRep] = useState('*04*');
-  const [arrivalWindow, setArrivalWindow] = useState('Arrival between 8 and 12');
+
   const [serviceType, setServiceType] = useState('Carpet Cleaning');
   const [quotedPrice, setQuotedPrice] = useState('100');
-  const [movingHours, setMovingHours] = useState('2');
-  const [additionalRate, setAdditionalRate] = useState('150');
-  const [numMovers, setNumMovers] = useState('2');
-  const [truckSize, setTruckSize] = useState('17');
-  const [showDebug, setShowDebug] = useState(false);
-  const [generated, setGenerated] = useState(false);
+  const [arrivalWindow, setArrivalWindow] = useState('Arrival between 8 and 12');
 
-  const presets = mode === 'carpet' ? carpetPresets : mode === 'duct' ? ductPresets : movingPresets;
-  const arrivalOptions = mode === 'carpet' ? carpetWindows : mode === 'duct' ? ductWindows : movingWindows;
+  const [blockPrice, setBlockPrice] = useState('300');
+  const [blockHours, setBlockHours] = useState('2');
+  const [additionalRate, setAdditionalRate] = useState('150');
+  const [movingArrival, setMovingArrival] = useState('Arrival between 7 and 9');
+  const [numMovers, setNumMovers] = useState('2');
+  const [truckInfo, setTruckInfo] = useState('1');
+  const [truckSize, setTruckSize] = useState('17');
+
+  const [carpetSpecial, setCarpetSpecial] = useState('cc100');
+  const [ductSpecial, setDuctSpecial] = useState('custom');
+  const [movingSpecial, setMovingSpecial] = useState('special_2men');
+
+  const [generatedLink, setGeneratedLink] = useState('');
+  const [rawLink, setRawLink] = useState('');
+  const [copied, setCopied] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [showDebug, setShowDebug] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const colors = THEMES[theme];
+
+  useEffect(() => {
+    document.body.style.margin = '0';
+    document.body.style.background = colors.page;
+    document.body.style.fontFamily =
+      'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+  }, [colors.page]);
+
+  const currentArrivalWindow = mode === 'moving' ? movingArrival : arrivalWindow;
+  const currentPrice = mode === 'moving' ? blockPrice : quotedPrice;
+  const currentService = mode === 'moving' ? 'Moving' : serviceType;
 
   const bookingSummary = useMemo(() => {
     if (mode === 'moving') {
-      return `${salesRep}\n$${quotedPrice} First ${movingHours} Hours Then $${additionalRate} per hour for each additional hour after that.\n${arrivalWindow}\n${numMovers} Men ${truckSize} Ft Truck\nPayment methods: Cash, CashApp, Zelle\nCashApp payment $5 fee\n***First ${movingHours}hrs due at arrival***`;
+      const trucksLabel = truckInfo ? `(${truckInfo}) ` : '';
+      return `${salesRep}
+$${blockPrice} First ${blockHours} Hours Then $${additionalRate} per 
+hour for each additional hour after that.
+${movingArrival}
+${numMovers} Men ${trucksLabel}${truckSize} Ft Trucks
+Payment methods:
+Cash, CashApp, Zelle
+CashApp payment $5 fee
+
+***First ${blockHours}hrs due at arrival***`;
     }
 
-    return `${salesRep}\n${serviceType}\n$${quotedPrice} Special\n${arrivalWindow}\nPayment method: Cash Cashapp Zelle\nCard payment: 7% processing fee`;
-  }, [mode, salesRep, quotedPrice, movingHours, additionalRate, arrivalWindow, numMovers, truckSize, serviceType]);
+    return `${salesRep}
+${serviceType}
+$${quotedPrice} Special
+${arrivalWindow}
+Payment method: Cash Cashapp Zelle
+Card payment: 7% processing fee`;
+  }, [
+    mode,
+    salesRep,
+    blockPrice,
+    blockHours,
+    additionalRate,
+    movingArrival,
+    numMovers,
+    truckInfo,
+    truckSize,
+    serviceType,
+    quotedPrice,
+    arrivalWindow,
+  ]);
 
-  const linkBase = mode === 'carpet'
-    ? 'https://form.jotform.com/251536451249054'
-    : mode === 'duct'
-    ? 'https://form.jotform.com/251573697976175'
-    : 'https://form.jotform.com/251537865180159';
+  const messageToCopy = generatedLink
+    ? `Click on the link below so we can get your work order created:\n${generatedLink}`
+    : '';
 
-  const mockLink = `${linkBase}?service=${encodeURIComponent(mode === 'moving' ? 'Moving' : serviceType)}&price=${encodeURIComponent(quotedPrice)}&salesRep=${encodeURIComponent(salesRep)}`;
-  const shortLink = 'https://sds.ai/book/7K4Q2M';
+  const canGenerate = Boolean(
+    salesRep &&
+      currentArrivalWindow &&
+      (mode === 'moving'
+        ? blockPrice && blockHours && additionalRate && numMovers && truckSize
+        : serviceType && quotedPrice)
+  );
 
-  const applyPreset = (preset) => {
-    if (mode === 'moving') {
-      setQuotedPrice(String(preset.price));
-      if (preset.id === 'm600') {
-        setMovingHours('2');
-        setAdditionalRate('300');
-        setNumMovers('4');
-        setTruckSize('17');
-      } else if (preset.id === 'm260') {
-        setMovingHours('2');
-        setAdditionalRate('130');
-        setNumMovers('2');
-        setTruckSize('17');
-      } else if (preset.id === 'm200') {
-        setMovingHours('1');
-        setAdditionalRate('150');
-        setNumMovers('2');
-        setTruckSize('17');
-      } else {
-        setMovingHours('2');
-        setAdditionalRate('150');
-        setNumMovers('2');
-        setTruckSize('17');
-      }
+  function switchMode(nextMode) {
+    setMode(nextMode);
+    setErrorMessage('');
+    setGeneratedLink('');
+    setRawLink('');
+    setCopied(false);
+
+    if (nextMode === 'carpet') {
+      setServiceType('Carpet Cleaning');
+      setQuotedPrice('100');
+      setArrivalWindow('Arrival between 8 and 12');
+      setCarpetSpecial('cc100');
+    } else if (nextMode === 'duct') {
+      setServiceType('Deep Duct Cleaning with Furnace');
+      setQuotedPrice('600');
+      setArrivalWindow('Arrival between 8 and 12');
+      setDuctSpecial('deep600');
+    } else {
+      setBlockPrice('300');
+      setBlockHours('2');
+      setAdditionalRate('150');
+      setMovingArrival('Arrival between 7 and 9');
+      setNumMovers('2');
+      setTruckInfo('1');
+      setTruckSize('17');
+      setMovingSpecial('special_2men');
+    }
+  }
+
+  function applyCarpetPreset(id) {
+    setCarpetSpecial(id);
+    const preset = CARPET_PRESETS.find((item) => item.id === id);
+    if (!preset) return;
+    setServiceType(preset.label);
+    setQuotedPrice(preset.price);
+    setErrorMessage('');
+  }
+
+  function applyDuctPreset(id) {
+    setDuctSpecial(id);
+    const preset = DUCT_PRESETS.find((item) => item.id === id);
+    if (!preset) return;
+    setServiceType(preset.label);
+    setQuotedPrice(preset.price);
+    setErrorMessage('');
+  }
+
+  function applyMovingPreset(id) {
+    setMovingSpecial(id);
+    const preset = MOVING_PRESETS.find((item) => item.id === id);
+    if (!preset) return;
+    setBlockPrice(preset.price);
+    setBlockHours(preset.hours);
+    setAdditionalRate(preset.rate);
+    setNumMovers(preset.movers);
+    setTruckInfo(preset.trucks);
+    setTruckSize(preset.truckSize);
+    setErrorMessage('');
+  }
+
+  async function copyMessage() {
+    if (!generatedLink) return;
+    try {
+      await navigator.clipboard.writeText(messageToCopy);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (error) {
+      setCopied(false);
+    }
+  }
+
+  async function copyLinkOnly() {
+    if (!generatedLink) return;
+    try {
+      await navigator.clipboard.writeText(generatedLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (error) {
+      setCopied(false);
+    }
+  }
+
+  function generateLink() {
+    const cleanQuotedPrice = sanitizeNumber(quotedPrice);
+    const cleanBlockPrice = sanitizeNumber(blockPrice);
+    const cleanAdditionalRate = sanitizeNumber(additionalRate);
+
+    if ((mode === 'carpet' || mode === 'duct') && !cleanQuotedPrice) {
+      setErrorMessage('Please enter a quoted price before generating the booking link.');
+      setGeneratedLink('');
+      setRawLink('');
       return;
     }
 
-    setServiceType(preset.label);
-    setQuotedPrice(String(preset.price));
+    if (mode === 'moving' && !cleanBlockPrice) {
+      setErrorMessage('Please enter the first block price before generating the booking link.');
+      setGeneratedLink('');
+      setRawLink('');
+      return;
+    }
+
+    if (mode === 'moving' && !cleanAdditionalRate) {
+      setErrorMessage('Please enter the additional hourly rate before generating the booking link.');
+      setGeneratedLink('');
+      setRawLink('');
+      return;
+    }
+
+    setErrorMessage('');
+
+    const baseUrl =
+      mode === 'duct'
+        ? 'https://form.jotform.com/251573697976175'
+        : mode === 'moving'
+        ? 'https://form.jotform.com/251537865180159'
+        : 'https://form.jotform.com/251536451249054';
+
+    const finalPrice = mode === 'moving' ? cleanBlockPrice : cleanQuotedPrice;
+    const finalService = mode === 'moving' ? 'Moving' : serviceType;
+    const finalWindow = mode === 'moving' ? movingArrival : arrivalWindow;
+    const { start, end } = getArrivalTimes(mode, finalWindow);
+
+    const summary =
+      mode === 'moving'
+        ? `${salesRep}
+$${cleanBlockPrice} First ${blockHours} Hours Then $${cleanAdditionalRate} per 
+hour for each additional hour after that.
+${movingArrival}
+${numMovers} Men ${truckInfo ? `(${truckInfo}) ` : ''}${truckSize} Ft Trucks
+Payment methods:
+Cash, CashApp, Zelle
+CashApp payment $5 fee
+
+***First ${blockHours}hrs due at arrival***`
+        : `${salesRep}
+${serviceType}
+$${cleanQuotedPrice} Special
+${arrivalWindow}
+Payment method: Cash Cashapp Zelle
+Card payment: 7% processing fee`;
+
+    const fullLink =
+      `${baseUrl}?bookingSummary=${encodeURIComponent(summary)}` +
+      `&arrivalStart=${encodeURIComponent(start)}` +
+      `&arrivalEnd=${encodeURIComponent(end)}` +
+      `&arrivalWindow=${encodeURIComponent(finalWindow)}` +
+      `&service=${encodeURIComponent(finalService)}` +
+      `&price=${encodeURIComponent(finalPrice)}` +
+      `&salesRep=${encodeURIComponent(salesRep)}`;
+
+    setRawLink(fullLink);
+    setCopied(false);
+    setIsGenerating(true);
+
+    fetch(`/api/shorten?url=${encodeURIComponent(fullLink)}`)
+      .then((response) => response.json())
+      .then(({ shortUrl }) => {
+        setGeneratedLink(shortUrl || fullLink);
+      })
+      .catch(() => {
+        setGeneratedLink(fullLink);
+      })
+      .finally(() => {
+        setIsGenerating(false);
+      });
+  }
+
+  const sectionTitleStyle = {
+    fontSize: 12,
+    fontWeight: 800,
+    letterSpacing: '0.14em',
+    textTransform: 'uppercase',
+    color: colors.muted,
+    marginBottom: 8,
   };
 
-  const isValid = Boolean(salesRep && quotedPrice && arrivalWindow && (mode === 'moving' || serviceType));
+  const cardStyle = {
+    background: colors.card,
+    border: `1px solid ${colors.border}`,
+    borderRadius: 24,
+    boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)',
+  };
+
+  const softCardStyle = {
+    background: colors.soft,
+    border: `1px solid ${colors.border}`,
+    borderRadius: 20,
+  };
+
+  const inputStyle = {
+    width: '100%',
+    padding: '14px 16px',
+    borderRadius: 16,
+    border: `1px solid ${colors.border}`,
+    background: colors.soft,
+    color: colors.text,
+    fontSize: 14,
+    outline: 'none',
+    boxSizing: 'border-box',
+  };
+
+  const labelStyle = {
+    display: 'block',
+    fontSize: 14,
+    fontWeight: 700,
+    color: colors.text,
+    marginBottom: 8,
+  };
+
+  const buttonBase = {
+    border: 'none',
+    borderRadius: 16,
+    padding: '12px 16px',
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+  };
+
+  const topStatStyle = {
+    ...softCardStyle,
+    padding: 14,
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-50 via-white to-sky-50 p-4 md:p-8 text-zinc-900">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-6 rounded-[28px] border border-zinc-200 bg-white/80 p-5 shadow-sm backdrop-blur md:p-6">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+    <div
+      style={{
+        minHeight: '100vh',
+        background: colors.page,
+        color: colors.text,
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 1360,
+          margin: '0 auto',
+          padding: 20,
+        }}
+      >
+        <div
+          style={{
+            ...cardStyle,
+            background: colors.header,
+            padding: 24,
+            marginBottom: 20,
+          }}
+        >
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'minmax(0, 1.35fr) minmax(320px, 0.85fr)',
+              gap: 18,
+            }}
+          >
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-medium text-zinc-600">
-                <Sparkles className="h-3.5 w-3.5" />
-                Booking Link Generator — Operator Console
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '8px 12px',
+                  borderRadius: 999,
+                  background: colors.soft,
+                  border: `1px solid ${colors.border}`,
+                  fontSize: 12,
+                  fontWeight: 800,
+                  color: colors.muted,
+                }}
+              >
+                Operator Console
               </div>
-              <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
-                Faster quoting. Cleaner links. Fewer operator mistakes.
-              </h1>
-              <p className="mt-2 max-w-3xl text-sm text-zinc-600 md:text-base">
-                Redesigned as a dispatcher-grade workstation with mode switching, preset cards, live booking preview, inline validation, and an advanced debug drawer.
-              </p>
+
+              <div
+                style={{
+                  fontSize: 34,
+                  fontWeight: 900,
+                  lineHeight: 1.1,
+                  marginTop: 14,
+                }}
+              >
+                Booking Link Generator
+              </div>
+
+              <div
+                style={{
+                  fontSize: 16,
+                  color: colors.muted,
+                  marginTop: 10,
+                  maxWidth: 760,
+                  lineHeight: 1.5,
+                }}
+              >
+                One-file redesign. No extra packages. No extra CSS file changes. Price validation fixed.
+                Moving price now uses the correct field. Built to deploy clean on your current Vercel setup.
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-              <SmallStat icon={ShieldCheck} label="Validation" value="Required before generate" />
-              <SmallStat icon={Clock3} label="Speed" value="Preset-first workflow" />
-              <SmallStat icon={User2} label="Rep" value={salesRep} />
-              <SmallStat icon={Link2} label="Output" value="Short link + preview" />
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                gap: 12,
+                alignSelf: 'start',
+              }}
+            >
+              <div style={topStatStyle}>
+                <div style={{ fontSize: 11, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>Validation</div>
+                <div style={{ marginTop: 8, fontSize: 14, fontWeight: 800 }}>Required before generate</div>
+              </div>
+              <div style={topStatStyle}>
+                <div style={{ fontSize: 11, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>Sales Rep</div>
+                <div style={{ marginTop: 8, fontSize: 14, fontWeight: 800 }}>{salesRep}</div>
+              </div>
+              <div style={topStatStyle}>
+                <div style={{ fontSize: 11, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>Mode</div>
+                <div style={{ marginTop: 8, fontSize: 14, fontWeight: 800, textTransform: 'capitalize' }}>{mode}</div>
+              </div>
+              <div style={topStatStyle}>
+                <div style={{ fontSize: 11, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>Output</div>
+                <div style={{ marginTop: 8, fontSize: 14, fontWeight: 800 }}>{generatedLink ? 'Short link ready' : 'Waiting to generate'}</div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-          <div className="space-y-6">
-            <section className="rounded-[28px] border border-zinc-200 bg-white p-5 shadow-sm md:p-6">
-              <div className="flex flex-col gap-5">
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'minmax(0, 1.18fr) minmax(360px, 0.82fr)',
+            gap: 20,
+            alignItems: 'start',
+          }}
+        >
+          <div style={{ display: 'grid', gap: 20 }}>
+            <div style={{ ...cardStyle, padding: 22 }}>
+              <div style={sectionTitleStyle}>Step 1</div>
+              <div style={{ fontSize: 24, fontWeight: 900, marginBottom: 18 }}>Choose mode and sales rep</div>
+
+              <div style={{ display: 'grid', gap: 18 }}>
                 <div>
-                  <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">Step 1</div>
-                  <h2 className="mt-1 text-xl font-semibold tracking-tight">Choose mode and sales rep</h2>
-                </div>
-
-                <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-start">
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-zinc-700">Service mode</label>
-                    <div className="inline-flex w-full flex-wrap gap-2 rounded-3xl border border-zinc-200 bg-zinc-50 p-2">
-                      {['carpet', 'moving', 'duct'].map((item) => (
-                        <button
-                          key={item}
-                          onClick={() => {
-                            setMode(item);
-                            setGenerated(false);
-                            if (item === 'duct') {
-                              setArrivalWindow('Arrival between 8 and 12');
-                              setServiceType('Deep Duct Cleaning with Furnace');
-                              setQuotedPrice('600');
-                            }
-                            if (item === 'carpet') {
-                              setArrivalWindow('Arrival between 8 and 12');
-                              setServiceType('Carpet Cleaning');
-                              setQuotedPrice('100');
-                            }
-                            if (item === 'moving') {
-                              setArrivalWindow('Arrival between 7 and 9');
-                              setQuotedPrice('300');
-                            }
-                          }}
-                          className={`flex-1 rounded-2xl px-4 py-3 text-sm font-semibold capitalize transition ${
-                            mode === item ? 'bg-black text-white shadow-sm' : 'bg-white text-zinc-600 hover:bg-zinc-100'
-                          }`}
-                        >
-                          {item}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-zinc-700">Sales rep</label>
-                    <div className="flex flex-wrap gap-2">
-                      {repOptions.map((rep) => (
-                        <button
-                          key={rep}
-                          onClick={() => setSalesRep(rep)}
-                          className={`rounded-2xl px-4 py-2 text-sm font-semibold transition ${
-                            salesRep === rep
-                              ? 'bg-sky-500 text-white shadow-sm'
-                              : 'border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50'
-                          }`}
-                        >
-                          {rep}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section className="rounded-[28px] border border-zinc-200 bg-white p-5 shadow-sm md:p-6">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">Step 2</div>
-                  <h2 className="mt-1 text-xl font-semibold tracking-tight">Pick a preset or customize the quote</h2>
-                </div>
-                <div className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-600">
-                  {mode === 'moving' ? 'Moving presets' : mode === 'duct' ? 'Duct presets' : 'Carpet presets'}
-                </div>
-              </div>
-
-              <div className="mt-5 grid gap-3 md:grid-cols-2">
-                {presets.map((preset) => (
-                  <PresetCard
-                    key={preset.id}
-                    title={preset.label}
-                    price={preset.price}
-                    note={preset.note || preset.meta}
-                    active={
-                      mode === 'moving'
-                        ? String(preset.price) === quotedPrice
-                        : preset.label === serviceType && String(preset.price) === quotedPrice
-                    }
-                    onClick={() => applyPreset(preset)}
-                  />
-                ))}
-              </div>
-
-              <div className="mt-5 grid gap-4 md:grid-cols-2">
-                {mode !== 'moving' && (
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-zinc-700">Service type</label>
-                    <input
-                      value={serviceType}
-                      onChange={(e) => setServiceType(e.target.value)}
-                      className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm outline-none ring-0 transition focus:border-sky-400 focus:bg-white"
-                    />
-                    <p className="mt-2 text-xs text-zinc-500">Live editable. This updates the preview instantly.</p>
-                  </div>
-                )}
-
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-zinc-700">
-                    {mode === 'moving' ? 'First block price ($)' : 'Quoted price ($)'}
-                  </label>
-                  <input
-                    value={quotedPrice}
-                    onChange={(e) => setQuotedPrice(e.target.value.replace(/[^0-9]/g, ''))}
-                    className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none ring-0 transition ${
-                      quotedPrice
-                        ? 'border-zinc-200 bg-zinc-50 focus:border-sky-400 focus:bg-white'
-                        : 'border-red-300 bg-red-50 focus:border-red-400'
-                    }`}
-                    placeholder="Enter price"
-                  />
-                  <p className={`mt-2 text-xs ${quotedPrice ? 'text-zinc-500' : 'text-red-600'}`}>
-                    {quotedPrice ? 'Required field passed.' : 'Price is required before generating a link.'}
-                  </p>
-                </div>
-              </div>
-
-              {mode === 'moving' && (
-                <div className="mt-4 grid gap-4 md:grid-cols-4">
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-zinc-700">First block hours</label>
-                    <select value={movingHours} onChange={(e) => setMovingHours(e.target.value)} className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm">
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-zinc-700">Additional hour rate</label>
-                    <input value={additionalRate} onChange={(e) => setAdditionalRate(e.target.value.replace(/[^0-9]/g, ''))} className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm" />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-zinc-700">Movers</label>
-                    <select value={numMovers} onChange={(e) => setNumMovers(e.target.value)} className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm">
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                      <option value="4">4</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-zinc-700">Truck size</label>
-                    <select value={truckSize} onChange={(e) => setTruckSize(e.target.value)} className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm">
-                      <option value="17">17</option>
-                      <option value="20">20</option>
-                      <option value="26">26</option>
-                    </select>
-                  </div>
-                </div>
-              )}
-            </section>
-
-            <section className="rounded-[28px] border border-zinc-200 bg-white p-5 shadow-sm md:p-6">
-              <div>
-                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">Step 3</div>
-                <h2 className="mt-1 text-xl font-semibold tracking-tight">Schedule and review before generate</h2>
-              </div>
-
-              <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_1fr]">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-zinc-700">Arrival window</label>
-                  <div className="grid gap-2">
-                    {arrivalOptions.map((window) => (
+                  <div style={labelStyle}>Theme</div>
+                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                    {['light', 'gray', 'sky'].map((item) => (
                       <button
-                        key={window}
-                        onClick={() => setArrivalWindow(window)}
-                        className={`rounded-2xl border px-4 py-3 text-left text-sm font-medium transition ${
-                          arrivalWindow === window
-                            ? 'border-sky-500 bg-sky-50 text-sky-900'
-                            : 'border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50'
-                        }`}
+                        key={item}
+                        onClick={() => setTheme(item)}
+                        style={{
+                          ...buttonBase,
+                          background: theme === item ? colors.accent : colors.soft,
+                          color: theme === item ? colors.accentText : colors.text,
+                          border: `1px solid ${theme === item ? colors.accent : colors.border}`,
+                          textTransform: 'capitalize',
+                        }}
                       >
-                        {window}
+                        {item}
                       </button>
                     ))}
                   </div>
                 </div>
 
-                <div className="rounded-[24px] border border-dashed border-zinc-300 bg-zinc-50 p-4">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-zinc-800">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                    Pre-flight validation
+                <div>
+                  <div style={labelStyle}>Service mode</div>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+                      gap: 10,
+                      padding: 8,
+                      borderRadius: 18,
+                      background: colors.soft,
+                      border: `1px solid ${colors.border}`,
+                    }}
+                  >
+                    {['carpet', 'moving', 'duct'].map((item) => (
+                      <button
+                        key={item}
+                        onClick={() => switchMode(item)}
+                        style={{
+                          ...buttonBase,
+                          background: mode === item ? colors.accent : colors.card,
+                          color: mode === item ? colors.accentText : colors.text,
+                          border: `1px solid ${mode === item ? colors.accent : colors.border}`,
+                          textTransform: 'capitalize',
+                        }}
+                      >
+                        {item}
+                      </button>
+                    ))}
                   </div>
-                  <div className="mt-4 space-y-3 text-sm text-zinc-700">
-                    <div className="flex items-center justify-between rounded-2xl bg-white px-3 py-2">
-                      <span>Sales rep selected</span>
-                      <span className="font-semibold">{salesRep ? 'Ready' : 'Missing'}</span>
-                    </div>
-                    <div className="flex items-center justify-between rounded-2xl bg-white px-3 py-2">
-                      <span>Price populated</span>
-                      <span className={`font-semibold ${quotedPrice ? 'text-emerald-600' : 'text-red-600'}`}>{quotedPrice ? `$${quotedPrice}` : 'Missing'}</span>
-                    </div>
-                    <div className="flex items-center justify-between rounded-2xl bg-white px-3 py-2">
-                      <span>Arrival window chosen</span>
-                      <span className="font-semibold">Ready</span>
-                    </div>
-                    <div className="flex items-center justify-between rounded-2xl bg-white px-3 py-2">
-                      <span>Output state</span>
-                      <span className={`font-semibold ${isValid ? 'text-emerald-600' : 'text-red-600'}`}>{isValid ? 'Can generate' : 'Blocked'}</span>
-                    </div>
+                </div>
+
+                <div>
+                  <div style={labelStyle}>Sales rep</div>
+                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                    {SALES_REPS.map((rep) => (
+                      <button
+                        key={rep}
+                        onClick={() => setSalesRep(rep)}
+                        style={{
+                          ...buttonBase,
+                          background: salesRep === rep ? colors.info : colors.card,
+                          color: salesRep === rep ? '#ffffff' : colors.text,
+                          border: `1px solid ${salesRep === rep ? colors.info : colors.border}`,
+                          minWidth: 76,
+                        }}
+                      >
+                        {rep}
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>
-            </section>
+            </div>
+
+            <div style={{ ...cardStyle, padding: 22 }}>
+              <div style={sectionTitleStyle}>Step 2</div>
+              <div style={{ fontSize: 24, fontWeight: 900, marginBottom: 18 }}>
+                Pick a preset or customize the quote
+              </div>
+
+              {mode === 'carpet' && (
+                <>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                      gap: 12,
+                      marginBottom: 18,
+                    }}
+                  >
+                    {CARPET_PRESETS.map((preset) => {
+                      const active = carpetSpecial === preset.id;
+                      return (
+                        <button
+                          key={preset.id}
+                          onClick={() => applyCarpetPreset(preset.id)}
+                          style={{
+                            ...buttonBase,
+                            textAlign: 'left',
+                            padding: 16,
+                            borderRadius: 20,
+                            background: active ? colors.accent : colors.card,
+                            color: active ? colors.accentText : colors.text,
+                            border: `1px solid ${active ? colors.accent : colors.border}`,
+                          }}
+                        >
+                          <div style={{ fontSize: 14, fontWeight: 900 }}>{preset.label}</div>
+                          <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4 }}>{preset.note}</div>
+                          <div
+                            style={{
+                              display: 'inline-block',
+                              marginTop: 12,
+                              padding: '6px 10px',
+                              borderRadius: 999,
+                              background: active ? 'rgba(255,255,255,0.14)' : colors.soft,
+                              fontSize: 13,
+                              fontWeight: 900,
+                            }}
+                          >
+                            ${preset.price}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                    <div>
+                      <label style={labelStyle}>Service type</label>
+                      <input
+                        value={serviceType}
+                        onChange={(e) => setServiceType(e.target.value)}
+                        style={inputStyle}
+                        placeholder="Carpet Cleaning"
+                      />
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Quoted price ($)</label>
+                      <input
+                        value={quotedPrice}
+                        onChange={(e) => setQuotedPrice(sanitizeNumber(e.target.value))}
+                        style={{
+                          ...inputStyle,
+                          border: quotedPrice ? `1px solid ${colors.border}` : `1px solid ${colors.danger}`,
+                          background: quotedPrice ? colors.soft : colors.dangerSoft,
+                        }}
+                        placeholder="100"
+                      />
+                      <div
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 700,
+                          color: quotedPrice ? colors.success : colors.danger,
+                          marginTop: 6,
+                        }}
+                      >
+                        {quotedPrice ? 'Price ready.' : 'Price is required.'}
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {mode === 'duct' && (
+                <>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                      gap: 12,
+                      marginBottom: 18,
+                    }}
+                  >
+                    {DUCT_PRESETS.map((preset) => {
+                      const active = ductSpecial === preset.id;
+                      return (
+                        <button
+                          key={preset.id}
+                          onClick={() => applyDuctPreset(preset.id)}
+                          style={{
+                            ...buttonBase,
+                            textAlign: 'left',
+                            padding: 16,
+                            borderRadius: 20,
+                            background: active ? colors.accent : colors.card,
+                            color: active ? colors.accentText : colors.text,
+                            border: `1px solid ${active ? colors.accent : colors.border}`,
+                          }}
+                        >
+                          <div style={{ fontSize: 14, fontWeight: 900 }}>{preset.label}</div>
+                          <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4 }}>{preset.note}</div>
+                          <div
+                            style={{
+                              display: 'inline-block',
+                              marginTop: 12,
+                              padding: '6px 10px',
+                              borderRadius: 999,
+                              background: active ? 'rgba(255,255,255,0.14)' : colors.soft,
+                              fontSize: 13,
+                              fontWeight: 900,
+                            }}
+                          >
+                            ${preset.price}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                    <div>
+                      <label style={labelStyle}>Service type</label>
+                      <input
+                        value={serviceType}
+                        onChange={(e) => setServiceType(e.target.value)}
+                        style={inputStyle}
+                        placeholder="Deep Duct Cleaning with Furnace"
+                      />
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Quoted price ($)</label>
+                      <input
+                        value={quotedPrice}
+                        onChange={(e) => setQuotedPrice(sanitizeNumber(e.target.value))}
+                        style={{
+                          ...inputStyle,
+                          border: quotedPrice ? `1px solid ${colors.border}` : `1px solid ${colors.danger}`,
+                          background: quotedPrice ? colors.soft : colors.dangerSoft,
+                        }}
+                        placeholder="600"
+                      />
+                      <div
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 700,
+                          color: quotedPrice ? colors.success : colors.danger,
+                          marginTop: 6,
+                        }}
+                      >
+                        {quotedPrice ? 'Price ready.' : 'Price is required.'}
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {mode === 'moving' && (
+                <>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                      gap: 12,
+                      marginBottom: 18,
+                    }}
+                  >
+                    {MOVING_PRESETS.map((preset) => {
+                      const active = movingSpecial === preset.id;
+                      return (
+                        <button
+                          key={preset.id}
+                          onClick={() => applyMovingPreset(preset.id)}
+                          style={{
+                            ...buttonBase,
+                            textAlign: 'left',
+                            padding: 16,
+                            borderRadius: 20,
+                            background: active ? colors.accent : colors.card,
+                            color: active ? colors.accentText : colors.text,
+                            border: `1px solid ${active ? colors.accent : colors.border}`,
+                          }}
+                        >
+                          <div style={{ fontSize: 14, fontWeight: 900 }}>{preset.label}</div>
+                          <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4 }}>{preset.note}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+                    <div>
+                      <label style={labelStyle}>First block price ($)</label>
+                      <input
+                        value={blockPrice}
+                        onChange={(e) => setBlockPrice(sanitizeNumber(e.target.value))}
+                        style={{
+                          ...inputStyle,
+                          border: blockPrice ? `1px solid ${colors.border}` : `1px solid ${colors.danger}`,
+                          background: blockPrice ? colors.soft : colors.dangerSoft,
+                        }}
+                        placeholder="300"
+                      />
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Additional hour rate ($)</label>
+                      <input
+                        value={additionalRate}
+                        onChange={(e) => setAdditionalRate(sanitizeNumber(e.target.value))}
+                        style={{
+                          ...inputStyle,
+                          border: additionalRate ? `1px solid ${colors.border}` : `1px solid ${colors.danger}`,
+                          background: additionalRate ? colors.soft : colors.dangerSoft,
+                        }}
+                        placeholder="150"
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 14 }}>
+                    <div>
+                      <label style={labelStyle}>First block hours</label>
+                      <select value={blockHours} onChange={(e) => setBlockHours(e.target.value)} style={inputStyle}>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Movers</label>
+                      <select value={numMovers} onChange={(e) => setNumMovers(e.target.value)} style={inputStyle}>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Trucks</label>
+                      <select value={truckInfo} onChange={(e) => setTruckInfo(e.target.value)} style={inputStyle}>
+                        <option value="">1 truck</option>
+                        <option value="1">1 shown</option>
+                        <option value="2">2</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Truck size</label>
+                      <select value={truckSize} onChange={(e) => setTruckSize(e.target.value)} style={inputStyle}>
+                        <option value="17">17</option>
+                        <option value="20">20</option>
+                        <option value="26">26</option>
+                      </select>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div style={{ ...cardStyle, padding: 22 }}>
+              <div style={sectionTitleStyle}>Step 3</div>
+              <div style={{ fontSize: 24, fontWeight: 900, marginBottom: 18 }}>Schedule and validate</div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: 18 }}>
+                <div>
+                  <div style={labelStyle}>Arrival window</div>
+                  <div style={{ display: 'grid', gap: 10 }}>
+                    {ARRIVAL_WINDOWS[mode].map((windowText) => {
+                      const active = currentArrivalWindow === windowText;
+                      return (
+                        <button
+                          key={windowText}
+                          onClick={() =>
+                            mode === 'moving' ? setMovingArrival(windowText) : setArrivalWindow(windowText)
+                          }
+                          style={{
+                            ...buttonBase,
+                            textAlign: 'left',
+                            background: active ? colors.infoSoft : colors.card,
+                            color: active ? colors.info : colors.text,
+                            border: `1px solid ${active ? colors.info : colors.border}`,
+                          }}
+                        >
+                          {windowText}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div style={{ ...softCardStyle, padding: 16 }}>
+                  <div style={{ fontSize: 14, fontWeight: 900, marginBottom: 12 }}>Pre-flight validation</div>
+
+                  <div style={{ display: 'grid', gap: 10 }}>
+                    <div style={{ ...softCardStyle, padding: 12, background: colors.card }}>
+                      <div style={{ fontSize: 12, color: colors.muted, fontWeight: 800 }}>Sales rep</div>
+                      <div style={{ marginTop: 6, fontSize: 14, fontWeight: 800 }}>{salesRep || 'Missing'}</div>
+                    </div>
+
+                    <div style={{ ...softCardStyle, padding: 12, background: colors.card }}>
+                      <div style={{ fontSize: 12, color: colors.muted, fontWeight: 800 }}>Price</div>
+                      <div
+                        style={{
+                          marginTop: 6,
+                          fontSize: 14,
+                          fontWeight: 800,
+                          color: currentPrice ? colors.success : colors.danger,
+                        }}
+                      >
+                        {currentPrice ? `$${currentPrice}` : 'Missing'}
+                      </div>
+                    </div>
+
+                    <div style={{ ...softCardStyle, padding: 12, background: colors.card }}>
+                      <div style={{ fontSize: 12, color: colors.muted, fontWeight: 800 }}>Arrival window</div>
+                      <div style={{ marginTop: 6, fontSize: 14, fontWeight: 800 }}>Ready</div>
+                    </div>
+
+                    <div style={{ ...softCardStyle, padding: 12, background: colors.card }}>
+                      <div style={{ fontSize: 12, color: colors.muted, fontWeight: 800 }}>Output state</div>
+                      <div
+                        style={{
+                          marginTop: 6,
+                          fontSize: 14,
+                          fontWeight: 800,
+                          color: canGenerate ? colors.success : colors.danger,
+                        }}
+                      >
+                        {canGenerate ? 'Can generate' : 'Blocked'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {errorMessage && (
+                    <div
+                      style={{
+                        marginTop: 12,
+                        padding: 12,
+                        borderRadius: 14,
+                        background: colors.dangerSoft,
+                        color: colors.danger,
+                        fontSize: 13,
+                        fontWeight: 800,
+                      }}
+                    >
+                      {errorMessage}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-6">
-            <section className="rounded-[28px] border border-zinc-200 bg-white p-5 shadow-sm md:p-6 xl:sticky xl:top-6">
-              <div className="flex items-start justify-between gap-3">
+          <div style={{ display: 'grid', gap: 20 }}>
+            <div style={{ ...cardStyle, padding: 22, position: 'sticky', top: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
                 <div>
-                  <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">Live Preview</div>
-                  <h2 className="mt-1 text-xl font-semibold tracking-tight">Customer-facing booking summary</h2>
+                  <div style={sectionTitleStyle}>Live Preview</div>
+                  <div style={{ fontSize: 24, fontWeight: 900 }}>Customer-facing booking summary</div>
                 </div>
+
                 <button
-                  onClick={() => setShowDebug((v) => !v)}
-                  className="inline-flex items-center gap-2 rounded-2xl border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+                  onClick={() => setShowDebug((prev) => !prev)}
+                  style={{
+                    ...buttonBase,
+                    background: colors.soft,
+                    color: colors.text,
+                    border: `1px solid ${colors.border}`,
+                  }}
                 >
-                  <Bug className="h-4 w-4" />
-                  {showDebug ? 'Hide debug' : 'Open debug'}
+                  {showDebug ? 'Hide Debug' : 'Open Debug'}
                 </button>
               </div>
 
-              <div className="mt-5 rounded-[24px] bg-zinc-950 p-5 text-zinc-50 shadow-inner">
-                <div className="flex items-center justify-between">
-                  <div className="text-xs uppercase tracking-[0.18em] text-zinc-400">Preview card</div>
-                  <div className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-medium text-emerald-300">
-                    {isValid ? 'Valid' : 'Needs input'}
-                  </div>
+              <div
+                style={{
+                  marginTop: 16,
+                  padding: 18,
+                  borderRadius: 20,
+                  background: colors.preview,
+                  color: colors.previewText,
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)',
+                }}
+              >
+                <div
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    padding: '6px 10px',
+                    borderRadius: 999,
+                    background: canGenerate ? 'rgba(22, 163, 74, 0.18)' : 'rgba(220, 38, 38, 0.18)',
+                    color: canGenerate ? '#86efac' : '#fca5a5',
+                    fontSize: 11,
+                    fontWeight: 900,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                  }}
+                >
+                  {canGenerate ? 'Valid' : 'Needs input'}
                 </div>
-                <pre className="mt-4 whitespace-pre-wrap font-sans text-sm leading-6 text-zinc-100">{bookingSummary}</pre>
+
+                <pre
+                  style={{
+                    whiteSpace: 'pre-wrap',
+                    margin: '16px 0 0 0',
+                    fontSize: 14,
+                    lineHeight: 1.65,
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  {bookingSummary}
+                </pre>
               </div>
 
-              <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
-                <div className="rounded-[24px] border border-zinc-200 bg-zinc-50 p-4">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-zinc-800">
-                    <DollarSign className="h-4 w-4 text-zinc-500" />
-                    Pricing
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 16 }}>
+                <div style={{ ...softCardStyle, padding: 14 }}>
+                  <div style={{ fontSize: 12, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>Price</div>
+                  <div style={{ fontSize: 28, fontWeight: 900, marginTop: 8 }}>
+                    ${currentPrice || '—'}
                   </div>
-                  <div className="mt-2 text-2xl font-bold tracking-tight">${quotedPrice || '—'}</div>
-                  <div className="mt-1 text-xs text-zinc-500">{mode === 'moving' ? `+$${additionalRate || '0'} / extra hour` : serviceType}</div>
+                  <div style={{ fontSize: 12, color: colors.muted, marginTop: 6 }}>
+                    {mode === 'moving' ? `+$${additionalRate || '0'} each additional hour` : currentService}
+                  </div>
                 </div>
-                <div className="rounded-[24px] border border-zinc-200 bg-zinc-50 p-4">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-zinc-800">
-                    <Clock3 className="h-4 w-4 text-zinc-500" />
-                    Arrival window
+
+                <div style={{ ...softCardStyle, padding: 14 }}>
+                  <div style={{ fontSize: 12, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>Arrival</div>
+                  <div style={{ fontSize: 16, fontWeight: 900, marginTop: 8 }}>
+                    {currentArrivalWindow}
                   </div>
-                  <div className="mt-2 text-sm font-semibold text-zinc-900">{arrivalWindow}</div>
                 </div>
               </div>
 
-              <div className="mt-5 rounded-[24px] border border-zinc-200 bg-white p-4">
-                <div className="text-sm font-semibold text-zinc-800">Text message preview</div>
-                <div className="mt-3 rounded-2xl bg-sky-50 p-4 text-sm text-zinc-800">
-                  Click on the link below so we can get your work order created:\n
-                  <span className="mt-2 block font-semibold text-sky-700">{generated ? shortLink : '[short link will appear here]'}</span>
-                </div>
+              <div style={{ ...softCardStyle, padding: 14, marginTop: 16 }}>
+                <div style={{ fontSize: 14, fontWeight: 900 }}>Message that gets copied</div>
+                <textarea
+                  rows={3}
+                  readOnly
+                  value={messageToCopy || 'Click on the link below so we can get your work order created:\n[short link will appear here]'}
+                  style={{
+                    ...inputStyle,
+                    marginTop: 10,
+                    resize: 'vertical',
+                    background: colors.card,
+                  }}
+                />
               </div>
+
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 10,
+                  flexWrap: 'wrap',
+                  marginTop: 16,
+                }}
+              >
+                <button
+                  onClick={generateLink}
+                  disabled={!canGenerate || isGenerating}
+                  style={{
+                    ...buttonBase,
+                    background: !canGenerate || isGenerating ? colors.accentSoft : colors.accent,
+                    color: !canGenerate || isGenerating ? colors.muted : colors.accentText,
+                    cursor: !canGenerate || isGenerating ? 'not-allowed' : 'pointer',
+                    minWidth: 160,
+                  }}
+                >
+                  {isGenerating ? 'Generating...' : 'Generate Link'}
+                </button>
+
+                <button
+                  onClick={copyMessage}
+                  disabled={!generatedLink}
+                  style={{
+                    ...buttonBase,
+                    background: generatedLink ? colors.card : colors.accentSoft,
+                    color: generatedLink ? colors.text : colors.muted,
+                    border: `1px solid ${generatedLink ? colors.border : colors.accentSoft}`,
+                    cursor: generatedLink ? 'pointer' : 'not-allowed',
+                  }}
+                >
+                  {copied ? 'Copied!' : 'Copy Message'}
+                </button>
+
+                <button
+                  onClick={copyLinkOnly}
+                  disabled={!generatedLink}
+                  style={{
+                    ...buttonBase,
+                    background: generatedLink ? colors.card : colors.accentSoft,
+                    color: generatedLink ? colors.text : colors.muted,
+                    border: `1px solid ${generatedLink ? colors.border : colors.accentSoft}`,
+                    cursor: generatedLink ? 'pointer' : 'not-allowed',
+                  }}
+                >
+                  Copy Link Only
+                </button>
+              </div>
+
+              {generatedLink && (
+                <div style={{ ...softCardStyle, padding: 14, marginTop: 16 }}>
+                  <div style={{ fontSize: 14, fontWeight: 900, marginBottom: 10 }}>Short Link</div>
+                  <a
+                    href={generatedLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      color: colors.info,
+                      fontWeight: 800,
+                      fontSize: 14,
+                      wordBreak: 'break-all',
+                      textDecoration: 'none',
+                    }}
+                  >
+                    {generatedLink}
+                  </a>
+                </div>
+              )}
 
               {showDebug && (
-                <div className="mt-5 rounded-[24px] border border-zinc-200 bg-zinc-50 p-4">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-zinc-800">
-                    <Bug className="h-4 w-4" />
-                    Advanced debug drawer
-                  </div>
-                  <div className="mt-3 space-y-3 text-xs text-zinc-700">
-                    <div className="rounded-2xl bg-white p-3">
-                      <div className="font-semibold text-zinc-800">Target form</div>
-                      <div className="mt-1 break-all">{linkBase}</div>
+                <div style={{ ...softCardStyle, padding: 14, marginTop: 16 }}>
+                  <div style={{ fontSize: 14, fontWeight: 900, marginBottom: 10 }}>Advanced Debug</div>
+
+                  <div style={{ display: 'grid', gap: 10 }}>
+                    <div style={{ ...softCardStyle, padding: 12, background: colors.card }}>
+                      <div style={{ fontSize: 12, color: colors.muted, fontWeight: 800 }}>Service</div>
+                      <div style={{ marginTop: 6, fontSize: 14, fontWeight: 800 }}>{currentService}</div>
                     </div>
-                    <div className="rounded-2xl bg-white p-3">
-                      <div className="font-semibold text-zinc-800">Raw URL preview</div>
-                      <div className="mt-1 break-all">{mockLink}</div>
+
+                    <div style={{ ...softCardStyle, padding: 12, background: colors.card }}>
+                      <div style={{ fontSize: 12, color: colors.muted, fontWeight: 800 }}>Price param</div>
+                      <div style={{ marginTop: 6, fontSize: 14, fontWeight: 800 }}>${currentPrice || 'missing'}</div>
                     </div>
-                    <div className="rounded-2xl bg-white p-3">
-                      <div className="font-semibold text-zinc-800">Parser expectation</div>
-                      <div className="mt-1">salesRep = {salesRep} · service = {mode === 'moving' ? 'Moving' : serviceType} · price = ${quotedPrice || 'missing'}</div>
+
+                    <div style={{ ...softCardStyle, padding: 12, background: colors.card }}>
+                      <div style={{ fontSize: 12, color: colors.muted, fontWeight: 800 }}>Sales rep</div>
+                      <div style={{ marginTop: 6, fontSize: 14, fontWeight: 800 }}>{salesRep}</div>
+                    </div>
+
+                    <div style={{ ...softCardStyle, padding: 12, background: colors.card }}>
+                      <div style={{ fontSize: 12, color: colors.muted, fontWeight: 800 }}>Long Link (Debug)</div>
+                      {rawLink ? (
+                        <a
+                          href={rawLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            display: 'block',
+                            marginTop: 6,
+                            color: colors.info,
+                            fontWeight: 700,
+                            fontSize: 13,
+                            lineHeight: 1.5,
+                            wordBreak: 'break-all',
+                            textDecoration: 'none',
+                          }}
+                        >
+                          {rawLink}
+                        </a>
+                      ) : (
+                        <div style={{ marginTop: 6, fontSize: 13, color: colors.muted }}>
+                          Generate a link to see debug output.
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
               )}
-            </section>
-          </div>
-        </div>
-
-        <div className="sticky bottom-4 mt-6">
-          <div className="mx-auto flex max-w-7xl flex-col gap-3 rounded-[28px] border border-zinc-200 bg-white/90 p-4 shadow-xl backdrop-blur md:flex-row md:items-center md:justify-between">
-            <div>
-              <div className="text-sm font-semibold text-zinc-900">Operator action bar</div>
-              <div className="text-xs text-zinc-500">Primary actions stay visible while the operator reviews the preview.</div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => isValid && setGenerated(true)}
-                className={`inline-flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold shadow-sm transition ${
-                  isValid ? 'bg-black text-white hover:opacity-90' : 'cursor-not-allowed bg-zinc-200 text-zinc-500'
-                }`}
-              >
-                Generate Link
-                <ChevronRight className="h-4 w-4" />
-              </button>
-              <button className="inline-flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm font-semibold text-zinc-700 hover:bg-zinc-50">
-                <Copy className="h-4 w-4" />
-                Copy Message
-              </button>
-              <button className="inline-flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm font-semibold text-zinc-700 hover:bg-zinc-50">
-                <Link2 className="h-4 w-4" />
-                Copy Link
-              </button>
-              <button
-                onClick={() => setShowDebug((v) => !v)}
-                className="inline-flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm font-semibold text-zinc-700 hover:bg-zinc-50"
-              >
-                <ExternalLink className="h-4 w-4" />
-                {showDebug ? 'Close Debug' : 'Open Debug'}
-              </button>
             </div>
           </div>
         </div>
@@ -500,3 +1236,5 @@ export default function BookingLinkGeneratorOperatorConsolePrototype() {
     </div>
   );
 }
+
+export default App;
