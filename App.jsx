@@ -211,7 +211,7 @@ function App() {
 
   const [theme, setTheme] = useState('light');
   const [mode, setMode] = useState('carpet');
-  const [salesRep, setSalesRep] = useState('*04*');
+  const [salesRep, setSalesRep] = useState('');
 
   const [serviceType, setServiceType] = useState('Carpet Cleaning');
   const [quotedPrice, setQuotedPrice] = useState('100');
@@ -252,10 +252,11 @@ function App() {
   const currentService = mode === 'moving' ? 'Moving' : serviceType;
 
   const bookingSummary = useMemo(() => {
+    const salesRepLine = salesRep ? `${salesRep}\n` : '';
+
     if (mode === 'moving') {
       const trucksLabel = truckInfo ? `(${truckInfo}) ` : '';
-      return `${salesRep}
-$${blockPrice} First ${blockHours} Hours Then $${additionalRate} per 
+      return `${salesRepLine}$${blockPrice} First ${blockHours} Hours Then $${additionalRate} per 
 hour for each additional hour after that.
 ${movingArrival}
 ${numMovers} Men ${trucksLabel}${truckSize} Ft Trucks
@@ -266,8 +267,7 @@ CashApp payment $5 fee
 ***First ${blockHours}hrs due at arrival***`;
     }
 
-    return `${salesRep}
-${serviceType}
+    return `${salesRepLine}${serviceType}
 $${quotedPrice} Special
 ${arrivalWindow}
 Payment method: Cash Cashapp Zelle
@@ -386,6 +386,13 @@ Card payment: 7% processing fee`;
     const cleanBlockPrice = sanitizeNumber(blockPrice);
     const cleanAdditionalRate = sanitizeNumber(additionalRate);
 
+    if (!salesRep) {
+      setErrorMessage('Please select a sales rep before generating the booking link.');
+      setGeneratedLink('');
+      setRawLink('');
+      return;
+    }
+
     if ((mode === 'carpet' || mode === 'duct') && !cleanQuotedPrice) {
       setErrorMessage('Please enter a quoted price before generating the booking link.');
       setGeneratedLink('');
@@ -420,11 +427,11 @@ Card payment: 7% processing fee`;
     const finalService = mode === 'moving' ? 'Moving' : serviceType;
     const finalWindow = mode === 'moving' ? movingArrival : arrivalWindow;
     const { start, end } = getArrivalTimes(mode, finalWindow);
+    const salesRepLine = salesRep ? `${salesRep}\n` : '';
 
     const summary =
       mode === 'moving'
-        ? `${salesRep}
-$${cleanBlockPrice} First ${blockHours} Hours Then $${cleanAdditionalRate} per 
+        ? `${salesRepLine}$${cleanBlockPrice} First ${blockHours} Hours Then $${cleanAdditionalRate} per 
 hour for each additional hour after that.
 ${movingArrival}
 ${numMovers} Men ${truckInfo ? `(${truckInfo}) ` : ''}${truckSize} Ft Trucks
@@ -433,8 +440,7 @@ Cash, CashApp, Zelle
 CashApp payment $5 fee
 
 ***First ${blockHours}hrs due at arrival***`
-        : `${salesRep}
-${serviceType}
+        : `${salesRepLine}${serviceType}
 $${cleanQuotedPrice} Special
 ${arrivalWindow}
 Payment method: Cash Cashapp Zelle
@@ -648,20 +654,30 @@ Card payment: 7% processing fee`;
 
             <div style={topStatsGrid}>
               <div style={topStatStyle}>
-                <div style={{ fontSize: 11, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>Validation</div>
+                <div style={{ fontSize: 11, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>
+                  Validation
+                </div>
                 <div style={{ marginTop: 8, fontSize: 14, fontWeight: 800 }}>Required before generate</div>
               </div>
               <div style={topStatStyle}>
-                <div style={{ fontSize: 11, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>Sales Rep</div>
-                <div style={{ marginTop: 8, fontSize: 14, fontWeight: 800 }}>{salesRep}</div>
+                <div style={{ fontSize: 11, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>
+                  Sales Rep
+                </div>
+                <div style={{ marginTop: 8, fontSize: 14, fontWeight: 800 }}>{salesRep || 'Not selected'}</div>
               </div>
               <div style={topStatStyle}>
-                <div style={{ fontSize: 11, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>Mode</div>
+                <div style={{ fontSize: 11, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>
+                  Mode
+                </div>
                 <div style={{ marginTop: 8, fontSize: 14, fontWeight: 800, textTransform: 'capitalize' }}>{mode}</div>
               </div>
               <div style={topStatStyle}>
-                <div style={{ fontSize: 11, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>Output</div>
-                <div style={{ marginTop: 8, fontSize: 14, fontWeight: 800 }}>{generatedLink ? 'Short link ready' : 'Waiting to generate'}</div>
+                <div style={{ fontSize: 11, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>
+                  Output
+                </div>
+                <div style={{ marginTop: 8, fontSize: 14, fontWeight: 800 }}>
+                  {generatedLink ? 'Short link ready' : 'Waiting to generate'}
+                </div>
               </div>
             </div>
           </div>
@@ -671,7 +687,9 @@ Card payment: 7% processing fee`;
           <div style={{ display: 'grid', gap: 20 }}>
             <div style={{ ...cardStyle, padding: isMobile ? 16 : 22 }}>
               <div style={sectionTitleStyle}>Step 1</div>
-              <div style={{ fontSize: isMobile ? 21 : 24, fontWeight: 900, marginBottom: 18 }}>Choose mode and sales rep</div>
+              <div style={{ fontSize: isMobile ? 21 : 24, fontWeight: 900, marginBottom: 18 }}>
+                Choose mode and sales rep
+              </div>
 
               <div style={{ display: 'grid', gap: 18 }}>
                 <div>
@@ -728,24 +746,19 @@ Card payment: 7% processing fee`;
                 </div>
 
                 <div>
-                  <div style={labelStyle}>Sales rep</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(auto-fit, minmax(90px, 1fr))', gap: 10 }}>
+                  <label style={labelStyle}>Sales rep</label>
+                  <select
+                    value={salesRep}
+                    onChange={(e) => setSalesRep(e.target.value)}
+                    style={inputStyle}
+                  >
+                    <option value=""></option>
                     {SALES_REPS.map((rep) => (
-                      <button
-                        key={rep}
-                        onClick={() => setSalesRep(rep)}
-                        style={{
-                          ...buttonBase,
-                          background: salesRep === rep ? colors.info : colors.card,
-                          color: salesRep === rep ? '#ffffff' : colors.text,
-                          border: `1px solid ${salesRep === rep ? colors.info : colors.border}`,
-                          width: '100%',
-                        }}
-                      >
+                      <option key={rep} value={rep}>
                         {rep}
-                      </button>
+                      </option>
                     ))}
-                  </div>
+                  </select>
                 </div>
               </div>
             </div>
@@ -1003,7 +1016,9 @@ Card payment: 7% processing fee`;
 
             <div style={{ ...cardStyle, padding: isMobile ? 16 : 22 }}>
               <div style={sectionTitleStyle}>Step 3</div>
-              <div style={{ fontSize: isMobile ? 21 : 24, fontWeight: 900, marginBottom: 18 }}>Schedule and validate</div>
+              <div style={{ fontSize: isMobile ? 21 : 24, fontWeight: 900, marginBottom: 18 }}>
+                Schedule and validate
+              </div>
 
               <div style={validationGrid}>
                 <div>
@@ -1104,10 +1119,20 @@ Card payment: 7% processing fee`;
                 top: isDesktop ? 20 : 'auto',
               }}
             >
-              <div style={{ display: 'flex', alignItems: isMobile ? 'stretch' : 'center', justifyContent: 'space-between', gap: 10, flexDirection: isMobile ? 'column' : 'row' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: isMobile ? 'stretch' : 'center',
+                  justifyContent: 'space-between',
+                  gap: 10,
+                  flexDirection: isMobile ? 'column' : 'row',
+                }}
+              >
                 <div>
                   <div style={sectionTitleStyle}>Live Preview</div>
-                  <div style={{ fontSize: isMobile ? 21 : 24, fontWeight: 900 }}>Customer-facing booking summary</div>
+                  <div style={{ fontSize: isMobile ? 21 : 24, fontWeight: 900 }}>
+                    Customer-facing booking summary
+                  </div>
                 </div>
 
                 <button
@@ -1165,9 +1190,25 @@ Card payment: 7% processing fee`;
                 </pre>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 12, marginTop: 16 }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+                  gap: 12,
+                  marginTop: 16,
+                }}
+              >
                 <div style={{ ...softCardStyle, padding: 14 }}>
-                  <div style={{ fontSize: 12, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>Price</div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      color: colors.muted,
+                      fontWeight: 800,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Price
+                  </div>
                   <div style={{ fontSize: isMobile ? 24 : 28, fontWeight: 900, marginTop: 8 }}>
                     ${currentPrice || '—'}
                   </div>
@@ -1177,7 +1218,16 @@ Card payment: 7% processing fee`;
                 </div>
 
                 <div style={{ ...softCardStyle, padding: 14 }}>
-                  <div style={{ fontSize: 12, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>Arrival</div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      color: colors.muted,
+                      fontWeight: 800,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Arrival
+                  </div>
                   <div style={{ fontSize: 16, fontWeight: 900, marginTop: 8, lineHeight: 1.4 }}>
                     {currentArrivalWindow}
                   </div>
@@ -1286,7 +1336,7 @@ Card payment: 7% processing fee`;
 
                     <div style={{ ...softCardStyle, padding: 12, background: colors.card }}>
                       <div style={{ fontSize: 12, color: colors.muted, fontWeight: 800 }}>Sales rep</div>
-                      <div style={{ marginTop: 6, fontSize: 14, fontWeight: 800 }}>{salesRep}</div>
+                      <div style={{ marginTop: 6, fontSize: 14, fontWeight: 800 }}>{salesRep || 'Not selected'}</div>
                     </div>
 
                     <div style={{ ...softCardStyle, padding: 12, background: colors.card }}>
