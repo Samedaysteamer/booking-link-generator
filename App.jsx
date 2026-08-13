@@ -65,6 +65,17 @@ const MOVING_PRESETS = [
     truckSize: '17',
     note: '$150 each additional hour / delivery',
   },
+  {
+    id: 'special_3men',
+    label: '$450 first 2 hours',
+    price: '450',
+    hours: '2',
+    rate: '225',
+    movers: '3',
+    trucks: '1',
+    truckSize: '17',
+    note: '$225 each additional hour / 3 men',
+  },
 ];
 
 const ARRIVAL_WINDOWS = {
@@ -266,7 +277,7 @@ function App() {
   useEffect(() => {
     if (generatedLink) {
       setMessageDraft(
-        `Click on the link below so we can get your work order created:\n\n${generatedLink}\n\nIf the link isn't clickable, copy and paste it into your web browser and it will open right up.`
+        `Click the link below to get your work order started:\n\n${generatedLink}\n\nNot clickable? Copy and paste it into your browser.`
       );
     } else {
       setMessageDraft('');
