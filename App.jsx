@@ -1,196 +1,262 @@
-import React, { useEffect, useState } from 'react';
-import './BookingLinkGenerator.css';
+import React, { useEffect, useMemo, useState } from 'react';
 
-export default function App() {
-  // ---------- Theme ----------
-  const [theme, setTheme] = useState('light'); // light | gray | sky
+const SALES_REPS = ['*01*', '*02*', '*03*', '*04*', '*05*'];
+
+const CARPET_PRESETS = [
+  { id: 'cc100', label: 'Carpet Cleaning', price: '100', note: 'Fast close special' },
+  { id: 'cc130', label: 'Carpet Cleaning', price: '130', note: 'Mid-ticket close' },
+  { id: 'cc150', label: 'Carpet Cleaning', price: '150', note: 'Standard premium' },
+  { id: 'cc200', label: 'Carpet Cleaning', price: '200', note: 'Higher-ticket close' },
+  { id: 'cc250', label: 'Carpet Cleaning', price: '250', note: 'Large-home close' },
+  { id: 'cc300', label: 'Carpet Cleaning', price: '300', note: 'Premium close' },
+  { id: 'up200', label: 'Upholstery Cleaning', price: '200', note: 'Sofa / loveseat entry' },
+  { id: 'up250', label: 'Upholstery Cleaning', price: '250', note: 'Mid-ticket upholstery' },
+  { id: 'up300', label: 'Upholstery Cleaning', price: '300', note: 'Premium upholstery' },
+];
+
+const DUCT_PRESETS = [
+  { id: 'deep500', label: 'Deep Duct Cleaning (No Furnace)', price: '500', note: 'Single-system close' },
+  { id: 'deep600', label: 'Deep Duct Cleaning with Furnace', price: '600', note: 'Best-value upsell' },
+  { id: 'deep1200', label: 'Deep Duct Cleaning (Two Units with Furnace)', price: '1200', note: 'Multi-system close' },
+];
+
+const MOVING_PRESETS = [
+  {
+    id: 'special_2men',
+    label: '$300 first 2 hours',
+    price: '300',
+    hours: '2',
+    rate: '150',
+    movers: '2',
+    trucks: '1',
+    truckSize: '17',
+    note: '$150 each additional hour',
+  },
+  {
+    id: 'special_4men',
+    label: '$600 first 2 hours',
+    price: '600',
+    hours: '2',
+    rate: '300',
+    movers: '4',
+    trucks: '2',
+    truckSize: '17',
+    note: '$300 each additional hour / 4 men',
+  },
+  {
+    id: 'special_260',
+    label: '$260 first 2 hours',
+    price: '260',
+    hours: '2',
+    rate: '130',
+    movers: '2',
+    trucks: '',
+    truckSize: '17',
+    note: '$130 each additional hour',
+  },
+  {
+    id: 'special_delivery',
+    label: '$200 first hour',
+    price: '200',
+    hours: '1',
+    rate: '150',
+    movers: '2',
+    trucks: '',
+    truckSize: '17',
+    note: '$150 each additional hour / delivery',
+  },
+];
+
+const ARRIVAL_WINDOWS = {
+  carpet: [
+    'Arrival between 8 and 12',
+    'Arrival between 10 and 2',
+    'Arrival between 12 and 4',
+    'Arrival between 1 and 5',
+    'Arrival between 3 and 7',
+  ],
+  duct: ['Arrival between 8 and 12', 'Arrival between 1 and 5'],
+  moving: [
+    'Arrival between 7 and 10',
+    'Arrival between 9 to 11',
+    'Arrival between 11 and 2',
+    'Arrival between 1 and 3',
+    'Arrival between 3 and 6',
+    'Arrival between 6 and 8 pm',
+  ],
+};
+
+const THEMES = {
+  light: {
+    page: '#f4f7fb',
+    header: 'linear-gradient(135deg, #ffffff 0%, #eef4ff 100%)',
+    card: '#ffffff',
+    soft: '#f7f9fc',
+    border: '#d8e0ea',
+    text: '#0f172a',
+    muted: '#64748b',
+    accent: '#111827',
+    accentText: '#ffffff',
+    accentSoft: '#e5e7eb',
+    accentSoftText: '#111827',
+    info: '#0ea5e9',
+    infoSoft: '#e0f2fe',
+    success: '#16a34a',
+    successSoft: '#dcfce7',
+    danger: '#dc2626',
+    dangerSoft: '#fee2e2',
+    preview: '#0f172a',
+    previewText: '#f8fafc',
+  },
+  gray: {
+    page: '#eef1f5',
+    header: 'linear-gradient(135deg, #ffffff 0%, #eceff4 100%)',
+    card: '#ffffff',
+    soft: '#f5f7fa',
+    border: '#d4d9e1',
+    text: '#111827',
+    muted: '#6b7280',
+    accent: '#1f2937',
+    accentText: '#ffffff',
+    accentSoft: '#e5e7eb',
+    accentSoftText: '#111827',
+    info: '#2563eb',
+    infoSoft: '#dbeafe',
+    success: '#15803d',
+    successSoft: '#dcfce7',
+    danger: '#b91c1c',
+    dangerSoft: '#fee2e2',
+    preview: '#111827',
+    previewText: '#f9fafb',
+  },
+  sky: {
+    page: '#eef8ff',
+    header: 'linear-gradient(135deg, #ffffff 0%, #dff3ff 100%)',
+    card: '#ffffff',
+    soft: '#f3fbff',
+    border: '#cfe7f5',
+    text: '#0f172a',
+    muted: '#5b7285',
+    accent: '#0284c7',
+    accentText: '#ffffff',
+    accentSoft: '#dff3ff',
+    accentSoftText: '#0c4a6e',
+    info: '#0284c7',
+    infoSoft: '#dff3ff',
+    success: '#15803d',
+    successSoft: '#dcfce7',
+    danger: '#b91c1c',
+    dangerSoft: '#fee2e2',
+    preview: '#082f49',
+    previewText: '#f0f9ff',
+  },
+};
+
+function sanitizeNumber(value) {
+  return String(value || '').replace(/[^\d]/g, '');
+}
+
+function getArrivalTimes(mode, windowText) {
+  const lookup = {
+    carpet: {
+      'Arrival between 8 and 12': { start: '8 AM', end: '12 PM' },
+      'Arrival between 10 and 2': { start: '10 AM', end: '2 PM' },
+      'Arrival between 12 and 4': { start: '12 PM', end: '4 PM' },
+      'Arrival between 1 and 5': { start: '1 PM', end: '5 PM' },
+      'Arrival between 3 and 7': { start: '3 PM', end: '7 PM' },
+    },
+    duct: {
+      'Arrival between 8 and 12': { start: '8 AM', end: '12 PM' },
+      'Arrival between 1 and 5': { start: '1 PM', end: '5 PM' },
+    },
+    moving: {
+      'Arrival between 7 and 10': { start: '7 AM', end: '10 AM' },
+      'Arrival between 9 to 11': { start: '9 AM', end: '11 AM' },
+      'Arrival between 11 and 2': { start: '11 AM', end: '2 PM' },
+      'Arrival between 1 and 3': { start: '1 PM', end: '3 PM' },
+      'Arrival between 3 and 6': { start: '3 PM', end: '6 PM' },
+      'Arrival between 6 and 8 pm': { start: '6 PM', end: '8 PM' },
+    },
+  };
+
+  return lookup[mode]?.[windowText] || { start: '', end: '' };
+}
+
+function useScreen() {
+  const getWidth = () => (typeof window !== 'undefined' ? window.innerWidth : 1280);
+  const [width, setWidth] = useState(getWidth);
+
   useEffect(() => {
-    const cls = document.body.classList;
-    cls.remove('theme-light', 'theme-gray', 'theme-sky');
-    cls.add(`theme-${theme}`);
-  }, [theme]);
+    function onResize() {
+      setWidth(getWidth());
+    }
 
-  // ---------- Core state ----------
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', onResize);
+      return () => window.removeEventListener('resize', onResize);
+    }
+  }, []);
+
+  return {
+    width,
+    isMobile: width <= 767,
+    isTablet: width >= 768 && width <= 1023,
+    isDesktop: width >= 1024,
+  };
+}
+
+function App() {
+  const screen = useScreen();
+  const { isMobile, isTablet, isDesktop } = screen;
+
+  const [theme, setTheme] = useState('light');
   const [mode, setMode] = useState('carpet');
   const [salesRep, setSalesRep] = useState('');
 
   const [serviceType, setServiceType] = useState('Carpet Cleaning');
-  const [quotedPrice, setQuotedPrice] = useState('');
-
-  // Carpet/Duct arrival window
+  const [quotedPrice, setQuotedPrice] = useState('100');
   const [arrivalWindow, setArrivalWindow] = useState('Arrival between 8 and 12');
 
-  // Moving fields
-  const [blockPrice, setBlockPrice] = useState('');
+  const [blockPrice, setBlockPrice] = useState('300');
   const [blockHours, setBlockHours] = useState('2');
-  const [additionalRate, setAdditionalRate] = useState('');
-  const [movingArrival, setMovingArrival] = useState('Arrival between 7 and 9');
+  const [additionalRate, setAdditionalRate] = useState('150');
+  const [movingArrival, setMovingArrival] = useState('Arrival between 7 and 10');
   const [numMovers, setNumMovers] = useState('2');
-  const [truckInfo, setTruckInfo] = useState(''); // "" = one truck, "2" = 2 trucks
+  const [truckInfo, setTruckInfo] = useState('1');
   const [truckSize, setTruckSize] = useState('17');
 
-  const [generatedLink, setGeneratedLink] = useState(''); // short link
-  const [rawLink, setRawLink] = useState(''); // long link
+  const [carpetSpecial, setCarpetSpecial] = useState('cc100');
+  const [ductSpecial, setDuctSpecial] = useState('custom');
+  const [movingSpecial, setMovingSpecial] = useState('special_2men');
+
+  const [generatedLink, setGeneratedLink] = useState('');
+  const [rawLink, setRawLink] = useState('');
   const [copied, setCopied] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showDebug, setShowDebug] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  // ---------- Specials ----------
-  // Moving specials
-  const [movingSpecial, setMovingSpecial] = useState('custom');
-  const applyMovingSpecial = (value) => {
-    setMovingSpecial(value);
-    if (value === 'special_2men') {
-      setBlockPrice('300');
-      setBlockHours('2');
-      setAdditionalRate('150');
-      setNumMovers('2');
-      setTruckInfo('1');
-      setTruckSize('17');
-    } else if (value === 'special_4men') {
-      setBlockPrice('600');
-      setBlockHours('2');
-      setAdditionalRate('300');
-      setNumMovers('4');
-      setTruckInfo('2');
-      setTruckSize('17');
-    } else if (value === 'special_260') {
-      setBlockPrice('260');
-      setBlockHours('2');
-      setAdditionalRate('130');
-      setNumMovers('2');
-      setTruckInfo('');
-      setTruckSize('17');
-    } else if (value === 'special_delivery') {
-      // $200 first hour / $150 addl
-      setBlockPrice('200');
-      setBlockHours('1');
-      setAdditionalRate('150');
-      setNumMovers('2');
-      setTruckInfo('');
-      setTruckSize('17');
+  const colors = THEMES[theme];
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.body.style.margin = '0';
+      document.body.style.background = colors.page;
+      document.body.style.fontFamily =
+        'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
     }
-  };
-  const movingLocked = movingSpecial !== 'custom';
+  }, [colors.page]);
 
-  // Carpet/Upholstery specials
-  const [carpetSpecial, setCarpetSpecial] = useState('custom');
-  const applyCarpetSpecial = (value) => {
-    setCarpetSpecial(value);
-    if (value === 'cc100') {
-      setServiceType('Carpet Cleaning');
-      setQuotedPrice('100');
-    } else if (value === 'cc130') {
-      setServiceType('Carpet Cleaning');
-      setQuotedPrice('130');
-    } else if (value === 'cc150') {
-      setServiceType('Carpet Cleaning');
-      setQuotedPrice('150');
-    } else if (value === 'cc200') {
-      setServiceType('Carpet Cleaning');
-      setQuotedPrice('200');
-    } else if (value === 'cc250') {
-      setServiceType('Carpet Cleaning');
-      setQuotedPrice('250');
-    } else if (value === 'cc300') {
-      setServiceType('Carpet Cleaning');
-      setQuotedPrice('300');
-    } else if (value === 'up200') {
-      setServiceType('Upholstery Cleaning');
-      setQuotedPrice('200');
-    } else if (value === 'up250') {
-      setServiceType('Upholstery Cleaning');
-      setQuotedPrice('250');
-    } else if (value === 'up300') {
-      setServiceType('Upholstery Cleaning');
-      setQuotedPrice('300');
-    }
-  };
-  const carpetLocked = carpetSpecial !== 'custom';
+  const currentArrivalWindow = mode === 'moving' ? movingArrival : arrivalWindow;
+  const currentPrice = mode === 'moving' ? blockPrice : quotedPrice;
+  const currentService = mode === 'moving' ? 'Moving' : serviceType;
 
-  // Duct specials
-  const [ductSpecial, setDuctSpecial] = useState('custom');
-  const applyDuctSpecial = (value) => {
-    setDuctSpecial(value);
-    if (value === 'deep500') {
-      setServiceType('Deep Duct Cleaning (No Furnace)');
-      setQuotedPrice('500');
-    } else if (value === 'deep600') {
-      setServiceType('Deep Duct Cleaning with Furnace');
-      setQuotedPrice('600');
-    } else if (value === 'deep1200') {
-      setServiceType('Deep Duct Cleaning (Two Units with Furnace)');
-      setQuotedPrice('1200');
-    }
-  };
-  const ductLocked = ductSpecial !== 'custom';
+  const bookingSummary = useMemo(() => {
+    const salesRepLine = salesRep ? `${salesRep}\n` : '';
 
-  // ---------- Link Generator ----------
-  const generateLink = () => {
-    let summary = '';
-    let baseUrl = '';
-    let fullLink = '';
-    let arrivalStart = '';
-    let arrivalEnd = '';
-    let arrivalWindowText = '';
-
-    const cleanQuotedPrice = String(quotedPrice || '').trim();
-    const cleanBlockPrice = String(blockPrice || '').trim();
-    const finalPrice = mode === 'moving' ? cleanBlockPrice : cleanQuotedPrice;
-
-    // Validation
-    if ((mode === 'carpet' || mode === 'duct') && !cleanQuotedPrice) {
-      setErrorMessage('Please enter a quoted price before generating the booking link.');
-      setGeneratedLink('');
-      setRawLink('');
-      setCopied(false);
-      return;
-    }
-
-    if (mode === 'moving' && !cleanBlockPrice) {
-      setErrorMessage('Please enter the first block price before generating the booking link.');
-      setGeneratedLink('');
-      setRawLink('');
-      setCopied(false);
-      return;
-    }
-
-    setErrorMessage('');
-
-    if (mode === 'carpet' || mode === 'duct') {
-      summary = `${salesRep}
-${serviceType}
-$${cleanQuotedPrice} Special
-${arrivalWindow}
-Payment method: Cash Cashapp Zelle
-Card payment: 7% processing fee`;
-
-      baseUrl =
-        mode === 'duct'
-          ? 'https://form.jotform.com/251573697976175'
-          : 'https://form.jotform.com/251536451249054';
-
-      arrivalWindowText = arrivalWindow;
-
-      if (arrivalWindow === 'Arrival between 8 and 12') {
-        arrivalStart = '8 AM';
-        arrivalEnd = '12 PM';
-      } else if (arrivalWindow === 'Arrival between 10 and 2') {
-        arrivalStart = '10 AM';
-        arrivalEnd = '2 PM';
-      } else if (arrivalWindow === 'Arrival between 12 and 4') {
-        arrivalStart = '12 PM';
-        arrivalEnd = '4 PM';
-      } else if (arrivalWindow === 'Arrival between 1 and 5') {
-        arrivalStart = '1 PM';
-        arrivalEnd = '5 PM';
-      } else if (arrivalWindow === 'Arrival between 3 and 7') {
-        arrivalStart = '3 PM';
-        arrivalEnd = '7 PM';
-      }
-    } else {
+    if (mode === 'moving') {
       const trucksLabel = truckInfo ? `(${truckInfo}) ` : '';
-      summary = `${salesRep}
-$${cleanBlockPrice} First ${blockHours} Hours Then $${additionalRate} per 
+      return `${salesRepLine}$${blockPrice} First ${blockHours} Hours Then $${additionalRate} per 
 hour for each additional hour after that.
 ${movingArrival}
 ${numMovers} Men ${trucksLabel}${truckSize} Ft Trucks
@@ -199,384 +265,838 @@ Cash, CashApp, Zelle
 CashApp payment $5 fee
 
 ***First ${blockHours}hrs due at arrival***`;
-
-      baseUrl = 'https://form.jotform.com/251537865180159';
-      arrivalWindowText = movingArrival;
-
-      if (movingArrival === 'Arrival between 7 and 9') {
-        arrivalStart = '7 AM';
-        arrivalEnd = '9 AM';
-      } else if (movingArrival === 'Arrival between 9 to 11') {
-        arrivalStart = '9 AM';
-        arrivalEnd = '11 AM';
-      } else if (movingArrival === 'Arrival between 11 and 1') {
-        arrivalStart = '11 AM';
-        arrivalEnd = '1 PM';
-      } else if (movingArrival === 'Arrival between 1 and 3') {
-        arrivalStart = '1 PM';
-        arrivalEnd = '3 PM';
-      } else if (movingArrival === 'Arrival between 3 to 5') {
-        arrivalStart = '3 PM';
-        arrivalEnd = '5 PM';
-      } else if (
-        movingArrival === 'Arrival between 6 and 8 pm' ||
-        movingArrival === 'Arrival between 6 and 8pm'
-      ) {
-        arrivalStart = '6 PM';
-        arrivalEnd = '8 PM';
-      }
-
-      setServiceType('Moving');
     }
 
-    const encodedSummary = encodeURIComponent(summary);
-    const finalService = encodeURIComponent(mode === 'moving' ? 'Moving' : serviceType);
+    return `${salesRepLine}${serviceType}
+$${quotedPrice} Special
+${arrivalWindow}
+Payment method: Cash Cashapp Zelle
+Card payment: 7% processing fee`;
+  }, [
+    mode,
+    salesRep,
+    blockPrice,
+    blockHours,
+    additionalRate,
+    movingArrival,
+    numMovers,
+    truckInfo,
+    truckSize,
+    serviceType,
+    quotedPrice,
+    arrivalWindow,
+  ]);
 
-    fullLink =
-      `${baseUrl}?bookingSummary=${encodedSummary}` +
-      `&arrivalStart=${encodeURIComponent(arrivalStart)}` +
-      `&arrivalEnd=${encodeURIComponent(arrivalEnd)}` +
-      `&arrivalWindow=${encodeURIComponent(arrivalWindowText)}` +
-      `&service=${finalService}` +
-      `&price=${encodeURIComponent(finalPrice)}` +
-      `&salesRep=${encodeURIComponent(salesRep)}`;
-
-    setRawLink(fullLink);
-    setCopied(false);
-
-    fetch(`/api/shorten?url=${encodeURIComponent(fullLink)}`)
-      .then((r) => r.json())
-      .then(({ shortUrl }) => setGeneratedLink(shortUrl || fullLink))
-      .catch(() => setGeneratedLink(fullLink));
-  };
-
-  // ---------- Copy helpers ----------
-  const shareText = generatedLink
+  const messageToCopy = generatedLink
     ? `Click on the link below so we can get your work order created:\n${generatedLink}`
     : '';
 
-  const copyMessage = async () => {
+  const canGenerate = Boolean(
+    currentArrivalWindow &&
+      (mode === 'moving'
+        ? blockPrice && blockHours && additionalRate && numMovers && truckSize
+        : serviceType && quotedPrice)
+  );
+
+  function switchMode(nextMode) {
+    setMode(nextMode);
+    setErrorMessage('');
+    setGeneratedLink('');
+    setRawLink('');
+    setCopied(false);
+
+    if (nextMode === 'carpet') {
+      setServiceType('Carpet Cleaning');
+      setQuotedPrice('100');
+      setArrivalWindow('Arrival between 8 and 12');
+      setCarpetSpecial('cc100');
+    } else if (nextMode === 'duct') {
+      setServiceType('Deep Duct Cleaning with Furnace');
+      setQuotedPrice('600');
+      setArrivalWindow('Arrival between 8 and 12');
+      setDuctSpecial('deep600');
+    } else {
+      setBlockPrice('300');
+      setBlockHours('2');
+      setAdditionalRate('150');
+      setMovingArrival('Arrival between 7 and 10');
+      setNumMovers('2');
+      setTruckInfo('1');
+      setTruckSize('17');
+      setMovingSpecial('special_2men');
+    }
+  }
+
+  function applyCarpetPreset(id) {
+    setCarpetSpecial(id);
+    const preset = CARPET_PRESETS.find((item) => item.id === id);
+    if (!preset) return;
+    setServiceType(preset.label);
+    setQuotedPrice(preset.price);
+    setErrorMessage('');
+  }
+
+  function applyDuctPreset(id) {
+    setDuctSpecial(id);
+    const preset = DUCT_PRESETS.find((item) => item.id === id);
+    if (!preset) return;
+    setServiceType(preset.label);
+    setQuotedPrice(preset.price);
+    setErrorMessage('');
+  }
+
+  function applyMovingPreset(id) {
+    setMovingSpecial(id);
+    const preset = MOVING_PRESETS.find((item) => item.id === id);
+    if (!preset) return;
+    setBlockPrice(preset.price);
+    setBlockHours(preset.hours);
+    setAdditionalRate(preset.rate);
+    setNumMovers(preset.movers);
+    setTruckInfo(preset.trucks);
+    setTruckSize(preset.truckSize);
+    setErrorMessage('');
+  }
+
+  async function copyMessage() {
     if (!generatedLink) return;
     try {
-      await navigator.clipboard.writeText(shareText);
+      await navigator.clipboard.writeText(messageToCopy);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch (_) {
+    } catch (error) {
       setCopied(false);
     }
-  };
+  }
 
-  const copyLinkOnly = async () => {
+  async function copyLinkOnly() {
     if (!generatedLink) return;
     try {
       await navigator.clipboard.writeText(generatedLink);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch (_) {
+    } catch (error) {
       setCopied(false);
     }
+  }
+
+  function generateLink() {
+    const cleanQuotedPrice = sanitizeNumber(quotedPrice);
+    const cleanBlockPrice = sanitizeNumber(blockPrice);
+    const cleanAdditionalRate = sanitizeNumber(additionalRate);
+
+    if ((mode === 'carpet' || mode === 'duct') && !cleanQuotedPrice) {
+      setErrorMessage('Please enter a quoted price before generating the booking link.');
+      setGeneratedLink('');
+      setRawLink('');
+      return;
+    }
+
+    if (mode === 'moving' && !cleanBlockPrice) {
+      setErrorMessage('Please enter the first block price before generating the booking link.');
+      setGeneratedLink('');
+      setRawLink('');
+      return;
+    }
+
+    if (mode === 'moving' && !cleanAdditionalRate) {
+      setErrorMessage('Please enter the additional hourly rate before generating the booking link.');
+      setGeneratedLink('');
+      setRawLink('');
+      return;
+    }
+
+    setErrorMessage('');
+
+    const baseUrl =
+      mode === 'duct'
+        ? 'https://form.jotform.com/251573697976175'
+        : mode === 'moving'
+        ? 'https://form.jotform.com/251537865180159'
+        : 'https://form.jotform.com/251536451249054';
+
+    const finalPrice = mode === 'moving' ? cleanBlockPrice : cleanQuotedPrice;
+    const finalService = mode === 'moving' ? 'Moving' : serviceType;
+    const finalWindow = mode === 'moving' ? movingArrival : arrivalWindow;
+    const { start, end } = getArrivalTimes(mode, finalWindow);
+    const salesRepLine = salesRep ? `${salesRep}\n` : '';
+
+    const summary =
+      mode === 'moving'
+        ? `${salesRepLine}$${cleanBlockPrice} First ${blockHours} Hours Then $${cleanAdditionalRate} per 
+hour for each additional hour after that.
+${movingArrival}
+${numMovers} Men ${truckInfo ? `(${truckInfo}) ` : ''}${truckSize} Ft Trucks
+Payment methods:
+Cash, CashApp, Zelle
+CashApp payment $5 fee
+
+***First ${blockHours}hrs due at arrival***`
+        : `${salesRepLine}${serviceType}
+$${cleanQuotedPrice} Special
+${arrivalWindow}
+Payment method: Cash Cashapp Zelle
+Card payment: 7% processing fee`;
+
+    const fullLink =
+      `${baseUrl}?bookingSummary=${encodeURIComponent(summary)}` +
+      `&arrivalStart=${encodeURIComponent(start)}` +
+      `&arrivalEnd=${encodeURIComponent(end)}` +
+      `&arrivalWindow=${encodeURIComponent(finalWindow)}` +
+      `&service=${encodeURIComponent(finalService)}` +
+      `&price=${encodeURIComponent(finalPrice)}` +
+      `&salesRep=${encodeURIComponent(salesRep)}`;
+
+    setRawLink(fullLink);
+    setCopied(false);
+    setIsGenerating(true);
+
+    fetch(`/api/shorten?url=${encodeURIComponent(fullLink)}`)
+      .then((response) => response.json())
+      .then(({ shortUrl }) => {
+        setGeneratedLink(shortUrl || fullLink);
+      })
+      .catch(() => {
+        setGeneratedLink(fullLink);
+      })
+      .finally(() => {
+        setIsGenerating(false);
+      });
+  }
+
+  const sectionTitleStyle = {
+    fontSize: 12,
+    fontWeight: 800,
+    letterSpacing: '0.14em',
+    textTransform: 'uppercase',
+    color: colors.muted,
+    marginBottom: 8,
+  };
+
+  const cardStyle = {
+    background: colors.card,
+    border: `1px solid ${colors.border}`,
+    borderRadius: isMobile ? 18 : 24,
+    boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)',
+  };
+
+  const softCardStyle = {
+    background: colors.soft,
+    border: `1px solid ${colors.border}`,
+    borderRadius: isMobile ? 16 : 20,
+  };
+
+  const inputStyle = {
+    width: '100%',
+    padding: isMobile ? '13px 14px' : '14px 16px',
+    borderRadius: 16,
+    border: `1px solid ${colors.border}`,
+    background: colors.soft,
+    color: colors.text,
+    fontSize: 16,
+    outline: 'none',
+    boxSizing: 'border-box',
+    minHeight: 48,
+  };
+
+  const labelStyle = {
+    display: 'block',
+    fontSize: 14,
+    fontWeight: 700,
+    color: colors.text,
+    marginBottom: 8,
+  };
+
+  const buttonBase = {
+    border: 'none',
+    borderRadius: 16,
+    padding: isMobile ? '14px 14px' : '12px 16px',
+    fontSize: isMobile ? 15 : 14,
+    fontWeight: 700,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    minHeight: 48,
+  };
+
+  const topStatStyle = {
+    ...softCardStyle,
+    padding: 14,
+  };
+
+  const mainGridStyle = {
+    display: 'grid',
+    gridTemplateColumns: isDesktop ? 'minmax(0, 1.18fr) minmax(360px, 0.82fr)' : '1fr',
+    gap: 20,
+    alignItems: 'start',
+  };
+
+  const heroGridStyle = {
+    display: 'grid',
+    gridTemplateColumns: isDesktop ? 'minmax(0, 1.35fr) minmax(320px, 0.85fr)' : '1fr',
+    gap: 18,
+  };
+
+  const dualFieldGrid = {
+    display: 'grid',
+    gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+    gap: 14,
+  };
+
+  const movingFieldGrid = {
+    display: 'grid',
+    gridTemplateColumns: isMobile ? '1fr' : isTablet ? '1fr 1fr' : 'repeat(4, minmax(0, 1fr))',
+    gap: 14,
+  };
+
+  const validationGrid = {
+    display: 'grid',
+    gridTemplateColumns: isMobile ? '1fr' : '1.2fr 0.8fr',
+    gap: 18,
+  };
+
+  const presetGridStyle = {
+    display: 'grid',
+    gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(220px, 1fr))',
+    gap: 12,
+    marginBottom: 18,
+  };
+
+  const topStatsGrid = {
+    display: 'grid',
+    gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(2, minmax(0, 1fr))',
+    gap: 12,
+    alignSelf: 'start',
+  };
+
+  const actionRowStyle = {
+    display: 'flex',
+    flexDirection: isMobile ? 'column' : 'row',
+    gap: 10,
+    flexWrap: 'wrap',
+    marginTop: 16,
   };
 
   return (
-    <div className="container">
-      <h1 className="title">Booking Link Generator</h1>
-
-      <div className="toolbar">
-        <div className="form-group">
-          <label>Theme</label>
-          <select value={theme} onChange={(e) => setTheme(e.target.value)}>
-            <option value="light">Light (white/gray)</option>
-            <option value="gray">Cool Gray</option>
-            <option value="sky">Sky (light blue)</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="card">
-        {/* Generator type */}
-        <div className="form-group">
-          <label>Choose Generator</label>
-          <select value={mode} onChange={(e) => setMode(e.target.value)}>
-            <option value="carpet">Carpet Cleaning</option>
-            <option value="moving">Moving</option>
-            <option value="duct">Duct Cleaning</option>
-          </select>
-        </div>
-
-        {/* Sales Rep */}
-        <div className="form-group">
-          <label>Sales Rep</label>
-          <select value={salesRep} onChange={(e) => setSalesRep(e.target.value)}>
-            <option value=""> </option>
-            <option value="*01*">*01*</option>
-            <option value="*02*">*02*</option>
-            <option value="*03*">*03*</option>
-            <option value="*04*">*04*</option>
-          </select>
-        </div>
-
-        {/* ARRIVAL WINDOW — directly under Sales Rep */}
-        <div className="form-group">
-          <label>Arrival Window</label>
-          {mode === 'moving' ? (
-            <select value={movingArrival} onChange={(e) => setMovingArrival(e.target.value)}>
-              <option>Arrival between 7 and 9</option>
-              <option>Arrival between 9 to 11</option>
-              <option>Arrival between 11 and 1</option>
-              <option>Arrival between 1 and 3</option>
-              <option>Arrival between 3 to 5</option>
-              <option>Arrival between 6 and 8 pm</option>
-            </select>
-          ) : (
-            <select value={arrivalWindow} onChange={(e) => setArrivalWindow(e.target.value)}>
-              {mode === 'carpet' && (
-                <>
-                  <option>Arrival between 8 and 12</option>
-                  <option>Arrival between 10 and 2</option>
-                  <option>Arrival between 12 and 4</option>
-                  <option>Arrival between 1 and 5</option>
-                  <option>Arrival between 3 and 7</option>
-                </>
-              )}
-              {mode === 'duct' && (
-                <>
-                  <option>Arrival between 8 and 12</option>
-                  <option>Arrival between 1 and 5</option>
-                </>
-              )}
-            </select>
-          )}
-        </div>
-
-        {/* SPECIALS right under Arrival Window */}
-        {mode === 'moving' && (
-          <div className="form-group">
-            <label>Moving Specials</label>
-            <select value={movingSpecial} onChange={(e) => applyMovingSpecial(e.target.value)}>
-              <option value="custom">— Custom —</option>
-              <option value="special_2men">300 for the first two hours, 150 for each additional hour.</option>
-              <option value="special_4men">600 for the first two hours, 300 for each additional hour.</option>
-              <option value="special_260">260 for the first two hours, 130 for each additional hour.</option>
-              <option value="special_delivery">200 for the first hour, 150 for each additional hour.</option>
-            </select>
-            <small className="hint">
-              Pick a special, then adjust other fields if needed (switch to “Custom” to edit locked
-              fields).
-            </small>
-          </div>
-        )}
-
-        {mode === 'carpet' && (
-          <div className="form-group">
-            <label>Carpet / Upholstery Specials</label>
-            <select value={carpetSpecial} onChange={(e) => applyCarpetSpecial(e.target.value)}>
-              <option value="custom">— Custom —</option>
-              <option value="cc100">Carpet Cleaning — $100</option>
-              <option value="cc130">Carpet Cleaning — $130</option>
-              <option value="cc150">Carpet Cleaning — $150</option>
-              <option value="cc200">Carpet Cleaning — $200</option>
-              <option value="cc250">Carpet Cleaning — $250</option>
-              <option value="cc300">Carpet Cleaning — $300</option>
-              <option value="up200">Upholstery Cleaning — $200</option>
-              <option value="up250">Upholstery Cleaning — $250</option>
-              <option value="up300">Upholstery Cleaning — $300</option>
-            </select>
-            <small className="hint">Specials set Service & Price. Switch back to “Custom” to edit.</small>
-          </div>
-        )}
-
-        {mode === 'duct' && (
-          <div className="form-group">
-            <label>Duct Cleaning Specials</label>
-            <select value={ductSpecial} onChange={(e) => applyDuctSpecial(e.target.value)}>
-              <option value="custom">— Custom —</option>
-              <option value="deep500">Deep Cleaning (No Furnace) — $500</option>
-              <option value="deep600">Deep Cleaning with Furnace — $600</option>
-              <option value="deep1200">Deep Cleaning (Two Units with Furnace) — $1200</option>
-            </select>
-            <small className="hint">Specials set Service & Price. Switch back to “Custom” to edit.</small>
-          </div>
-        )}
-
-        {/* CARPET / DUCT fields after specials */}
-        {(mode === 'carpet' || mode === 'duct') && (
-          <div className="form-row">
-            <div className="form-group half">
-              <label>Service Type</label>
-              <select
-                value={serviceType}
-                onChange={(e) => setServiceType(e.target.value)}
-                disabled={mode === 'carpet' ? carpetLocked : ductLocked}
+    <div
+      style={{
+        minHeight: '100vh',
+        background: colors.page,
+        color: colors.text,
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 1360,
+          margin: '0 auto',
+          padding: isMobile ? 12 : 20,
+          paddingBottom: isMobile ? 28 : 20,
+        }}
+      >
+        <div
+          style={{
+            ...cardStyle,
+            background: colors.header,
+            padding: isMobile ? 16 : 24,
+            marginBottom: 20,
+          }}
+        >
+          <div style={heroGridStyle}>
+            <div>
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '8px 12px',
+                  borderRadius: 999,
+                  background: colors.soft,
+                  border: `1px solid ${colors.border}`,
+                  fontSize: 12,
+                  fontWeight: 800,
+                  color: colors.muted,
+                }}
               >
-                {mode === 'carpet' && (
-                  <>
-                    <option>Carpet Cleaning</option>
-                    <option>Upholstery Cleaning</option>
-                    <option>Mattress Cleaning</option>
-                  </>
-                )}
-                {mode === 'duct' && (
-                  <>
-                    <option value="Dryer Vent Cleaning">Dryer Vent Cleaning</option>
-                    <option value="Basic Duct Cleaning">Basic Duct Cleaning</option>
-                    <option value="Deep Duct Cleaning">Deep Duct Cleaning</option>
-                    <option value="Basic Duct Cleaning with Furnace">Basic Duct Cleaning with Furnace</option>
-                    <option value="Deep Duct Cleaning with Furnace">Deep Duct Cleaning with Furnace</option>
-                    <option value="Basic Duct Cleaning with Furnace and Dryer Vent Cleaning">
-                      Basic Duct Cleaning with Furnace and Dryer Vent Cleaning
-                    </option>
-                    <option value="Deep Duct Cleaning with Furnace and Dryer Vent Cleaning">
-                      Deep Duct Cleaning with Furnace and Dryer Vent Cleaning
-                    </option>
-                    <option value="Basic Duct Cleaning with Dryer Vent Cleaning">
-                      Basic Duct Cleaning with Dryer Vent Cleaning
-                    </option>
-                    <option value="Deep Duct Cleaning with Dryer Vent Cleaning">
-                      Deep Duct Cleaning with Dryer Vent Cleaning
-                    </option>
-                  </>
-                )}
-              </select>
+                Operator Console
+              </div>
+
+              <div
+                style={{
+                  fontSize: isMobile ? 26 : 34,
+                  fontWeight: 900,
+                  lineHeight: 1.1,
+                  marginTop: 14,
+                }}
+              >
+                Booking Link Generator
+              </div>
+
+              <div
+                style={{
+                  fontSize: isMobile ? 14 : 16,
+                  color: colors.muted,
+                  marginTop: 10,
+                  maxWidth: 760,
+                  lineHeight: 1.5,
+                }}
+              >
+                Single-file mobile + desktop rebuild. No extra packages. No extra CSS file changes.
+                Price validation fixed. Moving price now uses the correct field.
+              </div>
             </div>
 
-            <div className="form-group half">
-              <label>Quoted Price ($)</label>
-              <input
-                type="number"
-                value={quotedPrice}
-                onChange={(e) => setQuotedPrice(e.target.value)}
-                disabled={mode === 'carpet' ? carpetLocked : ductLocked}
-              />
+            <div style={topStatsGrid}>
+              <div style={topStatStyle}>
+                <div style={{ fontSize: 11, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>
+                  Validation
+                </div>
+                <div style={{ marginTop: 8, fontSize: 14, fontWeight: 800 }}>Required before generate</div>
+              </div>
+              <div style={topStatStyle}>
+                <div style={{ fontSize: 11, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>
+                  Sales Rep
+                </div>
+                <div style={{ marginTop: 8, fontSize: 14, fontWeight: 800 }}>{salesRep || 'Blank allowed'}</div>
+              </div>
+              <div style={topStatStyle}>
+                <div style={{ fontSize: 11, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>
+                  Mode
+                </div>
+                <div style={{ marginTop: 8, fontSize: 14, fontWeight: 800, textTransform: 'capitalize' }}>{mode}</div>
+              </div>
+              <div style={topStatStyle}>
+                <div style={{ fontSize: 11, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>
+                  Output
+                </div>
+                <div style={{ marginTop: 8, fontSize: 14, fontWeight: 800 }}>
+                  {generatedLink ? 'Short link ready' : 'Waiting to generate'}
+                </div>
+              </div>
             </div>
           </div>
-        )}
+        </div>
 
-        {/* MOVING fields after specials */}
-        {mode === 'moving' && (
-          <>
-            <div className="form-row">
-              <div className="form-group half">
-                <label>Quoted Price for First Block ($)</label>
-                <input
-                  type="number"
-                  value={blockPrice}
-                  onChange={(e) => setBlockPrice(e.target.value)}
-                  disabled={movingLocked}
-                />
+        <div style={mainGridStyle}>
+          <div style={{ display: 'grid', gap: 20 }}>
+            <div style={{ ...cardStyle, padding: isMobile ? 16 : 22 }}>
+              <div style={sectionTitleStyle}>Step 1</div>
+              <div style={{ fontSize: isMobile ? 21 : 24, fontWeight: 900, marginBottom: 18 }}>
+                Choose mode and sales rep
               </div>
-              <div className="form-group half">
-                <label>Duration of First Block (hrs)</label>
-                <select
-                  value={blockHours}
-                  onChange={(e) => setBlockHours(e.target.value)}
-                  disabled={movingLocked}
+
+              <div style={{ display: 'grid', gap: 18 }}>
+                <div>
+                  <div style={labelStyle}>Theme</div>
+
+                  {/* ================================================================
+                      EVERYTHING ABOVE THIS COMMENT IS YOUR PASTE, VERBATIM, with only
+                      the 4 requested edits applied (3 moving arrival windows + the
+                      Arrival-between-7-and-10 defaults). Your original paste cut off
+                      right at "Theme" above. Everything BELOW is rebuilt by me from
+                      your state/handlers/styles/presets to keep the tool working —
+                      it is NOT extracted from your real file. Please diff this
+                      against what's live on GitHub before you push it, especially
+                      layout/order, since I can't see your actual markup.
+                     ================================================================ */}
+
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {Object.keys(THEMES).map((key) => (
+                      <button
+                        key={key}
+                        onClick={() => setTheme(key)}
+                        style={{
+                          ...buttonBase,
+                          textTransform: 'capitalize',
+                          background: theme === key ? colors.accent : colors.soft,
+                          color: theme === key ? colors.accentText : colors.text,
+                          border: `1px solid ${theme === key ? colors.accent : colors.border}`,
+                        }}
+                      >
+                        {key}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={labelStyle}>Service Mode</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {[
+                      { id: 'carpet', label: 'Carpet / Upholstery' },
+                      { id: 'duct', label: 'Duct Cleaning' },
+                      { id: 'moving', label: 'Moving' },
+                    ].map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => switchMode(item.id)}
+                        style={{
+                          ...buttonBase,
+                          background: mode === item.id ? colors.accent : colors.soft,
+                          color: mode === item.id ? colors.accentText : colors.text,
+                          border: `1px solid ${mode === item.id ? colors.accent : colors.border}`,
+                        }}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={labelStyle}>Sales Rep</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {SALES_REPS.map((rep) => (
+                      <button
+                        key={rep}
+                        onClick={() => setSalesRep(salesRep === rep ? '' : rep)}
+                        style={{
+                          ...buttonBase,
+                          minWidth: 56,
+                          background: salesRep === rep ? colors.info : colors.soft,
+                          color: salesRep === rep ? '#ffffff' : colors.text,
+                          border: `1px solid ${salesRep === rep ? colors.info : colors.border}`,
+                        }}
+                      >
+                        {rep}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ ...cardStyle, padding: isMobile ? 16 : 22 }}>
+              <div style={sectionTitleStyle}>Step 2</div>
+              <div style={{ fontSize: isMobile ? 21 : 24, fontWeight: 900, marginBottom: 18 }}>
+                {mode === 'moving' ? 'Set the moving block rate' : 'Set the service and price'}
+              </div>
+
+              {mode !== 'moving' && (
+                <>
+                  <div style={presetGridStyle}>
+                    {(mode === 'carpet' ? CARPET_PRESETS : DUCT_PRESETS).map((preset) => {
+                      const activeId = mode === 'carpet' ? carpetSpecial : ductSpecial;
+                      const isActive = activeId === preset.id;
+                      return (
+                        <button
+                          key={preset.id}
+                          onClick={() =>
+                            mode === 'carpet' ? applyCarpetPreset(preset.id) : applyDuctPreset(preset.id)
+                          }
+                          style={{
+                            ...softCardStyle,
+                            textAlign: 'left',
+                            padding: 14,
+                            cursor: 'pointer',
+                            border: `1px solid ${isActive ? colors.accent : colors.border}`,
+                            background: isActive ? colors.accentSoft : colors.soft,
+                            color: colors.text,
+                          }}
+                        >
+                          <div style={{ fontSize: 13, fontWeight: 800, color: colors.muted }}>{preset.label}</div>
+                          <div style={{ fontSize: 20, fontWeight: 900, marginTop: 4 }}>${preset.price}</div>
+                          <div style={{ fontSize: 12, color: colors.muted, marginTop: 4 }}>{preset.note}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div style={dualFieldGrid}>
+                    <div>
+                      <div style={labelStyle}>Service Type</div>
+                      <input
+                        style={inputStyle}
+                        value={serviceType}
+                        onChange={(e) => setServiceType(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <div style={labelStyle}>Quoted Price ($)</div>
+                      <input
+                        style={inputStyle}
+                        value={quotedPrice}
+                        onChange={(e) => setQuotedPrice(sanitizeNumber(e.target.value))}
+                        inputMode="numeric"
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: 14 }}>
+                    <div style={labelStyle}>Arrival Window</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                      {ARRIVAL_WINDOWS[mode].map((windowText) => (
+                        <button
+                          key={windowText}
+                          onClick={() => setArrivalWindow(windowText)}
+                          style={{
+                            ...buttonBase,
+                            background: arrivalWindow === windowText ? colors.accent : colors.soft,
+                            color: arrivalWindow === windowText ? colors.accentText : colors.text,
+                            border: `1px solid ${arrivalWindow === windowText ? colors.accent : colors.border}`,
+                          }}
+                        >
+                          {windowText}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {mode === 'moving' && (
+                <>
+                  <div style={presetGridStyle}>
+                    {MOVING_PRESETS.map((preset) => {
+                      const isActive = movingSpecial === preset.id;
+                      return (
+                        <button
+                          key={preset.id}
+                          onClick={() => applyMovingPreset(preset.id)}
+                          style={{
+                            ...softCardStyle,
+                            textAlign: 'left',
+                            padding: 14,
+                            cursor: 'pointer',
+                            border: `1px solid ${isActive ? colors.accent : colors.border}`,
+                            background: isActive ? colors.accentSoft : colors.soft,
+                            color: colors.text,
+                          }}
+                        >
+                          <div style={{ fontSize: 13, fontWeight: 800, color: colors.muted }}>{preset.label}</div>
+                          <div style={{ fontSize: 20, fontWeight: 900, marginTop: 4 }}>${preset.price}</div>
+                          <div style={{ fontSize: 12, color: colors.muted, marginTop: 4 }}>{preset.note}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div style={movingFieldGrid}>
+                    <div>
+                      <div style={labelStyle}>First Block Price ($)</div>
+                      <input
+                        style={inputStyle}
+                        value={blockPrice}
+                        onChange={(e) => setBlockPrice(sanitizeNumber(e.target.value))}
+                        inputMode="numeric"
+                      />
+                    </div>
+                    <div>
+                      <div style={labelStyle}>Block Hours</div>
+                      <input
+                        style={inputStyle}
+                        value={blockHours}
+                        onChange={(e) => setBlockHours(sanitizeNumber(e.target.value))}
+                        inputMode="numeric"
+                      />
+                    </div>
+                    <div>
+                      <div style={labelStyle}>Additional Rate ($/hr)</div>
+                      <input
+                        style={inputStyle}
+                        value={additionalRate}
+                        onChange={(e) => setAdditionalRate(sanitizeNumber(e.target.value))}
+                        inputMode="numeric"
+                      />
+                    </div>
+                    <div>
+                      <div style={labelStyle}># of Movers</div>
+                      <input
+                        style={inputStyle}
+                        value={numMovers}
+                        onChange={(e) => setNumMovers(sanitizeNumber(e.target.value))}
+                        inputMode="numeric"
+                      />
+                    </div>
+                    <div>
+                      <div style={labelStyle}># of Trucks</div>
+                      <input
+                        style={inputStyle}
+                        value={truckInfo}
+                        onChange={(e) => setTruckInfo(sanitizeNumber(e.target.value))}
+                        inputMode="numeric"
+                      />
+                    </div>
+                    <div>
+                      <div style={labelStyle}>Truck Size (ft)</div>
+                      <input
+                        style={inputStyle}
+                        value={truckSize}
+                        onChange={(e) => setTruckSize(sanitizeNumber(e.target.value))}
+                        inputMode="numeric"
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: 14 }}>
+                    <div style={labelStyle}>Arrival Window</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                      {ARRIVAL_WINDOWS.moving.map((windowText) => (
+                        <button
+                          key={windowText}
+                          onClick={() => setMovingArrival(windowText)}
+                          style={{
+                            ...buttonBase,
+                            background: movingArrival === windowText ? colors.accent : colors.soft,
+                            color: movingArrival === windowText ? colors.accentText : colors.text,
+                            border: `1px solid ${movingArrival === windowText ? colors.accent : colors.border}`,
+                          }}
+                        >
+                          {windowText}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {errorMessage && (
+                <div
+                  style={{
+                    marginTop: 16,
+                    padding: 14,
+                    borderRadius: 14,
+                    background: colors.dangerSoft,
+                    color: colors.danger,
+                    fontWeight: 700,
+                    fontSize: 14,
+                  }}
                 >
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="1">1</option>
-                </select>
-              </div>
-            </div>
+                  {errorMessage}
+                </div>
+              )}
 
-            <div className="form-row">
-              <div className="form-group half">
-                <label>Additional Hour Rate ($)</label>
-                <input
-                  type="number"
-                  value={additionalRate}
-                  onChange={(e) => setAdditionalRate(e.target.value)}
-                  disabled={movingLocked}
-                />
-              </div>
-              <div className="form-group half">
-                <label>Number of Movers</label>
-                <select
-                  value={numMovers}
-                  onChange={(e) => setNumMovers(e.target.value)}
-                  disabled={movingLocked}
+              <div style={actionRowStyle}>
+                <button
+                  onClick={generateLink}
+                  disabled={!canGenerate || isGenerating}
+                  style={{
+                    ...buttonBase,
+                    background: colors.accent,
+                    color: colors.accentText,
+                    opacity: !canGenerate || isGenerating ? 0.6 : 1,
+                    cursor: !canGenerate || isGenerating ? 'not-allowed' : 'pointer',
+                  }}
                 >
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group half">
-                <label>Number of Trucks (blank if one)</label>
-                <select
-                  value={truckInfo}
-                  onChange={(e) => setTruckInfo(e.target.value)}
-                  disabled={movingLocked}
+                  {isGenerating ? 'Generating…' : 'Generate Booking Link'}
+                </button>
+                <button
+                  onClick={() => setShowDebug((prev) => !prev)}
+                  style={{
+                    ...buttonBase,
+                    background: colors.soft,
+                    color: colors.text,
+                    border: `1px solid ${colors.border}`,
+                  }}
                 >
-                  <option value=""></option>
-                  <option value="2">2</option>
-                </select>
+                  {showDebug ? 'Hide Debug' : 'Show Debug'}
+                </button>
               </div>
-              <div className="form-group half">
-                <label>Truck Size (Ft)</label>
-                <select
-                  value={truckSize}
-                  onChange={(e) => setTruckSize(e.target.value)}
-                  disabled={movingLocked}
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gap: 20 }}>
+            <div style={{ ...cardStyle, padding: isMobile ? 16 : 22 }}>
+              <div style={sectionTitleStyle}>Live Preview</div>
+              <div
+                style={{
+                  ...softCardStyle,
+                  padding: 16,
+                  whiteSpace: 'pre-wrap',
+                  fontSize: 14,
+                  lineHeight: 1.6,
+                  color: colors.text,
+                  marginTop: 10,
+                }}
+              >
+                {bookingSummary}
+              </div>
+            </div>
+
+            <div
+              style={{
+                ...cardStyle,
+                background: colors.preview,
+                color: colors.previewText,
+                padding: isMobile ? 16 : 22,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 800,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  opacity: 0.7,
+                }}
+              >
+                Generated Link
+              </div>
+
+              <div
+                style={{
+                  marginTop: 10,
+                  padding: 14,
+                  borderRadius: 14,
+                  background: 'rgba(255,255,255,0.08)',
+                  fontSize: 14,
+                  wordBreak: 'break-all',
+                  minHeight: 24,
+                }}
+              >
+                {generatedLink || 'Not generated yet'}
+              </div>
+
+              <div style={actionRowStyle}>
+                <button
+                  onClick={copyMessage}
+                  disabled={!generatedLink}
+                  style={{
+                    ...buttonBase,
+                    background: colors.success,
+                    color: '#ffffff',
+                    opacity: generatedLink ? 1 : 0.5,
+                    cursor: generatedLink ? 'pointer' : 'not-allowed',
+                  }}
                 >
-                  <option value="17">17</option>
-                  <option value="20">20</option>
-                  <option value="26">26</option>
-                </select>
+                  {copied ? 'Copied!' : 'Copy Message'}
+                </button>
+                <button
+                  onClick={copyLinkOnly}
+                  disabled={!generatedLink}
+                  style={{
+                    ...buttonBase,
+                    background: 'rgba(255,255,255,0.12)',
+                    color: colors.previewText,
+                    opacity: generatedLink ? 1 : 0.5,
+                    cursor: generatedLink ? 'pointer' : 'not-allowed',
+                  }}
+                >
+                  Copy Link Only
+                </button>
               </div>
             </div>
-          </>
-        )}
 
-        <button className="btn-primary" onClick={generateLink}>
-          Generate Booking Link
-        </button>
-
-        {errorMessage && (
-          <p style={{ color: '#b91c1c', marginTop: '12px', fontWeight: 600 }}>
-            {errorMessage}
-          </p>
-        )}
-      </div>
-
-      {/* Results */}
-      <div className="card">
-        <h3>Short Link</h3>
-        {generatedLink ? (
-          <>
-            <a className="link" href={generatedLink} target="_blank" rel="noopener noreferrer">
-              {generatedLink}
-            </a>
-
-            <div style={{ marginTop: 8, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              <button className="btn-secondary" onClick={copyMessage}>
-                {copied ? 'Copied!' : 'Copy'}
-              </button>
-              <button className="btn-secondary" onClick={copyLinkOnly}>
-                Copy Link Only
-              </button>
-            </div>
-
-            <div className="form-group" style={{ marginTop: 12 }}>
-              <label>Message that gets copied</label>
-              <textarea rows={3} readOnly value={shareText} />
-            </div>
-          </>
-        ) : (
-          <p className="muted">Generate a link to see it here.</p>
-        )}
-
-        <h3 style={{ marginTop: '1rem' }}>Long Link (Debug)</h3>
-        {rawLink ? (
-          <a className="link" href={rawLink} target="_blank" rel="noopener noreferrer">
-            {rawLink}
-          </a>
-        ) : (
-          <p className="muted">Shown for verification only.</p>
-        )}
+            {showDebug && (
+              <div style={{ ...cardStyle, padding: isMobile ? 16 : 22 }}>
+                <div style={sectionTitleStyle}>Debug</div>
+                <div
+                  style={{
+                    ...softCardStyle,
+                    padding: 14,
+                    fontSize: 12,
+                    wordBreak: 'break-all',
+                    color: colors.muted,
+                    marginTop: 10,
+                  }}
+                >
+                  {rawLink || 'No raw link yet'}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+
+export default App;
