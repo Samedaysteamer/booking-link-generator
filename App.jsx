@@ -266,7 +266,7 @@ function App() {
   useEffect(() => {
     if (generatedLink) {
       setMessageDraft(
-        `Click on the link below so we can get your work order created:\n${generatedLink}\n\nIf the link isn't clickable, copy and paste it into your web browser and it will open right up.`
+        `Click on the link below so we can get your work order created:\n\n${generatedLink}\n\nIf the link isn't clickable, copy and paste it into your web browser and it will open right up.`
       );
     } else {
       setMessageDraft('');
