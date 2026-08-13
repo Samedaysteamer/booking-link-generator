@@ -247,6 +247,8 @@ function App() {
   const [generatedLink, setGeneratedLink] = useState('');
   const [rawLink, setRawLink] = useState('');
   const [copiedField, setCopiedField] = useState('');
+  const [messageDraft, setMessageDraft] = useState('');
+  const [isEditingMessage, setIsEditingMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -260,6 +262,17 @@ function App() {
         'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
     }
   }, [colors.page]);
+
+  useEffect(() => {
+    if (generatedLink) {
+      setMessageDraft(
+        `Click on the link below so we can get your work order created:\n${generatedLink}\n\nIf the link isn't clickable, copy and paste it into your web browser and it will open right up.`
+      );
+    } else {
+      setMessageDraft('');
+    }
+    setIsEditingMessage(false);
+  }, [generatedLink]);
 
   const currentArrivalWindow = mode === 'moving' ? movingArrival : mode === 'junk' ? junkArrival : arrivalWindow;
   const currentPrice = mode === 'moving' ? blockPrice : mode === 'junk' ? junkFlatRate || '' : quotedPrice;
@@ -333,10 +346,6 @@ Card payment: 7% processing fee`;
     junkRetrievalFee,
     junkHourlyRetrievalFee,
   ]);
-
-  const messageToCopy = generatedLink
-    ? `Click on the link below so we can get your work order created:\n${generatedLink}\n\nIf the link isn't clickable, copy and paste it into your web browser and it will open right up.`
-    : '';
 
   const canGenerate = Boolean(
     currentArrivalWindow &&
@@ -1242,32 +1251,55 @@ Card payment: 7% processing fee`;
 
               <div style={{ marginTop: 14 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, opacity: 0.75, marginBottom: 6 }}>
-                  Generic Link (blank form, no prefill)
+                  Message
                 </div>
-                <div
-                  style={{
-                    padding: 14,
-                    borderRadius: 14,
-                    background: 'rgba(255,255,255,0.08)',
-                    fontSize: 14,
-                    wordBreak: 'break-all',
-                    minHeight: 24,
-                  }}
-                >
-                  {genericLink}
-                </div>
+                {isEditingMessage ? (
+                  <textarea
+                    value={messageDraft}
+                    onChange={(e) => setMessageDraft(e.target.value)}
+                    style={{
+                      width: '100%',
+                      minHeight: 130,
+                      padding: 14,
+                      borderRadius: 14,
+                      background: 'rgba(255,255,255,0.08)',
+                      border: '1px solid rgba(255,255,255,0.3)',
+                      color: colors.previewText,
+                      fontSize: 14,
+                      fontFamily: 'inherit',
+                      lineHeight: 1.5,
+                      boxSizing: 'border-box',
+                      resize: 'vertical',
+                      outline: 'none',
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      padding: 14,
+                      borderRadius: 14,
+                      background: 'rgba(255,255,255,0.08)',
+                      fontSize: 14,
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word',
+                      minHeight: 24,
+                    }}
+                  >
+                    {messageDraft || 'Not generated yet'}
+                  </div>
+                )}
               </div>
 
               <div style={actionRowStyle}>
                 <button
-                  onClick={() => copyToClipboard(messageToCopy, 'message')}
-                  disabled={!generatedLink}
+                  onClick={() => copyToClipboard(messageDraft, 'message')}
+                  disabled={!messageDraft}
                   style={{
                     ...buttonBase,
                     background: colors.success,
                     color: '#ffffff',
-                    opacity: generatedLink ? 1 : 0.5,
-                    cursor: generatedLink ? 'pointer' : 'not-allowed',
+                    opacity: messageDraft ? 1 : 0.5,
+                    cursor: messageDraft ? 'pointer' : 'not-allowed',
                   }}
                 >
                   {copiedField === 'message' ? 'Copied!' : 'Copy Message'}
@@ -1299,14 +1331,17 @@ Card payment: 7% processing fee`;
                   {copiedField === 'long' ? 'Copied!' : 'Copy Long'}
                 </button>
                 <button
-                  onClick={() => copyToClipboard(genericLink, 'generic')}
+                  onClick={() => setIsEditingMessage((prev) => !prev)}
+                  disabled={!generatedLink}
                   style={{
                     ...buttonBase,
-                    background: 'rgba(255,255,255,0.12)',
+                    background: isEditingMessage ? colors.info : 'rgba(255,255,255,0.12)',
                     color: colors.previewText,
+                    opacity: generatedLink ? 1 : 0.5,
+                    cursor: generatedLink ? 'pointer' : 'not-allowed',
                   }}
                 >
-                  {copiedField === 'generic' ? 'Copied!' : 'Copy Generic'}
+                  {isEditingMessage ? 'Done Editing' : 'Edit Text'}
                 </button>
               </div>
             </div>
