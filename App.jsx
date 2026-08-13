@@ -67,12 +67,6 @@ const MOVING_PRESETS = [
   },
 ];
 
-const JUNK_PRESETS = [
-  { id: 'quarter', label: '1/4 Truck Load', price: '200' },
-  { id: 'half', label: '1/2 Truck Load', price: '400' },
-  { id: 'full', label: 'Full Truck Load', price: '800' },
-];
-
 const ARRIVAL_WINDOWS = {
   carpet: [
     'Arrival between 8 and 12',
@@ -241,9 +235,9 @@ function App() {
   const [ductSpecial, setDuctSpecial] = useState('custom');
   const [movingSpecial, setMovingSpecial] = useState('special_2men');
 
-  const [junkSpecial, setJunkSpecial] = useState('quarter');
-  const [junkLabel, setJunkLabel] = useState('1/4 Truck Load');
-  const [junkPrice, setJunkPrice] = useState('200');
+  const [junkQuarterPrice, setJunkQuarterPrice] = useState('200');
+  const [junkHalfPrice, setJunkHalfPrice] = useState('400');
+  const [junkFullPrice, setJunkFullPrice] = useState('800');
   const [junkArrival, setJunkArrival] = useState('Arrival between 4 and 8');
   const [junkTruckSize, setJunkTruckSize] = useState('17');
   const [junkFlatRate, setJunkFlatRate] = useState('');
@@ -268,8 +262,8 @@ function App() {
   }, [colors.page]);
 
   const currentArrivalWindow = mode === 'moving' ? movingArrival : mode === 'junk' ? junkArrival : arrivalWindow;
-  const currentPrice = mode === 'moving' ? blockPrice : mode === 'junk' ? junkPrice : quotedPrice;
-  const currentService = mode === 'moving' ? 'Moving' : mode === 'junk' ? junkLabel : serviceType;
+  const currentPrice = mode === 'moving' ? blockPrice : mode === 'junk' ? junkFlatRate || '' : quotedPrice;
+  const currentService = mode === 'moving' ? 'Moving' : mode === 'junk' ? 'Junk Removal' : serviceType;
 
   const genericLink = useMemo(() => {
     return mode === 'duct'
@@ -298,15 +292,16 @@ CashApp payment $5 fee
     }
 
     if (mode === 'junk') {
-      const flatRateLine = junkFlatRate ? `Flat Rate: $${junkFlatRate}\n` : '';
+      const pricingBlock = junkFlatRate
+        ? `Flat Rate: $${junkFlatRate}`
+        : `$${junkQuarterPrice} 1/4 of a truck\n$${junkHalfPrice} 1/2 of a truck\n$${junkFullPrice} full truck load`;
       const retrievalLine = junkRetrievalFee ? `Retrieval Fee: $${junkRetrievalFee}\n` : '';
       const hourlyRetrievalLine = junkHourlyRetrievalFee
         ? `Hourly Retrieval Fee: $${junkHourlyRetrievalFee}/hr\n`
         : '';
-      return `${salesRepLine}${junkLabel}
-$${junkPrice}
-${flatRateLine}${retrievalLine}${hourlyRetrievalLine}${junkArrival}
-${junkTruckSize} Ft Truck
+      return `${salesRepLine}Truck Size: ${junkTruckSize}ft
+${pricingBlock}
+${retrievalLine}${hourlyRetrievalLine}${junkArrival}
 Payment methods:
 Cash, CashApp, Zelle`;
     }
@@ -329,8 +324,9 @@ Card payment: 7% processing fee`;
     serviceType,
     quotedPrice,
     arrivalWindow,
-    junkLabel,
-    junkPrice,
+    junkQuarterPrice,
+    junkHalfPrice,
+    junkFullPrice,
     junkArrival,
     junkTruckSize,
     junkFlatRate,
@@ -339,7 +335,7 @@ Card payment: 7% processing fee`;
   ]);
 
   const messageToCopy = generatedLink
-    ? `Click on the link below so we can get your work order created:\n${generatedLink}`
+    ? `Click on the link below so we can get your work order created:\n${generatedLink}\n\nIf the link isn't clickable, copy and paste it into your web browser and it will open right up.`
     : '';
 
   const canGenerate = Boolean(
@@ -347,7 +343,7 @@ Card payment: 7% processing fee`;
       (mode === 'moving'
         ? blockPrice && blockHours && additionalRate && numMovers && truckSize
         : mode === 'junk'
-        ? junkPrice && junkTruckSize
+        ? junkTruckSize && (junkFlatRate || (junkQuarterPrice && junkHalfPrice && junkFullPrice))
         : serviceType && quotedPrice)
   );
 
@@ -369,14 +365,14 @@ Card payment: 7% processing fee`;
       setArrivalWindow('Arrival between 8 and 12');
       setDuctSpecial('deep600');
     } else if (nextMode === 'junk') {
-      setJunkLabel('1/4 Truck Load');
-      setJunkPrice('200');
+      setJunkQuarterPrice('200');
+      setJunkHalfPrice('400');
+      setJunkFullPrice('800');
       setJunkArrival('Arrival between 4 and 8');
       setJunkTruckSize('17');
       setJunkFlatRate('');
       setJunkRetrievalFee('');
       setJunkHourlyRetrievalFee('');
-      setJunkSpecial('quarter');
     } else {
       setBlockPrice('300');
       setBlockHours('2');
@@ -420,15 +416,6 @@ Card payment: 7% processing fee`;
     setErrorMessage('');
   }
 
-  function applyJunkPreset(id) {
-    setJunkSpecial(id);
-    const preset = JUNK_PRESETS.find((item) => item.id === id);
-    if (!preset) return;
-    setJunkLabel(preset.label);
-    setJunkPrice(preset.price);
-    setErrorMessage('');
-  }
-
   async function copyToClipboard(text, fieldName) {
     if (!text) return;
     try {
@@ -444,7 +431,10 @@ Card payment: 7% processing fee`;
     const cleanQuotedPrice = sanitizeNumber(quotedPrice);
     const cleanBlockPrice = sanitizeNumber(blockPrice);
     const cleanAdditionalRate = sanitizeNumber(additionalRate);
-    const cleanJunkPrice = sanitizeNumber(junkPrice);
+    const cleanJunkQuarterPrice = sanitizeNumber(junkQuarterPrice);
+    const cleanJunkHalfPrice = sanitizeNumber(junkHalfPrice);
+    const cleanJunkFullPrice = sanitizeNumber(junkFullPrice);
+    const cleanJunkFlatRate = sanitizeNumber(junkFlatRate);
 
     if ((mode === 'carpet' || mode === 'duct') && !cleanQuotedPrice) {
       setErrorMessage('Please enter a quoted price before generating the booking link.');
@@ -467,8 +457,15 @@ Card payment: 7% processing fee`;
       return;
     }
 
-    if (mode === 'junk' && !cleanJunkPrice) {
-      setErrorMessage('Please enter a price before generating the booking link.');
+    if (mode === 'junk' && !junkTruckSize) {
+      setErrorMessage('Please enter a truck size before generating the booking link.');
+      setGeneratedLink('');
+      setRawLink('');
+      return;
+    }
+
+    if (mode === 'junk' && !cleanJunkFlatRate && !(cleanJunkQuarterPrice && cleanJunkHalfPrice && cleanJunkFullPrice)) {
+      setErrorMessage('Please enter a flat rate, or all three truck-load prices, before generating the booking link.');
       setGeneratedLink('');
       setRawLink('');
       return;
@@ -478,13 +475,15 @@ Card payment: 7% processing fee`;
 
     const baseUrl = genericLink;
 
-    const finalPrice = mode === 'moving' ? cleanBlockPrice : mode === 'junk' ? cleanJunkPrice : cleanQuotedPrice;
-    const finalService = mode === 'moving' ? 'Moving' : mode === 'junk' ? junkLabel : serviceType;
+    const finalPrice = mode === 'moving' ? cleanBlockPrice : mode === 'junk' ? cleanJunkFlatRate || '' : cleanQuotedPrice;
+    const finalService = mode === 'moving' ? 'Moving' : mode === 'junk' ? 'Junk Removal' : serviceType;
     const finalWindow = mode === 'moving' ? movingArrival : mode === 'junk' ? junkArrival : arrivalWindow;
     const { start, end } = getArrivalTimes(mode, finalWindow);
     const salesRepLine = salesRep ? `${salesRep}\n` : '';
 
-    const junkFlatRateLine = junkFlatRate ? `Flat Rate: $${junkFlatRate}\n` : '';
+    const junkPricingBlock = cleanJunkFlatRate
+      ? `Flat Rate: $${cleanJunkFlatRate}`
+      : `$${cleanJunkQuarterPrice} 1/4 of a truck\n$${cleanJunkHalfPrice} 1/2 of a truck\n$${cleanJunkFullPrice} full truck load`;
     const junkRetrievalLine = junkRetrievalFee ? `Retrieval Fee: $${junkRetrievalFee}\n` : '';
     const junkHourlyRetrievalLine = junkHourlyRetrievalFee
       ? `Hourly Retrieval Fee: $${junkHourlyRetrievalFee}/hr\n`
@@ -502,10 +501,9 @@ CashApp payment $5 fee
 
 ***First ${blockHours}hrs due at arrival***`
         : mode === 'junk'
-        ? `${salesRepLine}${junkLabel}
-$${cleanJunkPrice}
-${junkFlatRateLine}${junkRetrievalLine}${junkHourlyRetrievalLine}${junkArrival}
-${junkTruckSize} Ft Truck
+        ? `${salesRepLine}Truck Size: ${junkTruckSize}ft
+${junkPricingBlock}
+${junkRetrievalLine}${junkHourlyRetrievalLine}${junkArrival}
 Payment methods:
 Cash, CashApp, Zelle`
         : `${salesRepLine}${serviceType}
@@ -1031,51 +1029,7 @@ Card payment: 7% processing fee`;
 
               {mode === 'junk' && (
                 <>
-                  <div style={presetGridStyle}>
-                    {JUNK_PRESETS.map((preset) => {
-                      const isActive = junkSpecial === preset.id;
-                      return (
-                        <button
-                          key={preset.id}
-                          onClick={() => applyJunkPreset(preset.id)}
-                          style={{
-                            ...softCardStyle,
-                            textAlign: 'left',
-                            padding: 14,
-                            cursor: 'pointer',
-                            border: `1px solid ${isActive ? colors.accent : colors.border}`,
-                            background: isActive ? colors.accentSoft : colors.soft,
-                            color: colors.text,
-                          }}
-                        >
-                          <div style={{ fontSize: 13, fontWeight: 800, color: colors.muted }}>{preset.label}</div>
-                          <div style={{ fontSize: 20, fontWeight: 900, marginTop: 4 }}>${preset.price}</div>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <div style={dualFieldGrid}>
-                    <div>
-                      <div style={labelStyle}>Load Description</div>
-                      <input
-                        style={inputStyle}
-                        value={junkLabel}
-                        onChange={(e) => setJunkLabel(e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <div style={labelStyle}>Price ($)</div>
-                      <input
-                        style={inputStyle}
-                        value={junkPrice}
-                        onChange={(e) => setJunkPrice(sanitizeNumber(e.target.value))}
-                        inputMode="numeric"
-                      />
-                    </div>
-                  </div>
-
-                  <div style={{ ...movingFieldGrid, marginTop: 14 }}>
+                  <div style={movingFieldGrid}>
                     <div>
                       <div style={labelStyle}>Truck Size (ft)</div>
                       <input
@@ -1086,6 +1040,47 @@ Card payment: 7% processing fee`;
                       />
                     </div>
                     <div>
+                      <div style={labelStyle}>1/4 Truck ($)</div>
+                      <input
+                        style={inputStyle}
+                        value={junkQuarterPrice}
+                        onChange={(e) => setJunkQuarterPrice(sanitizeNumber(e.target.value))}
+                        inputMode="numeric"
+                      />
+                    </div>
+                    <div>
+                      <div style={labelStyle}>1/2 Truck ($)</div>
+                      <input
+                        style={inputStyle}
+                        value={junkHalfPrice}
+                        onChange={(e) => setJunkHalfPrice(sanitizeNumber(e.target.value))}
+                        inputMode="numeric"
+                      />
+                    </div>
+                    <div>
+                      <div style={labelStyle}>Full Truck ($)</div>
+                      <input
+                        style={inputStyle}
+                        value={junkFullPrice}
+                        onChange={(e) => setJunkFullPrice(sanitizeNumber(e.target.value))}
+                        inputMode="numeric"
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ fontSize: 12, color: colors.muted, marginTop: 10, marginBottom: 14 }}>
+                    All three truck-load prices show together by default, since the load size isn't known until
+                    you're at the customer's home.
+                  </div>
+
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, minmax(0, 1fr))',
+                      gap: 14,
+                    }}
+                  >
+                    <div>
                       <div style={labelStyle}>Flat Rate ($)</div>
                       <input
                         style={inputStyle}
@@ -1094,6 +1089,9 @@ Card payment: 7% processing fee`;
                         inputMode="numeric"
                         placeholder="Optional"
                       />
+                      <div style={{ fontSize: 12, color: colors.muted, marginTop: 6 }}>
+                        Replaces the truck-load prices above when filled in
+                      </div>
                     </div>
                     <div>
                       <div style={labelStyle}>Retrieval Fee ($)</div>
