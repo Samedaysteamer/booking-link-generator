@@ -277,7 +277,7 @@ function App() {
       : mode === 'moving'
       ? 'https://form.jotform.com/251537865180159'
       : mode === 'junk'
-      ? 'https://form.jotform.com/REPLACE_WITH_JUNK_REMOVAL_FORM_ID'
+      ? 'https://form.jotform.com/251537865180159'
       : 'https://form.jotform.com/251536451249054';
   }, [mode]);
 
