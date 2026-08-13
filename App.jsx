@@ -231,9 +231,8 @@ function App() {
 
   const [generatedLink, setGeneratedLink] = useState('');
   const [rawLink, setRawLink] = useState('');
-  const [copied, setCopied] = useState(false);
+  const [copiedField, setCopiedField] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [showDebug, setShowDebug] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const colors = THEMES[theme];
@@ -250,6 +249,14 @@ function App() {
   const currentArrivalWindow = mode === 'moving' ? movingArrival : arrivalWindow;
   const currentPrice = mode === 'moving' ? blockPrice : quotedPrice;
   const currentService = mode === 'moving' ? 'Moving' : serviceType;
+
+  const genericLink = useMemo(() => {
+    return mode === 'duct'
+      ? 'https://form.jotform.com/251573697976175'
+      : mode === 'moving'
+      ? 'https://form.jotform.com/251537865180159'
+      : 'https://form.jotform.com/251536451249054';
+  }, [mode]);
 
   const bookingSummary = useMemo(() => {
     const salesRepLine = salesRep ? `${salesRep}\n` : '';
@@ -358,25 +365,14 @@ Card payment: 7% processing fee`;
     setErrorMessage('');
   }
 
-  async function copyMessage() {
-    if (!generatedLink) return;
+  async function copyToClipboard(text, fieldName) {
+    if (!text) return;
     try {
-      await navigator.clipboard.writeText(messageToCopy);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      await navigator.clipboard.writeText(text);
+      setCopiedField(fieldName);
+      setTimeout(() => setCopiedField(''), 1500);
     } catch (error) {
-      setCopied(false);
-    }
-  }
-
-  async function copyLinkOnly() {
-    if (!generatedLink) return;
-    try {
-      await navigator.clipboard.writeText(generatedLink);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch (error) {
-      setCopied(false);
+      setCopiedField('');
     }
   }
 
@@ -408,12 +404,7 @@ Card payment: 7% processing fee`;
 
     setErrorMessage('');
 
-    const baseUrl =
-      mode === 'duct'
-        ? 'https://form.jotform.com/251573697976175'
-        : mode === 'moving'
-        ? 'https://form.jotform.com/251537865180159'
-        : 'https://form.jotform.com/251536451249054';
+    const baseUrl = genericLink;
 
     const finalPrice = mode === 'moving' ? cleanBlockPrice : cleanQuotedPrice;
     const finalService = mode === 'moving' ? 'Moving' : serviceType;
@@ -448,7 +439,7 @@ Card payment: 7% processing fee`;
       `&salesRep=${encodeURIComponent(salesRep)}`;
 
     setRawLink(fullLink);
-    setCopied(false);
+    setCopiedField('');
     setIsGenerating(true);
 
     fetch(`/api/shorten?url=${encodeURIComponent(fullLink)}`)
@@ -978,17 +969,6 @@ Card payment: 7% processing fee`;
                 >
                   {isGenerating ? 'Generating…' : 'Generate Booking Link'}
                 </button>
-                <button
-                  onClick={() => setShowDebug((prev) => !prev)}
-                  style={{
-                    ...buttonBase,
-                    background: colors.soft,
-                    color: colors.text,
-                    border: `1px solid ${colors.border}`,
-                  }}
-                >
-                  {showDebug ? 'Hide Debug' : 'Show Debug'}
-                </button>
               </div>
             </div>
           </div>
@@ -1028,26 +1008,66 @@ Card payment: 7% processing fee`;
                   opacity: 0.7,
                 }}
               >
-                Generated Link
+                Links
               </div>
 
-              <div
-                style={{
-                  marginTop: 10,
-                  padding: 14,
-                  borderRadius: 14,
-                  background: 'rgba(255,255,255,0.08)',
-                  fontSize: 14,
-                  wordBreak: 'break-all',
-                  minHeight: 24,
-                }}
-              >
-                {generatedLink || 'Not generated yet'}
+              <div style={{ marginTop: 14 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, opacity: 0.75, marginBottom: 6 }}>
+                  Shortened Link
+                </div>
+                <div
+                  style={{
+                    padding: 14,
+                    borderRadius: 14,
+                    background: 'rgba(255,255,255,0.08)',
+                    fontSize: 14,
+                    wordBreak: 'break-all',
+                    minHeight: 24,
+                  }}
+                >
+                  {generatedLink || 'Not generated yet'}
+                </div>
+              </div>
+
+              <div style={{ marginTop: 14 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, opacity: 0.75, marginBottom: 6 }}>
+                  Long Link
+                </div>
+                <div
+                  style={{
+                    padding: 14,
+                    borderRadius: 14,
+                    background: 'rgba(255,255,255,0.08)',
+                    fontSize: 14,
+                    wordBreak: 'break-all',
+                    minHeight: 24,
+                  }}
+                >
+                  {rawLink || 'Not generated yet'}
+                </div>
+              </div>
+
+              <div style={{ marginTop: 14 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, opacity: 0.75, marginBottom: 6 }}>
+                  Generic Link (blank form, no prefill)
+                </div>
+                <div
+                  style={{
+                    padding: 14,
+                    borderRadius: 14,
+                    background: 'rgba(255,255,255,0.08)',
+                    fontSize: 14,
+                    wordBreak: 'break-all',
+                    minHeight: 24,
+                  }}
+                >
+                  {genericLink}
+                </div>
               </div>
 
               <div style={actionRowStyle}>
                 <button
-                  onClick={copyMessage}
+                  onClick={() => copyToClipboard(messageToCopy, 'message')}
                   disabled={!generatedLink}
                   style={{
                     ...buttonBase,
@@ -1057,10 +1077,10 @@ Card payment: 7% processing fee`;
                     cursor: generatedLink ? 'pointer' : 'not-allowed',
                   }}
                 >
-                  {copied ? 'Copied!' : 'Copy Message'}
+                  {copiedField === 'message' ? 'Copied!' : 'Copy Message'}
                 </button>
                 <button
-                  onClick={copyLinkOnly}
+                  onClick={() => copyToClipboard(generatedLink, 'short')}
                   disabled={!generatedLink}
                   style={{
                     ...buttonBase,
@@ -1070,28 +1090,33 @@ Card payment: 7% processing fee`;
                     cursor: generatedLink ? 'pointer' : 'not-allowed',
                   }}
                 >
-                  Copy Link Only
+                  {copiedField === 'short' ? 'Copied!' : 'Copy Short'}
+                </button>
+                <button
+                  onClick={() => copyToClipboard(rawLink, 'long')}
+                  disabled={!rawLink}
+                  style={{
+                    ...buttonBase,
+                    background: 'rgba(255,255,255,0.12)',
+                    color: colors.previewText,
+                    opacity: rawLink ? 1 : 0.5,
+                    cursor: rawLink ? 'pointer' : 'not-allowed',
+                  }}
+                >
+                  {copiedField === 'long' ? 'Copied!' : 'Copy Long'}
+                </button>
+                <button
+                  onClick={() => copyToClipboard(genericLink, 'generic')}
+                  style={{
+                    ...buttonBase,
+                    background: 'rgba(255,255,255,0.12)',
+                    color: colors.previewText,
+                  }}
+                >
+                  {copiedField === 'generic' ? 'Copied!' : 'Copy Generic'}
                 </button>
               </div>
             </div>
-
-            {showDebug && (
-              <div style={{ ...cardStyle, padding: isMobile ? 16 : 22 }}>
-                <div style={sectionTitleStyle}>Debug</div>
-                <div
-                  style={{
-                    ...softCardStyle,
-                    padding: 14,
-                    fontSize: 12,
-                    wordBreak: 'break-all',
-                    color: colors.muted,
-                    marginTop: 10,
-                  }}
-                >
-                  {rawLink || 'No raw link yet'}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
