@@ -1,39 +1,45 @@
 export default async function handler(req, res) {
+  const { url } = req.query;
+
+  if (!url) {
+    res.status(400).json({ error: 'Missing url parameter' });
+    return;
+  }
+
+  const apiToken = process.env.TINYURL_API_TOKEN;
+
+  if (!apiToken) {
+    res.status(500).json({ error: 'TINYURL_API_TOKEN is not set in your Vercel project env vars' });
+    return;
+  }
+
   try {
-    const url = (req.query.url || '').toString();
-    if (!url) return res.status(400).json({ error: 'Missing url' });
+    const tinyResponse = await fetch('https://api.tinyurl.com/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiToken}`,
+      },
+      body: JSON.stringify({ url, domain: 'tinyurl.com' }),
+    });
 
-    // Helper: call a shortener endpoint that returns plain text
-    const callPlain = async (endpoint) => {
-      const r = await fetch(endpoint, {
-        // Some services are picky; set a UA + no-cache
-        headers: { 'User-Agent': 'curl/8', 'Cache-Control': 'no-store' },
-      });
-      const text = (await r.text()).trim();
-      return /^https?:\/\/\S+$/i.test(text) ? text : null;
-    };
+    const payload = await tinyResponse.json();
 
-    // 1) Try is.gd (simple + reliable)
-    // Docs: https://is.gd/apishorteningreference.php
-    const isgd = await callPlain(
-      `https://is.gd/create.php?format=simple&url=${encodeURIComponent(url)}`
-    );
-    if (isgd) {
-      return res.status(200).json({ shortUrl: isgd });
+    if (!tinyResponse.ok) {
+      const message = payload?.errors?.[0] || payload?.error || 'TinyURL request failed';
+      res.status(tinyResponse.status).json({ error: message });
+      return;
     }
 
-    // 2) Fallback: TinyURL
-    const tiny = await callPlain(
-      `https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`
-    );
-    if (tiny) {
-      return res.status(200).json({ shortUrl: tiny });
+    const shortUrl = payload?.data?.tiny_url;
+
+    if (!shortUrl) {
+      res.status(500).json({ error: 'TinyURL did not return a short link' });
+      return;
     }
 
-    // 3) Last resort: return the original URL so UI still works
-    return res.status(200).json({ shortUrl: url });
-  } catch (e) {
-    // Never 500 the UI—just return the original link
-    return res.status(200).json({ shortUrl: req.query.url || '' });
+    res.status(200).json({ shortUrl });
+  } catch (error) {
+    res.status(500).json({ error: error.message || 'Failed to reach TinyURL' });
   }
 }
