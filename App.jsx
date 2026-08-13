@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
-const SALES_REPS = ['*01*', '*02*', '*03*', '*04*', '*05*'];
+const SALES_REPS = ['', '*01*', '*02*', '*03*', '*04*', '*05*'];
 
 const CARPET_PRESETS = [
   { id: 'cc100', label: 'Carpet Cleaning', price: '100', note: 'Fast close special' },
