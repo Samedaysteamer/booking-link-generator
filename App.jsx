@@ -1,5 +1,118 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
+/* ============================================================ */
+/* Icons — hand-drawn, stroke-based, zero external dependencies  */
+/* (the live project only has react + react-dom installed)       */
+/* ============================================================ */
+
+function Icon({ children, size = 20, ...props }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      {children}
+    </svg>
+  );
+}
+
+const IconDroplet = (props) => (
+  <Icon {...props}>
+    <path d="M12 2.5c3.6 4.4 6.5 8.2 6.5 11.7a6.5 6.5 0 0 1-13 0c0-3.5 2.9-7.3 6.5-11.7Z" />
+  </Icon>
+);
+
+const IconWind = (props) => (
+  <Icon {...props}>
+    <path d="M3 8h9.7a2.4 2.4 0 1 0-2.2-3.3" />
+    <path d="M3 12.5h13.2a2.4 2.4 0 1 1-2.2 3.3" />
+    <path d="M3 17h7.3a2 2 0 1 1-1.8 2.7" />
+  </Icon>
+);
+
+const IconTruck = (props) => (
+  <Icon {...props}>
+    <rect x="1.5" y="7" width="11" height="9" rx="1" />
+    <path d="M12.5 10h3.6l3.4 3.2V16h-7z" />
+    <circle cx="6" cy="17.6" r="1.7" />
+    <circle cx="16.6" cy="17.6" r="1.7" />
+  </Icon>
+);
+
+const IconTrash = (props) => (
+  <Icon {...props}>
+    <path d="M4 6.5h16" />
+    <path d="M9 6.5V4.8a1.3 1.3 0 0 1 1.3-1.3h3.4A1.3 1.3 0 0 1 15 4.8v1.7" />
+    <path d="M6 6.5 6.9 19a1.5 1.5 0 0 0 1.5 1.4h7.2a1.5 1.5 0 0 0 1.5-1.4l.9-12.5" />
+    <path d="M10 10.5v6" />
+    <path d="M14 10.5v6" />
+  </Icon>
+);
+
+const IconSun = (props) => (
+  <Icon {...props}>
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.5 1.5M17.9 17.9l1.5 1.5M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.5-1.5M17.9 6.1l1.5-1.5" />
+  </Icon>
+);
+
+const IconMoon = (props) => (
+  <Icon {...props}>
+    <path d="M20 14.2A8.3 8.3 0 1 1 9.8 4a6.6 6.6 0 0 0 10.2 10.2Z" />
+  </Icon>
+);
+
+const IconCopy = (props) => (
+  <Icon {...props}>
+    <rect x="8.5" y="8.5" width="11" height="11" rx="1.7" />
+    <path d="M5.5 15.5h-1a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+  </Icon>
+);
+
+const IconCheck = (props) => (
+  <Icon {...props}>
+    <path d="M4 12.5l5 5 11-11" />
+  </Icon>
+);
+
+const IconPencil = (props) => (
+  <Icon {...props}>
+    <path d="M4 20l.9-4 10.5-10.5a2 2 0 0 1 2.8 0l.8.8a2 2 0 0 1 0 2.8L8.5 19.6 4 20.5Z" />
+    <path d="M13.4 6.6l3.5 3.5" />
+  </Icon>
+);
+
+const IconArrowRight = (props) => (
+  <Icon {...props}>
+    <path d="M4 12h16M13 5l7 7-7 7" />
+  </Icon>
+);
+
+const IconLink = (props) => (
+  <Icon {...props}>
+    <path d="M9.5 14.5l5-5" />
+    <path d="M11 6.5l1.4-1.4a4 4 0 0 1 5.6 5.6L16.6 12" />
+    <path d="M13 17.5l-1.4 1.4a4 4 0 0 1-5.6-5.6L7.4 12" />
+  </Icon>
+);
+
+const IconChevronDown = (props) => (
+  <Icon {...props}>
+    <path d="M5.5 8.5l6.5 6.5 6.5-6.5" />
+  </Icon>
+);
+
+/* ============================================================ */
+/* Business data — identical to the live app, untouched          */
+/* ============================================================ */
+
 const SALES_REPS = ['', '*01*', '*02*', '*03*', '*04*', '*05*'];
 
 const CARPET_PRESETS = [
@@ -98,72 +211,6 @@ const ARRIVAL_WINDOWS = {
   junk: ['Arrival between 8 and 12', 'Arrival between 12 and 4', 'Arrival between 4 and 8'],
 };
 
-const THEMES = {
-  light: {
-    page: '#f4f7fb',
-    header: 'linear-gradient(135deg, #ffffff 0%, #eef4ff 100%)',
-    card: '#ffffff',
-    soft: '#f7f9fc',
-    border: '#d8e0ea',
-    text: '#0f172a',
-    muted: '#64748b',
-    accent: '#111827',
-    accentText: '#ffffff',
-    accentSoft: '#e5e7eb',
-    accentSoftText: '#111827',
-    info: '#0ea5e9',
-    infoSoft: '#e0f2fe',
-    success: '#16a34a',
-    successSoft: '#dcfce7',
-    danger: '#dc2626',
-    dangerSoft: '#fee2e2',
-    preview: '#0f172a',
-    previewText: '#f8fafc',
-  },
-  gray: {
-    page: '#eef1f5',
-    header: 'linear-gradient(135deg, #ffffff 0%, #eceff4 100%)',
-    card: '#ffffff',
-    soft: '#f5f7fa',
-    border: '#d4d9e1',
-    text: '#111827',
-    muted: '#6b7280',
-    accent: '#1f2937',
-    accentText: '#ffffff',
-    accentSoft: '#e5e7eb',
-    accentSoftText: '#111827',
-    info: '#2563eb',
-    infoSoft: '#dbeafe',
-    success: '#15803d',
-    successSoft: '#dcfce7',
-    danger: '#b91c1c',
-    dangerSoft: '#fee2e2',
-    preview: '#111827',
-    previewText: '#f9fafb',
-  },
-  sky: {
-    page: '#eef8ff',
-    header: 'linear-gradient(135deg, #ffffff 0%, #dff3ff 100%)',
-    card: '#ffffff',
-    soft: '#f3fbff',
-    border: '#cfe7f5',
-    text: '#0f172a',
-    muted: '#5b7285',
-    accent: '#0284c7',
-    accentText: '#ffffff',
-    accentSoft: '#dff3ff',
-    accentSoftText: '#0c4a6e',
-    info: '#0284c7',
-    infoSoft: '#dff3ff',
-    success: '#15803d',
-    successSoft: '#dcfce7',
-    danger: '#b91c1c',
-    dangerSoft: '#fee2e2',
-    preview: '#082f49',
-    previewText: '#f0f9ff',
-  },
-};
-
 function sanitizeNumber(value) {
   return String(value || '').replace(/[^\d]/g, '');
 }
@@ -195,9 +242,44 @@ function getArrivalTimes(mode, windowText) {
       'Arrival between 4 and 8': { start: '4 PM', end: '8 PM' },
     },
   };
-
   return lookup[mode]?.[windowText] || { start: '', end: '' };
 }
+
+/* ============================================================ */
+/* Design system                                                 */
+/* ============================================================ */
+
+const MODE_META = {
+  carpet: { label: 'Carpet / Upholstery', short: 'Carpet', icon: IconDroplet, accent: '#0D9488', soft: '#CCFBF1', softDark: 'rgba(45,212,191,0.16)' },
+  duct: { label: 'Duct Cleaning', short: 'Duct', icon: IconWind, accent: '#2563EB', soft: '#DBEAFE', softDark: 'rgba(96,165,250,0.16)' },
+  moving: { label: 'Moving', short: 'Moving', icon: IconTruck, accent: '#DC2626', soft: '#FEE2E2', softDark: 'rgba(248,113,113,0.16)' },
+  junk: { label: 'Junk Removal', short: 'Junk', icon: IconTrash, accent: '#EA580C', soft: '#FFEDD5', softDark: 'rgba(251,146,60,0.16)' },
+};
+
+const BASE = {
+  light: {
+    page: '#F4F5FA',
+    surface: '#FFFFFF',
+    surfaceAlt: '#FAFAFD',
+    line: '#E5E7F0',
+    ink: '#12141C',
+    muted: '#6B7180',
+    shadow: '0 1px 2px rgba(18,20,28,0.04), 0 12px 28px -16px rgba(18,20,28,0.16)',
+  },
+  dark: {
+    page: '#0A0B0F',
+    surface: '#15161D',
+    surfaceAlt: '#1A1C25',
+    line: '#272935',
+    ink: '#F2F3F7',
+    muted: '#9298A8',
+    shadow: '0 1px 2px rgba(0,0,0,0.3), 0 16px 32px -18px rgba(0,0,0,0.6)',
+  },
+};
+
+const FONT_DISPLAY = '"Space Grotesk", "Segoe UI", sans-serif';
+const FONT_BODY = '"Plus Jakarta Sans", "Segoe UI", sans-serif';
+const FONT_MONO = '"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace';
 
 function useScreen() {
   const getWidth = () => (typeof window !== 'undefined' ? window.innerWidth : 1280);
@@ -207,7 +289,6 @@ function useScreen() {
     function onResize() {
       setWidth(getWidth());
     }
-
     if (typeof window !== 'undefined') {
       window.addEventListener('resize', onResize);
       return () => window.removeEventListener('resize', onResize);
@@ -221,6 +302,10 @@ function useScreen() {
     isDesktop: width >= 1024,
   };
 }
+
+/* ============================================================ */
+/* App                                                            */
+/* ============================================================ */
 
 function App() {
   const screen = useScreen();
@@ -263,14 +348,47 @@ function App() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const colors = THEMES[theme];
+  const colors = BASE[theme];
+  const modeMeta = MODE_META[mode];
+  const accent = modeMeta.accent;
+  const accentSoft = theme === 'dark' ? modeMeta.softDark : modeMeta.soft;
+
+  // Load display fonts + inject a small global stylesheet for things inline
+  // styles can't express (focus rings tied to the live mode color, reduced
+  // motion, placeholder color). Runs once.
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (!document.getElementById('blg-fonts')) {
+      const link = document.createElement('link');
+      link.id = 'blg-fonts';
+      link.rel = 'stylesheet';
+      link.href =
+        'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap';
+      document.head.appendChild(link);
+    }
+    if (!document.getElementById('blg-globals')) {
+      const style = document.createElement('style');
+      style.id = 'blg-globals';
+      style.textContent = `
+        * { box-sizing: border-box; }
+        input, select, textarea, button { font-family: inherit; }
+        input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible {
+          outline: 2px solid var(--blg-accent, #0D9488);
+          outline-offset: 2px;
+        }
+        input::placeholder, textarea::placeholder { color: var(--blg-muted, #9AA1B2); opacity: 0.8; }
+        @media (prefers-reduced-motion: reduce) {
+          * { transition-duration: 0.001ms !important; animation-duration: 0.001ms !important; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }, []);
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
       document.body.style.margin = '0';
       document.body.style.background = colors.page;
-      document.body.style.fontFamily =
-        'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
     }
   }, [colors.page]);
 
@@ -286,8 +404,6 @@ function App() {
   }, [generatedLink]);
 
   const currentArrivalWindow = mode === 'moving' ? movingArrival : mode === 'junk' ? junkArrival : arrivalWindow;
-  const currentPrice = mode === 'moving' ? blockPrice : mode === 'junk' ? junkFlatRate || '' : quotedPrice;
-  const currentService = mode === 'moving' ? 'Moving' : mode === 'junk' ? 'Junk Removal' : serviceType;
 
   const genericLink = useMemo(() => {
     return mode === 'duct'
@@ -320,9 +436,7 @@ CashApp payment $5 fee
         ? `Flat Rate: $${junkFlatRate}`
         : `$${junkQuarterPrice} 1/4 of a truck\n$${junkHalfPrice} 1/2 of a truck\n$${junkFullPrice} full truck load`;
       const retrievalLine = junkRetrievalFee ? `Retrieval Fee: $${junkRetrievalFee}\n` : '';
-      const hourlyRetrievalLine = junkHourlyRetrievalFee
-        ? `Hourly Retrieval Fee: $${junkHourlyRetrievalFee}/hr\n`
-        : '';
+      const hourlyRetrievalLine = junkHourlyRetrievalFee ? `Hourly Retrieval Fee: $${junkHourlyRetrievalFee}/hr\n` : '';
       return `${salesRepLine}Truck Size: ${junkTruckSize}ft
 ${pricingBlock}
 ${retrievalLine}${hourlyRetrievalLine}${junkArrival}
@@ -505,9 +619,7 @@ Card payment: 7% processing fee`;
       ? `Flat Rate: $${cleanJunkFlatRate}`
       : `$${cleanJunkQuarterPrice} 1/4 of a truck\n$${cleanJunkHalfPrice} 1/2 of a truck\n$${cleanJunkFullPrice} full truck load`;
     const junkRetrievalLine = junkRetrievalFee ? `Retrieval Fee: $${junkRetrievalFee}\n` : '';
-    const junkHourlyRetrievalLine = junkHourlyRetrievalFee
-      ? `Hourly Retrieval Fee: $${junkHourlyRetrievalFee}/hr\n`
-      : '';
+    const junkHourlyRetrievalLine = junkHourlyRetrievalFee ? `Hourly Retrieval Fee: $${junkHourlyRetrievalFee}/hr\n` : '';
 
     const summary =
       mode === 'moving'
@@ -558,310 +670,292 @@ Card payment: 7% processing fee`;
       });
   }
 
-  const sectionTitleStyle = {
-    fontSize: 12,
-    fontWeight: 800,
-    letterSpacing: '0.14em',
-    textTransform: 'uppercase',
-    color: colors.muted,
-    marginBottom: 8,
-  };
+  /* -------------------------------------------------------- */
+  /* Shared style helpers                                      */
+  /* -------------------------------------------------------- */
 
   const cardStyle = {
-    background: colors.card,
-    border: `1px solid ${colors.border}`,
-    borderRadius: isMobile ? 18 : 24,
-    boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)',
+    background: colors.surface,
+    border: `1px solid ${colors.line}`,
+    borderRadius: 18,
+    boxShadow: colors.shadow,
+    padding: isMobile ? 18 : 24,
   };
 
-  const softCardStyle = {
-    background: colors.soft,
-    border: `1px solid ${colors.border}`,
-    borderRadius: isMobile ? 16 : 20,
-  };
-
-  const inputStyle = {
-    width: '100%',
-    padding: isMobile ? '13px 14px' : '14px 16px',
-    borderRadius: 16,
-    border: `1px solid ${colors.border}`,
-    background: colors.soft,
-    color: colors.text,
-    fontSize: 16,
-    outline: 'none',
-    boxSizing: 'border-box',
-    minHeight: 48,
+  const eyebrowStyle = {
+    fontFamily: FONT_MONO,
+    fontSize: 11,
+    fontWeight: 500,
+    letterSpacing: '0.12em',
+    textTransform: 'uppercase',
+    color: colors.muted,
   };
 
   const labelStyle = {
     display: 'block',
-    fontSize: 14,
+    fontSize: 13.5,
+    fontWeight: 600,
+    color: colors.ink,
+    marginBottom: 7,
+  };
+
+  const inputStyle = {
+    width: '100%',
+    padding: isMobile ? '13px 14px' : '12px 14px',
+    borderRadius: 12,
+    border: `1.5px solid ${colors.line}`,
+    background: colors.surfaceAlt,
+    color: colors.ink,
+    fontSize: 15.5,
+    outline: 'none',
+    boxSizing: 'border-box',
+    minHeight: 46,
+    transition: 'border-color 0.15s ease',
+  };
+
+  const pillBase = {
+    border: 'none',
+    borderRadius: 999,
+    padding: '10px 16px',
+    fontSize: 13.5,
     fontWeight: 700,
-    color: colors.text,
-    marginBottom: 8,
+    cursor: 'pointer',
+    transition: 'all 0.15s ease',
+    minHeight: 40,
   };
 
   const buttonBase = {
     border: 'none',
-    borderRadius: 16,
-    padding: isMobile ? '14px 14px' : '12px 16px',
-    fontSize: isMobile ? 15 : 14,
+    borderRadius: 12,
+    padding: isMobile ? '14px 16px' : '12px 18px',
+    fontSize: 14.5,
     fontWeight: 700,
     cursor: 'pointer',
-    transition: 'all 0.2s ease',
+    transition: 'all 0.15s ease',
     minHeight: 48,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
   };
 
-  const topStatStyle = {
-    ...softCardStyle,
+  const tileStyle = (isActive) => ({
+    textAlign: 'left',
     padding: 14,
-  };
+    borderRadius: 14,
+    cursor: 'pointer',
+    border: `1.5px solid ${isActive ? accent : colors.line}`,
+    background: isActive ? accentSoft : colors.surfaceAlt,
+    color: colors.ink,
+    transition: 'all 0.15s ease',
+    position: 'relative',
+  });
 
-  const mainGridStyle = {
-    display: 'grid',
-    gridTemplateColumns: isDesktop ? 'minmax(0, 1.18fr) minmax(360px, 0.82fr)' : '1fr',
-    gap: 20,
-    alignItems: 'start',
-  };
-
-  const heroGridStyle = {
-    display: 'grid',
-    gridTemplateColumns: isDesktop ? 'minmax(0, 1.35fr) minmax(320px, 0.85fr)' : '1fr',
-    gap: 18,
-  };
-
-  const dualFieldGrid = {
-    display: 'grid',
-    gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-    gap: 14,
-  };
-
+  const dualFieldGrid = { display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 14 };
   const movingFieldGrid = {
     display: 'grid',
     gridTemplateColumns: isMobile ? '1fr' : isTablet ? '1fr 1fr' : 'repeat(4, minmax(0, 1fr))',
     gap: 14,
   };
-
-  const validationGrid = {
-    display: 'grid',
-    gridTemplateColumns: isMobile ? '1fr' : '1.2fr 0.8fr',
-    gap: 18,
-  };
-
   const presetGridStyle = {
     display: 'grid',
-    gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(220px, 1fr))',
+    gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(210px, 1fr))',
     gap: 12,
     marginBottom: 18,
   };
 
-  const topStatsGrid = {
-    display: 'grid',
-    gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(2, minmax(0, 1fr))',
-    gap: 12,
-    alignSelf: 'start',
-  };
+  function copyButton(label, value, field, opts = {}) {
+    const isCopied = copiedField === field;
+    const disabled = !value;
+    return (
+      <button
+        onClick={() => copyToClipboard(value, field)}
+        disabled={disabled}
+        style={{
+          ...buttonBase,
+          background: opts.primary ? accent : 'rgba(255,255,255,0.08)',
+          color: opts.primary ? '#ffffff' : '#F1F2F6',
+          opacity: disabled ? 0.45 : 1,
+          cursor: disabled ? 'not-allowed' : 'pointer',
+          flex: isMobile ? '1 1 45%' : '1 1 0',
+        }}
+      >
+        {isCopied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+        {isCopied ? 'Copied' : label}
+      </button>
+    );
+  }
 
-  const actionRowStyle = {
-    display: 'flex',
-    flexDirection: isMobile ? 'column' : 'row',
-    gap: 10,
-    flexWrap: 'wrap',
-    marginTop: 16,
-  };
+  /* -------------------------------------------------------- */
+  /* Render                                                     */
+  /* -------------------------------------------------------- */
 
   return (
     <div
       style={{
+        '--blg-accent': accent,
+        '--blg-muted': colors.muted,
         minHeight: '100vh',
+        width: '100%',
         background: colors.page,
-        color: colors.text,
+        color: colors.ink,
+        fontFamily: FONT_BODY,
+        padding: isMobile ? '20px 14px 60px' : '36px 32px 80px',
+        transition: 'background 0.2s ease',
       }}
     >
-      <div
-        style={{
-          maxWidth: 1360,
-          margin: '0 auto',
-          padding: isMobile ? 12 : 20,
-          paddingBottom: isMobile ? 28 : 20,
-        }}
-      >
+      <div style={{ maxWidth: 1160, margin: '0 auto' }}>
+        {/* Top bar */}
         <div
           style={{
-            ...cardStyle,
-            background: colors.header,
-            padding: isMobile ? 16 : 24,
-            marginBottom: 20,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: isMobile ? 20 : 28,
           }}
         >
-          <div style={heroGridStyle}>
-            <div>
-              <div
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '8px 12px',
-                  borderRadius: 999,
-                  background: colors.soft,
-                  border: `1px solid ${colors.border}`,
-                  fontSize: 12,
-                  fontWeight: 800,
-                  color: colors.muted,
-                }}
-              >
-                Operator Console
-              </div>
-
-              <div
-                style={{
-                  fontSize: isMobile ? 26 : 34,
-                  fontWeight: 900,
-                  lineHeight: 1.1,
-                  marginTop: 14,
-                }}
-              >
-                Booking Link Generator
-              </div>
-
-              <div
-                style={{
-                  fontSize: isMobile ? 14 : 16,
-                  color: colors.muted,
-                  marginTop: 10,
-                  maxWidth: 760,
-                  lineHeight: 1.5,
-                }}
-              >
-                Single-file mobile + desktop rebuild. No extra packages. No extra CSS file changes.
-                Price validation fixed. Moving price now uses the correct field.
-              </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: 11,
+                background: accent,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#fff',
+                transition: 'background 0.2s ease',
+                flexShrink: 0,
+              }}
+            >
+              <IconLink size={19} />
             </div>
-
-            <div style={topStatsGrid}>
-              <div style={topStatStyle}>
-                <div style={{ fontSize: 11, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>
-                  Validation
-                </div>
-                <div style={{ marginTop: 8, fontSize: 14, fontWeight: 800 }}>Required before generate</div>
-              </div>
-              <div style={topStatStyle}>
-                <div style={{ fontSize: 11, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>
-                  Sales Rep
-                </div>
-                <div style={{ marginTop: 8, fontSize: 14, fontWeight: 800 }}>{salesRep || 'Blank allowed'}</div>
-              </div>
-              <div style={topStatStyle}>
-                <div style={{ fontSize: 11, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>
-                  Mode
-                </div>
-                <div style={{ marginTop: 8, fontSize: 14, fontWeight: 800, textTransform: 'capitalize' }}>{mode}</div>
-              </div>
-              <div style={topStatStyle}>
-                <div style={{ fontSize: 11, color: colors.muted, fontWeight: 800, textTransform: 'uppercase' }}>
-                  Output
-                </div>
-                <div style={{ marginTop: 8, fontSize: 14, fontWeight: 800 }}>
-                  {generatedLink ? 'Short link ready' : 'Waiting to generate'}
-                </div>
+            <div>
+              <div style={eyebrowStyle}>Ops Console</div>
+              <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: isMobile ? 18 : 21, lineHeight: 1.1 }}>
+                Booking Link Generator
               </div>
             </div>
           </div>
+
+          <button
+            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+            aria-label="Toggle light and dark mode"
+            style={{
+              width: 42,
+              height: 42,
+              borderRadius: 12,
+              border: `1.5px solid ${colors.line}`,
+              background: colors.surface,
+              color: colors.ink,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            {theme === 'light' ? <IconMoon size={18} /> : <IconSun size={18} />}
+          </button>
         </div>
 
-        <div style={mainGridStyle}>
+        {/* Mode switcher — signature element */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, minmax(0, 1fr))',
+            gap: 10,
+            marginBottom: isMobile ? 20 : 28,
+          }}
+        >
+          {Object.entries(MODE_META).map(([id, meta]) => {
+            const isActive = mode === id;
+            const ModeIcon = meta.icon;
+            return (
+              <button
+                key={id}
+                onClick={() => switchMode(id)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: isMobile ? '13px 14px' : '15px 18px',
+                  borderRadius: 15,
+                  border: `1.5px solid ${isActive ? meta.accent : colors.line}`,
+                  background: isActive ? meta.accent : colors.surface,
+                  color: isActive ? '#ffffff' : colors.ink,
+                  cursor: 'pointer',
+                  transition: 'all 0.18s ease',
+                  boxShadow: isActive ? colors.shadow : 'none',
+                  textAlign: 'left',
+                }}
+              >
+                <span
+                  style={{
+                    width: 30,
+                    height: 30,
+                    borderRadius: 9,
+                    background: isActive ? 'rgba(255,255,255,0.2)' : theme === 'dark' ? meta.softDark : meta.soft,
+                    color: isActive ? '#fff' : meta.accent,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <ModeIcon size={16} />
+                </span>
+                <span style={{ fontWeight: 700, fontSize: isMobile ? 13.5 : 14.5 }}>
+                  {isMobile ? meta.short : meta.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Main grid */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: isDesktop ? 'minmax(0, 1.15fr) minmax(360px, 0.85fr)' : '1fr',
+            gap: 20,
+            alignItems: 'start',
+          }}
+        >
+          {/* Left column — form */}
           <div style={{ display: 'grid', gap: 20 }}>
-            <div style={{ ...cardStyle, padding: isMobile ? 16 : 22 }}>
-              <div style={sectionTitleStyle}>Step 1</div>
-              <div style={{ fontSize: isMobile ? 21 : 24, fontWeight: 900, marginBottom: 18 }}>
-                Choose mode and sales rep
-              </div>
+            <div style={cardStyle}>
+              <div style={{ ...eyebrowStyle, marginBottom: 14 }}>Step 1 &middot; Setup</div>
 
-              <div style={{ display: 'grid', gap: 18 }}>
-                <div>
-                  <div style={labelStyle}>Theme</div>
-
-                  {/* ================================================================
-                      EVERYTHING ABOVE THIS COMMENT IS YOUR PASTE, VERBATIM, with only
-                      the 4 requested edits applied (3 moving arrival windows + the
-                      Arrival-between-7-and-10 defaults). Your original paste cut off
-                      right at "Theme" above. Everything BELOW is rebuilt by me from
-                      your state/handlers/styles/presets to keep the tool working —
-                      it is NOT extracted from your real file. Please diff this
-                      against what's live on GitHub before you push it, especially
-                      layout/order, since I can't see your actual markup.
-                     ================================================================ */}
-
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                    {Object.keys(THEMES).map((key) => (
+              <div style={{ marginBottom: 16 }}>
+                <div style={labelStyle}>Sales Rep</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {SALES_REPS.map((rep) => {
+                    const isActive = salesRep === rep;
+                    return (
                       <button
-                        key={key}
-                        onClick={() => setTheme(key)}
+                        key={rep || 'none'}
+                        onClick={() => setSalesRep(isActive ? '' : rep)}
                         style={{
-                          ...buttonBase,
-                          textTransform: 'capitalize',
-                          background: theme === key ? colors.accent : colors.soft,
-                          color: theme === key ? colors.accentText : colors.text,
-                          border: `1px solid ${theme === key ? colors.accent : colors.border}`,
+                          ...pillBase,
+                          minWidth: 54,
+                          background: isActive ? accent : colors.surfaceAlt,
+                          color: isActive ? '#ffffff' : colors.ink,
+                          border: `1.5px solid ${isActive ? accent : colors.line}`,
                         }}
                       >
-                        {key}
+                        {rep || 'None'}
                       </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <div style={labelStyle}>Service Mode</div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                    {[
-                      { id: 'carpet', label: 'Carpet / Upholstery' },
-                      { id: 'duct', label: 'Duct Cleaning' },
-                      { id: 'moving', label: 'Moving' },
-                      { id: 'junk', label: 'Junk Removal' },
-                    ].map((item) => (
-                      <button
-                        key={item.id}
-                        onClick={() => switchMode(item.id)}
-                        style={{
-                          ...buttonBase,
-                          background: mode === item.id ? colors.accent : colors.soft,
-                          color: mode === item.id ? colors.accentText : colors.text,
-                          border: `1px solid ${mode === item.id ? colors.accent : colors.border}`,
-                        }}
-                      >
-                        {item.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <div style={labelStyle}>Sales Rep</div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                    {SALES_REPS.map((rep) => (
-                      <button
-                        key={rep}
-                        onClick={() => setSalesRep(salesRep === rep ? '' : rep)}
-                        style={{
-                          ...buttonBase,
-                          minWidth: 56,
-                          background: salesRep === rep ? colors.info : colors.soft,
-                          color: salesRep === rep ? '#ffffff' : colors.text,
-                          border: `1px solid ${salesRep === rep ? colors.info : colors.border}`,
-                        }}
-                      >
-                        {rep}
-                      </button>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
 
-            <div style={{ ...cardStyle, padding: isMobile ? 16 : 22 }}>
-              <div style={sectionTitleStyle}>Step 2</div>
-              <div style={{ fontSize: isMobile ? 21 : 24, fontWeight: 900, marginBottom: 18 }}>
+            <div style={cardStyle}>
+              <div style={{ ...eyebrowStyle, marginBottom: 4 }}>Step 2 &middot; Pricing</div>
+              <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: isMobile ? 19 : 22, marginBottom: 18 }}>
                 {mode === 'moving'
                   ? 'Set the moving block rate'
                   : mode === 'junk'
@@ -878,21 +972,32 @@ Card payment: 7% processing fee`;
                       return (
                         <button
                           key={preset.id}
-                          onClick={() =>
-                            mode === 'carpet' ? applyCarpetPreset(preset.id) : applyDuctPreset(preset.id)
-                          }
-                          style={{
-                            ...softCardStyle,
-                            textAlign: 'left',
-                            padding: 14,
-                            cursor: 'pointer',
-                            border: `1px solid ${isActive ? colors.accent : colors.border}`,
-                            background: isActive ? colors.accentSoft : colors.soft,
-                            color: colors.text,
-                          }}
+                          onClick={() => (mode === 'carpet' ? applyCarpetPreset(preset.id) : applyDuctPreset(preset.id))}
+                          style={tileStyle(isActive)}
                         >
-                          <div style={{ fontSize: 13, fontWeight: 800, color: colors.muted }}>{preset.label}</div>
-                          <div style={{ fontSize: 20, fontWeight: 900, marginTop: 4 }}>${preset.price}</div>
+                          {isActive && (
+                            <span
+                              style={{
+                                position: 'absolute',
+                                top: 10,
+                                right: 10,
+                                width: 18,
+                                height: 18,
+                                borderRadius: '50%',
+                                background: accent,
+                                color: '#fff',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              <IconCheck size={11} />
+                            </span>
+                          )}
+                          <div style={{ fontSize: 12.5, fontWeight: 700, color: colors.muted }}>{preset.label}</div>
+                          <div style={{ fontFamily: FONT_DISPLAY, fontSize: 21, fontWeight: 700, marginTop: 4 }}>
+                            ${preset.price}
+                          </div>
                           <div style={{ fontSize: 12, color: colors.muted, marginTop: 4 }}>{preset.note}</div>
                         </button>
                       );
@@ -902,11 +1007,7 @@ Card payment: 7% processing fee`;
                   <div style={dualFieldGrid}>
                     <div>
                       <div style={labelStyle}>Service Type</div>
-                      <input
-                        style={inputStyle}
-                        value={serviceType}
-                        onChange={(e) => setServiceType(e.target.value)}
-                      />
+                      <input style={inputStyle} value={serviceType} onChange={(e) => setServiceType(e.target.value)} />
                     </div>
                     <div>
                       <div style={labelStyle}>Quoted Price ($)</div>
@@ -919,23 +1020,26 @@ Card payment: 7% processing fee`;
                     </div>
                   </div>
 
-                  <div style={{ marginTop: 14 }}>
+                  <div style={{ marginTop: 16 }}>
                     <div style={labelStyle}>Arrival Window</div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                      {ARRIVAL_WINDOWS[mode].map((windowText) => (
-                        <button
-                          key={windowText}
-                          onClick={() => setArrivalWindow(windowText)}
-                          style={{
-                            ...buttonBase,
-                            background: arrivalWindow === windowText ? colors.accent : colors.soft,
-                            color: arrivalWindow === windowText ? colors.accentText : colors.text,
-                            border: `1px solid ${arrivalWindow === windowText ? colors.accent : colors.border}`,
-                          }}
-                        >
-                          {windowText}
-                        </button>
-                      ))}
+                      {ARRIVAL_WINDOWS[mode].map((windowText) => {
+                        const isActive = arrivalWindow === windowText;
+                        return (
+                          <button
+                            key={windowText}
+                            onClick={() => setArrivalWindow(windowText)}
+                            style={{
+                              ...pillBase,
+                              background: isActive ? accent : colors.surfaceAlt,
+                              color: isActive ? '#ffffff' : colors.ink,
+                              border: `1.5px solid ${isActive ? accent : colors.line}`,
+                            }}
+                          >
+                            {windowText}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 </>
@@ -947,21 +1051,30 @@ Card payment: 7% processing fee`;
                     {MOVING_PRESETS.map((preset) => {
                       const isActive = movingSpecial === preset.id;
                       return (
-                        <button
-                          key={preset.id}
-                          onClick={() => applyMovingPreset(preset.id)}
-                          style={{
-                            ...softCardStyle,
-                            textAlign: 'left',
-                            padding: 14,
-                            cursor: 'pointer',
-                            border: `1px solid ${isActive ? colors.accent : colors.border}`,
-                            background: isActive ? colors.accentSoft : colors.soft,
-                            color: colors.text,
-                          }}
-                        >
-                          <div style={{ fontSize: 13, fontWeight: 800, color: colors.muted }}>{preset.label}</div>
-                          <div style={{ fontSize: 20, fontWeight: 900, marginTop: 4 }}>${preset.price}</div>
+                        <button key={preset.id} onClick={() => applyMovingPreset(preset.id)} style={tileStyle(isActive)}>
+                          {isActive && (
+                            <span
+                              style={{
+                                position: 'absolute',
+                                top: 10,
+                                right: 10,
+                                width: 18,
+                                height: 18,
+                                borderRadius: '50%',
+                                background: accent,
+                                color: '#fff',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              <IconCheck size={11} />
+                            </span>
+                          )}
+                          <div style={{ fontSize: 12.5, fontWeight: 700, color: colors.muted }}>{preset.label}</div>
+                          <div style={{ fontFamily: FONT_DISPLAY, fontSize: 21, fontWeight: 700, marginTop: 4 }}>
+                            ${preset.price}
+                          </div>
                           <div style={{ fontSize: 12, color: colors.muted, marginTop: 4 }}>{preset.note}</div>
                         </button>
                       );
@@ -1025,23 +1138,26 @@ Card payment: 7% processing fee`;
                     </div>
                   </div>
 
-                  <div style={{ marginTop: 14 }}>
+                  <div style={{ marginTop: 16 }}>
                     <div style={labelStyle}>Arrival Window</div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                      {ARRIVAL_WINDOWS.moving.map((windowText) => (
-                        <button
-                          key={windowText}
-                          onClick={() => setMovingArrival(windowText)}
-                          style={{
-                            ...buttonBase,
-                            background: movingArrival === windowText ? colors.accent : colors.soft,
-                            color: movingArrival === windowText ? colors.accentText : colors.text,
-                            border: `1px solid ${movingArrival === windowText ? colors.accent : colors.border}`,
-                          }}
-                        >
-                          {windowText}
-                        </button>
-                      ))}
+                      {ARRIVAL_WINDOWS.moving.map((windowText) => {
+                        const isActive = movingArrival === windowText;
+                        return (
+                          <button
+                            key={windowText}
+                            onClick={() => setMovingArrival(windowText)}
+                            style={{
+                              ...pillBase,
+                              background: isActive ? accent : colors.surfaceAlt,
+                              color: isActive ? '#ffffff' : colors.ink,
+                              border: `1.5px solid ${isActive ? accent : colors.line}`,
+                            }}
+                          >
+                            {windowText}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 </>
@@ -1088,9 +1204,9 @@ Card payment: 7% processing fee`;
                     </div>
                   </div>
 
-                  <div style={{ fontSize: 12, color: colors.muted, marginTop: 10, marginBottom: 14 }}>
-                    All three truck-load prices show together by default, since the load size isn't known until
-                    you're at the customer's home.
+                  <div style={{ fontSize: 12.5, color: colors.muted, marginTop: 10, marginBottom: 16, lineHeight: 1.5 }}>
+                    All three truck-load prices show together by default, since the load size isn&rsquo;t known until
+                    you&rsquo;re at the customer&rsquo;s home.
                   </div>
 
                   <div
@@ -1109,8 +1225,8 @@ Card payment: 7% processing fee`;
                         inputMode="numeric"
                         placeholder="Optional"
                       />
-                      <div style={{ fontSize: 12, color: colors.muted, marginTop: 6 }}>
-                        Replaces the truck-load prices above when filled in
+                      <div style={{ fontSize: 11.5, color: colors.muted, marginTop: 6 }}>
+                        Replaces the truck-load prices above
                       </div>
                     </div>
                     <div>
@@ -1135,19 +1251,33 @@ Card payment: 7% processing fee`;
                     </div>
                   </div>
 
-                  <div style={{ marginTop: 14 }}>
+                  <div style={{ marginTop: 16 }}>
                     <div style={labelStyle}>Arrival Window</div>
-                    <select
-                      style={{ ...inputStyle, cursor: 'pointer' }}
-                      value={junkArrival}
-                      onChange={(e) => setJunkArrival(e.target.value)}
-                    >
-                      {ARRIVAL_WINDOWS.junk.map((windowText) => (
-                        <option key={windowText} value={windowText}>
-                          {windowText}
-                        </option>
-                      ))}
-                    </select>
+                    <div style={{ position: 'relative' }}>
+                      <select
+                        style={{ ...inputStyle, cursor: 'pointer', appearance: 'none', paddingRight: 40 }}
+                        value={junkArrival}
+                        onChange={(e) => setJunkArrival(e.target.value)}
+                      >
+                        {ARRIVAL_WINDOWS.junk.map((windowText) => (
+                          <option key={windowText} value={windowText}>
+                            {windowText}
+                          </option>
+                        ))}
+                      </select>
+                      <span
+                        style={{
+                          position: 'absolute',
+                          right: 14,
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          pointerEvents: 'none',
+                          color: colors.muted,
+                        }}
+                      >
+                        <IconChevronDown size={16} />
+                      </span>
+                    </div>
                   </div>
                 </>
               )}
@@ -1157,47 +1287,54 @@ Card payment: 7% processing fee`;
                   style={{
                     marginTop: 16,
                     padding: 14,
-                    borderRadius: 14,
-                    background: colors.dangerSoft,
-                    color: colors.danger,
-                    fontWeight: 700,
-                    fontSize: 14,
+                    borderRadius: 12,
+                    background: theme === 'dark' ? 'rgba(248,113,113,0.12)' : '#FEF2F2',
+                    color: theme === 'dark' ? '#FCA5A5' : '#B91C1C',
+                    fontWeight: 600,
+                    fontSize: 13.5,
                   }}
                 >
                   {errorMessage}
                 </div>
               )}
 
-              <div style={actionRowStyle}>
+              <div style={{ marginTop: 18 }}>
                 <button
                   onClick={generateLink}
                   disabled={!canGenerate || isGenerating}
                   style={{
                     ...buttonBase,
-                    background: colors.accent,
-                    color: colors.accentText,
-                    opacity: !canGenerate || isGenerating ? 0.6 : 1,
+                    width: isMobile ? '100%' : 'auto',
+                    background: accent,
+                    color: '#ffffff',
+                    opacity: !canGenerate || isGenerating ? 0.55 : 1,
                     cursor: !canGenerate || isGenerating ? 'not-allowed' : 'pointer',
+                    padding: '14px 24px',
+                    fontSize: 15,
                   }}
                 >
                   {isGenerating ? 'Generating…' : 'Generate Booking Link'}
+                  {!isGenerating && <IconArrowRight size={16} />}
                 </button>
               </div>
             </div>
           </div>
 
+          {/* Right column — preview + console */}
           <div style={{ display: 'grid', gap: 20 }}>
-            <div style={{ ...cardStyle, padding: isMobile ? 16 : 22 }}>
-              <div style={sectionTitleStyle}>Live Preview</div>
+            <div style={{ ...cardStyle, borderLeft: `4px solid ${accent}` }}>
+              <div style={{ ...eyebrowStyle, marginBottom: 10 }}>Live Preview</div>
               <div
                 style={{
-                  ...softCardStyle,
+                  background: colors.surfaceAlt,
+                  border: `1px solid ${colors.line}`,
+                  borderRadius: 12,
                   padding: 16,
                   whiteSpace: 'pre-wrap',
-                  fontSize: 14,
+                  fontFamily: FONT_MONO,
+                  fontSize: 13,
                   lineHeight: 1.6,
-                  color: colors.text,
-                  marginTop: 10,
+                  color: colors.ink,
                 }}
               >
                 {bookingSummary}
@@ -1206,36 +1343,41 @@ Card payment: 7% processing fee`;
 
             <div
               style={{
-                ...cardStyle,
-                background: colors.preview,
-                color: colors.previewText,
-                padding: isMobile ? 16 : 22,
+                background: theme === 'dark' ? '#000000' : '#12141C',
+                borderRadius: 18,
+                padding: isMobile ? 18 : 22,
+                color: '#F1F2F6',
+                boxShadow: colors.shadow,
               }}
             >
               <div
                 style={{
-                  fontSize: 12,
-                  fontWeight: 800,
+                  fontFamily: FONT_MONO,
+                  fontSize: 11,
+                  fontWeight: 500,
                   letterSpacing: '0.12em',
                   textTransform: 'uppercase',
-                  opacity: 0.7,
+                  color: 'rgba(241,242,246,0.55)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
                 }}
               >
-                Links
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: generatedLink ? '#34D399' : '#4B5262' }} />
+                Output
               </div>
 
-              <div style={{ marginTop: 14 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, opacity: 0.75, marginBottom: 6 }}>
-                  Shortened Link
-                </div>
+              <div style={{ marginTop: 16 }}>
+                <div style={{ fontSize: 11.5, fontWeight: 600, opacity: 0.65, marginBottom: 6 }}>Shortened Link</div>
                 <div
                   style={{
-                    padding: 14,
-                    borderRadius: 14,
-                    background: 'rgba(255,255,255,0.08)',
-                    fontSize: 14,
+                    padding: 13,
+                    borderRadius: 11,
+                    background: 'rgba(255,255,255,0.06)',
+                    fontFamily: FONT_MONO,
+                    fontSize: 13.5,
                     wordBreak: 'break-all',
-                    minHeight: 24,
+                    minHeight: 22,
                   }}
                 >
                   {generatedLink || 'Not generated yet'}
@@ -1243,17 +1385,16 @@ Card payment: 7% processing fee`;
               </div>
 
               <div style={{ marginTop: 14 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, opacity: 0.75, marginBottom: 6 }}>
-                  Long Link
-                </div>
+                <div style={{ fontSize: 11.5, fontWeight: 600, opacity: 0.65, marginBottom: 6 }}>Long Link</div>
                 <div
                   style={{
-                    padding: 14,
-                    borderRadius: 14,
-                    background: 'rgba(255,255,255,0.08)',
-                    fontSize: 14,
+                    padding: 13,
+                    borderRadius: 11,
+                    background: 'rgba(255,255,255,0.06)',
+                    fontFamily: FONT_MONO,
+                    fontSize: 13.5,
                     wordBreak: 'break-all',
-                    minHeight: 24,
+                    minHeight: 22,
                   }}
                 >
                   {rawLink || 'Not generated yet'}
@@ -1261,23 +1402,21 @@ Card payment: 7% processing fee`;
               </div>
 
               <div style={{ marginTop: 14 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, opacity: 0.75, marginBottom: 6 }}>
-                  Message
-                </div>
+                <div style={{ fontSize: 11.5, fontWeight: 600, opacity: 0.65, marginBottom: 6 }}>Message</div>
                 {isEditingMessage ? (
                   <textarea
                     value={messageDraft}
                     onChange={(e) => setMessageDraft(e.target.value)}
                     style={{
                       width: '100%',
-                      minHeight: 130,
-                      padding: 14,
-                      borderRadius: 14,
-                      background: 'rgba(255,255,255,0.08)',
-                      border: '1px solid rgba(255,255,255,0.3)',
-                      color: colors.previewText,
-                      fontSize: 14,
-                      fontFamily: 'inherit',
+                      minHeight: 120,
+                      padding: 13,
+                      borderRadius: 11,
+                      background: 'rgba(255,255,255,0.06)',
+                      border: `1.5px solid ${accent}`,
+                      color: '#F1F2F6',
+                      fontSize: 13.5,
+                      fontFamily: FONT_BODY,
                       lineHeight: 1.5,
                       boxSizing: 'border-box',
                       resize: 'vertical',
@@ -1287,13 +1426,14 @@ Card payment: 7% processing fee`;
                 ) : (
                   <div
                     style={{
-                      padding: 14,
-                      borderRadius: 14,
-                      background: 'rgba(255,255,255,0.08)',
-                      fontSize: 14,
+                      padding: 13,
+                      borderRadius: 11,
+                      background: 'rgba(255,255,255,0.06)',
+                      fontSize: 13.5,
                       whiteSpace: 'pre-wrap',
                       wordBreak: 'break-word',
-                      minHeight: 24,
+                      minHeight: 22,
+                      lineHeight: 1.5,
                     }}
                   >
                     {messageDraft || 'Not generated yet'}
@@ -1301,58 +1441,24 @@ Card payment: 7% processing fee`;
                 )}
               </div>
 
-              <div style={actionRowStyle}>
-                <button
-                  onClick={() => copyToClipboard(messageDraft, 'message')}
-                  disabled={!messageDraft}
-                  style={{
-                    ...buttonBase,
-                    background: colors.success,
-                    color: '#ffffff',
-                    opacity: messageDraft ? 1 : 0.5,
-                    cursor: messageDraft ? 'pointer' : 'not-allowed',
-                  }}
-                >
-                  {copiedField === 'message' ? 'Copied!' : 'Copy Message'}
-                </button>
-                <button
-                  onClick={() => copyToClipboard(generatedLink, 'short')}
-                  disabled={!generatedLink}
-                  style={{
-                    ...buttonBase,
-                    background: 'rgba(255,255,255,0.12)',
-                    color: colors.previewText,
-                    opacity: generatedLink ? 1 : 0.5,
-                    cursor: generatedLink ? 'pointer' : 'not-allowed',
-                  }}
-                >
-                  {copiedField === 'short' ? 'Copied!' : 'Copy Short'}
-                </button>
-                <button
-                  onClick={() => copyToClipboard(rawLink, 'long')}
-                  disabled={!rawLink}
-                  style={{
-                    ...buttonBase,
-                    background: 'rgba(255,255,255,0.12)',
-                    color: colors.previewText,
-                    opacity: rawLink ? 1 : 0.5,
-                    cursor: rawLink ? 'pointer' : 'not-allowed',
-                  }}
-                >
-                  {copiedField === 'long' ? 'Copied!' : 'Copy Long'}
-                </button>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 18 }}>
+                {copyButton('Copy Message', messageDraft, 'message', { primary: true })}
+                {copyButton('Copy Short', generatedLink, 'short')}
+                {copyButton('Copy Long', rawLink, 'long')}
                 <button
                   onClick={() => setIsEditingMessage((prev) => !prev)}
                   disabled={!generatedLink}
                   style={{
                     ...buttonBase,
-                    background: isEditingMessage ? colors.info : 'rgba(255,255,255,0.12)',
-                    color: colors.previewText,
-                    opacity: generatedLink ? 1 : 0.5,
+                    background: isEditingMessage ? accent : 'rgba(255,255,255,0.08)',
+                    color: '#F1F2F6',
+                    opacity: generatedLink ? 1 : 0.45,
                     cursor: generatedLink ? 'pointer' : 'not-allowed',
+                    flex: isMobile ? '1 1 45%' : '1 1 0',
                   }}
                 >
-                  {isEditingMessage ? 'Done Editing' : 'Edit Text'}
+                  <IconPencil size={16} />
+                  {isEditingMessage ? 'Done' : 'Edit Text'}
                 </button>
               </div>
             </div>
