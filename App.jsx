@@ -77,11 +77,11 @@ const ARRIVAL_WINDOWS = {
   ],
   duct: ['Arrival between 8 and 12', 'Arrival between 1 and 5'],
   moving: [
-    'Arrival between 7 and 9',
+    'Arrival between 7 and 10',
     'Arrival between 9 to 11',
-    'Arrival between 11 and 1',
+    'Arrival between 11 and 2',
     'Arrival between 1 and 3',
-    'Arrival between 3 to 5',
+    'Arrival between 3 and 6',
     'Arrival between 6 and 8 pm',
   ],
 };
@@ -170,11 +170,11 @@ function getArrivalTimes(mode, windowText) {
       'Arrival between 1 and 5': { start: '1 PM', end: '5 PM' },
     },
     moving: {
-      'Arrival between 7 and 9': { start: '7 AM', end: '9 AM' },
+      'Arrival between 7 and 10': { start: '7 AM', end: '10 AM' },
       'Arrival between 9 to 11': { start: '9 AM', end: '11 AM' },
-      'Arrival between 11 and 1': { start: '11 AM', end: '1 PM' },
+      'Arrival between 11 and 2': { start: '11 AM', end: '2 PM' },
       'Arrival between 1 and 3': { start: '1 PM', end: '3 PM' },
-      'Arrival between 3 to 5': { start: '3 PM', end: '5 PM' },
+      'Arrival between 3 and 6': { start: '3 PM', end: '6 PM' },
       'Arrival between 6 and 8 pm': { start: '6 PM', end: '8 PM' },
     },
   };
@@ -220,7 +220,7 @@ function App() {
   const [blockPrice, setBlockPrice] = useState('300');
   const [blockHours, setBlockHours] = useState('2');
   const [additionalRate, setAdditionalRate] = useState('150');
-  const [movingArrival, setMovingArrival] = useState('Arrival between 7 and 9');
+  const [movingArrival, setMovingArrival] = useState('Arrival between 7 and 10');
   const [numMovers, setNumMovers] = useState('2');
   const [truckInfo, setTruckInfo] = useState('1');
   const [truckSize, setTruckSize] = useState('17');
@@ -319,7 +319,7 @@ Card payment: 7% processing fee`;
       setBlockPrice('300');
       setBlockHours('2');
       setAdditionalRate('150');
-      setMovingArrival('Arrival between 7 and 9');
+      setMovingArrival('Arrival between 7 and 10');
       setNumMovers('2');
       setTruckInfo('1');
       setTruckSize('17');
