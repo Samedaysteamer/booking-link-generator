@@ -67,6 +67,12 @@ const MOVING_PRESETS = [
   },
 ];
 
+const JUNK_PRESETS = [
+  { id: 'quarter', label: '1/4 Truck Load', price: '200' },
+  { id: 'half', label: '1/2 Truck Load', price: '400' },
+  { id: 'full', label: 'Full Truck Load', price: '800' },
+];
+
 const ARRIVAL_WINDOWS = {
   carpet: [
     'Arrival between 8 and 12',
@@ -84,6 +90,7 @@ const ARRIVAL_WINDOWS = {
     'Arrival between 3 and 6',
     'Arrival between 6 and 8 pm',
   ],
+  junk: ['Arrival between 8 and 12', 'Arrival between 12 and 4', 'Arrival between 4 and 8'],
 };
 
 const THEMES = {
@@ -177,6 +184,11 @@ function getArrivalTimes(mode, windowText) {
       'Arrival between 3 and 6': { start: '3 PM', end: '6 PM' },
       'Arrival between 6 and 8 pm': { start: '6 PM', end: '8 PM' },
     },
+    junk: {
+      'Arrival between 8 and 12': { start: '8 AM', end: '12 PM' },
+      'Arrival between 12 and 4': { start: '12 PM', end: '4 PM' },
+      'Arrival between 4 and 8': { start: '4 PM', end: '8 PM' },
+    },
   };
 
   return lookup[mode]?.[windowText] || { start: '', end: '' };
@@ -229,6 +241,15 @@ function App() {
   const [ductSpecial, setDuctSpecial] = useState('custom');
   const [movingSpecial, setMovingSpecial] = useState('special_2men');
 
+  const [junkSpecial, setJunkSpecial] = useState('quarter');
+  const [junkLabel, setJunkLabel] = useState('1/4 Truck Load');
+  const [junkPrice, setJunkPrice] = useState('200');
+  const [junkArrival, setJunkArrival] = useState('Arrival between 4 and 8');
+  const [junkTruckSize, setJunkTruckSize] = useState('17');
+  const [junkFlatRate, setJunkFlatRate] = useState('');
+  const [junkRetrievalFee, setJunkRetrievalFee] = useState('');
+  const [junkHourlyRetrievalFee, setJunkHourlyRetrievalFee] = useState('');
+
   const [generatedLink, setGeneratedLink] = useState('');
   const [rawLink, setRawLink] = useState('');
   const [copiedField, setCopiedField] = useState('');
@@ -246,15 +267,17 @@ function App() {
     }
   }, [colors.page]);
 
-  const currentArrivalWindow = mode === 'moving' ? movingArrival : arrivalWindow;
-  const currentPrice = mode === 'moving' ? blockPrice : quotedPrice;
-  const currentService = mode === 'moving' ? 'Moving' : serviceType;
+  const currentArrivalWindow = mode === 'moving' ? movingArrival : mode === 'junk' ? junkArrival : arrivalWindow;
+  const currentPrice = mode === 'moving' ? blockPrice : mode === 'junk' ? junkPrice : quotedPrice;
+  const currentService = mode === 'moving' ? 'Moving' : mode === 'junk' ? junkLabel : serviceType;
 
   const genericLink = useMemo(() => {
     return mode === 'duct'
       ? 'https://form.jotform.com/251573697976175'
       : mode === 'moving'
       ? 'https://form.jotform.com/251537865180159'
+      : mode === 'junk'
+      ? 'https://form.jotform.com/REPLACE_WITH_JUNK_REMOVAL_FORM_ID'
       : 'https://form.jotform.com/251536451249054';
   }, [mode]);
 
@@ -272,6 +295,20 @@ Cash, CashApp, Zelle
 CashApp payment $5 fee
 
 ***First ${blockHours}hrs due at arrival***`;
+    }
+
+    if (mode === 'junk') {
+      const flatRateLine = junkFlatRate ? `Flat Rate: $${junkFlatRate}\n` : '';
+      const retrievalLine = junkRetrievalFee ? `Retrieval Fee: $${junkRetrievalFee}\n` : '';
+      const hourlyRetrievalLine = junkHourlyRetrievalFee
+        ? `Hourly Retrieval Fee: $${junkHourlyRetrievalFee}/hr\n`
+        : '';
+      return `${salesRepLine}${junkLabel}
+$${junkPrice}
+${flatRateLine}${retrievalLine}${hourlyRetrievalLine}${junkArrival}
+${junkTruckSize} Ft Truck
+Payment methods:
+Cash, CashApp, Zelle`;
     }
 
     return `${salesRepLine}${serviceType}
@@ -292,6 +329,13 @@ Card payment: 7% processing fee`;
     serviceType,
     quotedPrice,
     arrivalWindow,
+    junkLabel,
+    junkPrice,
+    junkArrival,
+    junkTruckSize,
+    junkFlatRate,
+    junkRetrievalFee,
+    junkHourlyRetrievalFee,
   ]);
 
   const messageToCopy = generatedLink
@@ -302,6 +346,8 @@ Card payment: 7% processing fee`;
     currentArrivalWindow &&
       (mode === 'moving'
         ? blockPrice && blockHours && additionalRate && numMovers && truckSize
+        : mode === 'junk'
+        ? junkPrice && junkTruckSize
         : serviceType && quotedPrice)
   );
 
@@ -310,7 +356,7 @@ Card payment: 7% processing fee`;
     setErrorMessage('');
     setGeneratedLink('');
     setRawLink('');
-    setCopied(false);
+    setCopiedField('');
 
     if (nextMode === 'carpet') {
       setServiceType('Carpet Cleaning');
@@ -322,6 +368,15 @@ Card payment: 7% processing fee`;
       setQuotedPrice('600');
       setArrivalWindow('Arrival between 8 and 12');
       setDuctSpecial('deep600');
+    } else if (nextMode === 'junk') {
+      setJunkLabel('1/4 Truck Load');
+      setJunkPrice('200');
+      setJunkArrival('Arrival between 4 and 8');
+      setJunkTruckSize('17');
+      setJunkFlatRate('');
+      setJunkRetrievalFee('');
+      setJunkHourlyRetrievalFee('');
+      setJunkSpecial('quarter');
     } else {
       setBlockPrice('300');
       setBlockHours('2');
@@ -365,6 +420,15 @@ Card payment: 7% processing fee`;
     setErrorMessage('');
   }
 
+  function applyJunkPreset(id) {
+    setJunkSpecial(id);
+    const preset = JUNK_PRESETS.find((item) => item.id === id);
+    if (!preset) return;
+    setJunkLabel(preset.label);
+    setJunkPrice(preset.price);
+    setErrorMessage('');
+  }
+
   async function copyToClipboard(text, fieldName) {
     if (!text) return;
     try {
@@ -380,6 +444,7 @@ Card payment: 7% processing fee`;
     const cleanQuotedPrice = sanitizeNumber(quotedPrice);
     const cleanBlockPrice = sanitizeNumber(blockPrice);
     const cleanAdditionalRate = sanitizeNumber(additionalRate);
+    const cleanJunkPrice = sanitizeNumber(junkPrice);
 
     if ((mode === 'carpet' || mode === 'duct') && !cleanQuotedPrice) {
       setErrorMessage('Please enter a quoted price before generating the booking link.');
@@ -402,15 +467,28 @@ Card payment: 7% processing fee`;
       return;
     }
 
+    if (mode === 'junk' && !cleanJunkPrice) {
+      setErrorMessage('Please enter a price before generating the booking link.');
+      setGeneratedLink('');
+      setRawLink('');
+      return;
+    }
+
     setErrorMessage('');
 
     const baseUrl = genericLink;
 
-    const finalPrice = mode === 'moving' ? cleanBlockPrice : cleanQuotedPrice;
-    const finalService = mode === 'moving' ? 'Moving' : serviceType;
-    const finalWindow = mode === 'moving' ? movingArrival : arrivalWindow;
+    const finalPrice = mode === 'moving' ? cleanBlockPrice : mode === 'junk' ? cleanJunkPrice : cleanQuotedPrice;
+    const finalService = mode === 'moving' ? 'Moving' : mode === 'junk' ? junkLabel : serviceType;
+    const finalWindow = mode === 'moving' ? movingArrival : mode === 'junk' ? junkArrival : arrivalWindow;
     const { start, end } = getArrivalTimes(mode, finalWindow);
     const salesRepLine = salesRep ? `${salesRep}\n` : '';
+
+    const junkFlatRateLine = junkFlatRate ? `Flat Rate: $${junkFlatRate}\n` : '';
+    const junkRetrievalLine = junkRetrievalFee ? `Retrieval Fee: $${junkRetrievalFee}\n` : '';
+    const junkHourlyRetrievalLine = junkHourlyRetrievalFee
+      ? `Hourly Retrieval Fee: $${junkHourlyRetrievalFee}/hr\n`
+      : '';
 
     const summary =
       mode === 'moving'
@@ -423,6 +501,13 @@ Cash, CashApp, Zelle
 CashApp payment $5 fee
 
 ***First ${blockHours}hrs due at arrival***`
+        : mode === 'junk'
+        ? `${salesRepLine}${junkLabel}
+$${cleanJunkPrice}
+${junkFlatRateLine}${junkRetrievalLine}${junkHourlyRetrievalLine}${junkArrival}
+${junkTruckSize} Ft Truck
+Payment methods:
+Cash, CashApp, Zelle`
         : `${salesRepLine}${serviceType}
 $${cleanQuotedPrice} Special
 ${arrivalWindow}
@@ -715,6 +800,7 @@ Card payment: 7% processing fee`;
                       { id: 'carpet', label: 'Carpet / Upholstery' },
                       { id: 'duct', label: 'Duct Cleaning' },
                       { id: 'moving', label: 'Moving' },
+                      { id: 'junk', label: 'Junk Removal' },
                     ].map((item) => (
                       <button
                         key={item.id}
@@ -758,10 +844,14 @@ Card payment: 7% processing fee`;
             <div style={{ ...cardStyle, padding: isMobile ? 16 : 22 }}>
               <div style={sectionTitleStyle}>Step 2</div>
               <div style={{ fontSize: isMobile ? 21 : 24, fontWeight: 900, marginBottom: 18 }}>
-                {mode === 'moving' ? 'Set the moving block rate' : 'Set the service and price'}
+                {mode === 'moving'
+                  ? 'Set the moving block rate'
+                  : mode === 'junk'
+                  ? 'Set the junk removal pricing'
+                  : 'Set the service and price'}
               </div>
 
-              {mode !== 'moving' && (
+              {(mode === 'carpet' || mode === 'duct') && (
                 <>
                   <div style={presetGridStyle}>
                     {(mode === 'carpet' ? CARPET_PRESETS : DUCT_PRESETS).map((preset) => {
@@ -935,6 +1025,111 @@ Card payment: 7% processing fee`;
                         </button>
                       ))}
                     </div>
+                  </div>
+                </>
+              )}
+
+              {mode === 'junk' && (
+                <>
+                  <div style={presetGridStyle}>
+                    {JUNK_PRESETS.map((preset) => {
+                      const isActive = junkSpecial === preset.id;
+                      return (
+                        <button
+                          key={preset.id}
+                          onClick={() => applyJunkPreset(preset.id)}
+                          style={{
+                            ...softCardStyle,
+                            textAlign: 'left',
+                            padding: 14,
+                            cursor: 'pointer',
+                            border: `1px solid ${isActive ? colors.accent : colors.border}`,
+                            background: isActive ? colors.accentSoft : colors.soft,
+                            color: colors.text,
+                          }}
+                        >
+                          <div style={{ fontSize: 13, fontWeight: 800, color: colors.muted }}>{preset.label}</div>
+                          <div style={{ fontSize: 20, fontWeight: 900, marginTop: 4 }}>${preset.price}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div style={dualFieldGrid}>
+                    <div>
+                      <div style={labelStyle}>Load Description</div>
+                      <input
+                        style={inputStyle}
+                        value={junkLabel}
+                        onChange={(e) => setJunkLabel(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <div style={labelStyle}>Price ($)</div>
+                      <input
+                        style={inputStyle}
+                        value={junkPrice}
+                        onChange={(e) => setJunkPrice(sanitizeNumber(e.target.value))}
+                        inputMode="numeric"
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ ...movingFieldGrid, marginTop: 14 }}>
+                    <div>
+                      <div style={labelStyle}>Truck Size (ft)</div>
+                      <input
+                        style={inputStyle}
+                        value={junkTruckSize}
+                        onChange={(e) => setJunkTruckSize(sanitizeNumber(e.target.value))}
+                        inputMode="numeric"
+                      />
+                    </div>
+                    <div>
+                      <div style={labelStyle}>Flat Rate ($)</div>
+                      <input
+                        style={inputStyle}
+                        value={junkFlatRate}
+                        onChange={(e) => setJunkFlatRate(sanitizeNumber(e.target.value))}
+                        inputMode="numeric"
+                        placeholder="Optional"
+                      />
+                    </div>
+                    <div>
+                      <div style={labelStyle}>Retrieval Fee ($)</div>
+                      <input
+                        style={inputStyle}
+                        value={junkRetrievalFee}
+                        onChange={(e) => setJunkRetrievalFee(sanitizeNumber(e.target.value))}
+                        inputMode="numeric"
+                        placeholder="Optional"
+                      />
+                    </div>
+                    <div>
+                      <div style={labelStyle}>Hourly Retrieval Fee ($/hr)</div>
+                      <input
+                        style={inputStyle}
+                        value={junkHourlyRetrievalFee}
+                        onChange={(e) => setJunkHourlyRetrievalFee(sanitizeNumber(e.target.value))}
+                        inputMode="numeric"
+                        placeholder="Optional"
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: 14 }}>
+                    <div style={labelStyle}>Arrival Window</div>
+                    <select
+                      style={{ ...inputStyle, cursor: 'pointer' }}
+                      value={junkArrival}
+                      onChange={(e) => setJunkArrival(e.target.value)}
+                    >
+                      {ARRIVAL_WINDOWS.junk.map((windowText) => (
+                        <option key={windowText} value={windowText}>
+                          {windowText}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </>
               )}
