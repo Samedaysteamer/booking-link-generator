@@ -6,40 +6,52 @@ export default async function handler(req, res) {
     return;
   }
 
+  const errors = [];
+
+  // 1) TinyURL (primary)
   const apiToken = process.env.TINYURL_API_TOKEN;
-
-  if (!apiToken) {
-    res.status(500).json({ error: 'TINYURL_API_TOKEN is not set in your Vercel project env vars' });
-    return;
+  if (apiToken) {
+    try {
+      const tinyResponse = await fetch('https://api.tinyurl.com/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiToken}`,
+        },
+        body: JSON.stringify({ url, domain: 'tinyurl.com' }),
+      });
+      const payload = await tinyResponse.json().catch(() => ({}));
+      const shortUrl = payload?.data?.tiny_url;
+      if (tinyResponse.ok && shortUrl) {
+        res.status(200).json({ shortUrl, provider: 'tinyurl' });
+        return;
+      }
+      errors.push(`TinyURL: ${payload?.errors?.[0] || tinyResponse.status}`);
+    } catch (error) {
+      errors.push(`TinyURL: ${error.message}`);
+    }
+  } else {
+    errors.push('TinyURL: TINYURL_API_TOKEN not set');
   }
 
-  try {
-    const tinyResponse = await fetch('https://api.tinyurl.com/create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiToken}`,
-      },
-      body: JSON.stringify({ url, domain: 'tinyurl.com' }),
-    });
-
-    const payload = await tinyResponse.json();
-
-    if (!tinyResponse.ok) {
-      const message = payload?.errors?.[0] || payload?.error || 'TinyURL request failed';
-      res.status(tinyResponse.status).json({ error: message });
-      return;
+  // 2) is.gd / v.gd (backups, no key needed)
+  for (const host of ['is.gd', 'v.gd']) {
+    try {
+      const r = await fetch(
+        `https://${host}/create.php?format=simple&url=${encodeURIComponent(url)}`
+      );
+      const text = (await r.text()).trim();
+      if (r.ok && text.startsWith('https://')) {
+        res.status(200).json({ shortUrl: text, provider: host });
+        return;
+      }
+      errors.push(`${host}: ${text.slice(0, 120)}`);
+    } catch (error) {
+      errors.push(`${host}: ${error.message}`);
     }
-
-    const shortUrl = payload?.data?.tiny_url;
-
-    if (!shortUrl) {
-      res.status(500).json({ error: 'TinyURL did not return a short link' });
-      return;
-    }
-
-    res.status(200).json({ shortUrl });
-  } catch (error) {
-    res.status(500).json({ error: error.message || 'Failed to reach TinyURL' });
   }
+
+  // Everything failed
+  console.error('Shorten failed:', errors);
+  res.status(502).json({ error: 'All shorteners failed', details: errors });
 }
