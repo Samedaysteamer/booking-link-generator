@@ -657,7 +657,7 @@ Card payment: 7% processing fee`;
     setCopiedField('');
     setIsGenerating(true);
 
-    fetch(`/api/shorten?url=${encodeURIComponent(fullLink)}`)
+    fetch(`/api/shorten?url=${encodeURIComponent(fullLink)}&mode=${encodeURIComponent(mode)}`)
       .then((response) => response.json())
       .then(({ shortUrl }) => {
         setGeneratedLink(shortUrl || fullLink);
